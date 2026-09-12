@@ -1,0 +1,526 @@
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
+import CodeEditor from '../../components/CodeEditor';
+import { detectVirtualMachine } from '../../utils/vmDetection';
+
+const TestTaker = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+
+    // ── Test state ──────────────────────────────────────────────────────────
+    const [test, setTest] = useState(null);
+    const [testLoading, setTestLoading] = useState(true);
+    const [testError, setTestError] = useState(null);
+    const [currentQIndex, setCurrentQIndex] = useState(0);
+    const [answers, setAnswers] = useState({}); // { questionId: code | selectedOption }
+    const [markedForReview, setMarkedForReview] = useState({}); // { questionId: boolean }
+
+    // ── Editor state ────────────────────────────────────────────────────────
+    const [code, setCode] = useState('// Write your code here\n');
+    const [language, setLanguage] = useState('javascript');
+    const [theme, setTheme] = useState('vs-dark');
+    // ── Execution results state ──────────────────────────────────────────────
+    const [runResult, setRunResult] = useState(null);       // single run vs sample
+    const [submitResult, setSubmitResult] = useState(null); // all test cases scored
+    const [outputTab, setOutputTab] = useState('result');   // 'result' | 'submission'
+    const [isRunning, setIsRunning] = useState(false);
+    const [isSubmittingCode, setIsSubmittingCode] = useState(false);
+    const [expandedCase, setExpandedCase] = useState(null); // index of expanded row
+
+    // ── Timer state ─────────────────────────────────────────────────────────
+    const [timeLeft, setTimeLeft] = useState(null);
+    const timerRef = useRef(null);
+
+    // ── Submission state ──────────────────────────────────────────────────────
+    const [submissionId, setSubmissionId] = useState(null);
+    const [submissionResult, setSubmissionResult] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false);
+
+    // ── Security state ──────────────────────────────────────────────────────
+    const [securityLog, setSecurityLog] = useState([]);
+    const [showWarningModal, setShowWarningModal] = useState(false);
+    const [warningMessage, setWarningMessage] = useState('');
+    const [isFullscreen, setIsFullscreen] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [isEditorMaximized, setIsEditorMaximized] = useState(false);
+    const [showSubmitModal, setShowSubmitModal] = useState(false);
+    const [isFocused, setIsFocused] = useState(true);
+    const [mediaStream, setMediaStream] = useState(null);
+    const videoRef = useRef(null);
+
+    // ── VM detection state ───────────────────────────────────────────────────
+    // 'checking' | 'vm_blocked' | 'clear'
+    const [vmCheckStatus, setVmCheckStatus] = useState('checking');
+    const [vmInfo, setVmInfo] = useState(null);
+
+    // ── Fetch test + start submission ────────────────────────────────────────
+    useEffect(() => {
+        if (!id || id === 'mock') {
+            setVmCheckStatus('clear');
+            setTestLoading(false);
+            return;
+        }
+
+        // ── VM check runs FIRST — before creating any submission record ──
+        const vmResult = detectVirtualMachine();
+        if (vmResult.isVirtualMachine) {
+            setVmInfo(vmResult);
+            setVmCheckStatus('vm_blocked');
+            setTestLoading(false);
+            // Log to backend silently (non-blocking — no submissionId yet, best-effort)
+            api.post('/proctoring/vm-detection', {
+                submissionId: null,
+                ...vmResult,
+                detectedAt: new Date().toISOString()
+            }).catch(() => { });
+            return;
+        }
+        setVmCheckStatus('clear');
+
+        api.get(`/tests/${id}`)
+            .then(async res => {
+                if (res.data.success) {
+                    setTest(res.data.data);
+                    setTimeLeft(res.data.data.duration * 60);
+                    // Start a submission record on backend
+                    try {
+                        const subRes = await api.post(`/submissions/${id}/start`);
+                        if (subRes.data.success) {
+                            setSubmissionId(subRes.data.data._id);
+                        }
+                    } catch (subErr) {
+                        const msg = subErr?.response?.data?.msg || 'Could not start exam session.';
+                        setTestError(msg);
+                        setTest(null);
+                        return;
+                    }
+                } else {
+                    setTestError('Test not found.');
+                }
+            })
+            .catch(err => {
+                const status = err?.response?.status;
+                const msg = err?.response?.data?.msg;
+                if (status === 403) {
+                    if (msg?.includes('Maximum attempt limit')) {
+                        setTestError(`🚫 Max Attempts Reached: You have already completed this test the maximum allowed ${err.response?.data?.maxAttempts || 1} time(s).`);
+                    } else {
+                        setTestError('⚠️ This test is not published yet. Ask your teacher to publish it before you can take it.');
+                    }
+                } else if (status === 404) {
+                    setTestError('Test not found. The link may be invalid.');
+                } else {
+                    setTestError(msg || 'Failed to load test. Please check your connection and try again.');
+                }
+            })
+            .finally(() => setTestLoading(false));
+    }, [id]);
+
+    // ── Countdown timer ──────────────────────────────────────────────────────
+    useEffect(() => {
+        if (timeLeft === null) return;
+        if (timeLeft <= 0) {
+            handleAutoSubmit();
+            return;
+        }
+        timerRef.current = setTimeout(() => setTimeLeft(prev => prev - 1), 1000);
+        return () => clearTimeout(timerRef.current);
+    }, [timeLeft]);
+
+    const formatTime = (secs) => {
+        const h = Math.floor(secs / 3600);
+        const m = Math.floor((secs % 3600) / 60);
+        const s = secs % 60;
+        if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    };
+
+    const timerColor = timeLeft !== null && timeLeft < 300 ? 'text-red-400' : 'text-cyan-300';
+
+    // ── Answer tracking ──────────────────────────────────────────────────────
+    const currentQuestion = test?.questions?.[currentQIndex];
+
+    const handleCodeChange = (val) => {
+        setCode(val);
+        if (currentQuestion) {
+            setAnswers(prev => ({ ...prev, [currentQuestion._id]: val }));
+        }
+    };
+
+    const handleMCQAnswer = (option) => {
+        if (currentQuestion) {
+            setAnswers(prev => ({ ...prev, [currentQuestion._id]: option }));
+        }
+    };
+
+    const switchQuestion = (idx) => {
+        // Save current code answer before switching (for coding questions)
+        if (currentQuestion && currentQuestion.type?.toUpperCase() !== 'MCQ') {
+            setAnswers(prev => ({ ...prev, [currentQuestion._id]: code }));
+        }
+        setCurrentQIndex(idx);
+        const next = test?.questions?.[idx];
+        if (next && next.type?.toUpperCase() !== 'MCQ') {
+            setCode(answers[next._id] || '// Write your code here\n');
+        }
+        setRunResult(null);
+        setSubmitResult(null);
+        setOutputTab('result');
+        setExpandedCase(null);
+    };
+
+    const toggleMarkForReview = () => {
+        if (currentQuestion) {
+            setMarkedForReview(prev => ({
+                ...prev,
+                [currentQuestion._id]: !prev[currentQuestion._id]
+            }));
+        }
+    };
+
+    // ── Submit ────────────────────────────────────────────────────────────────
+    const doSubmit = async (isAuto = false) => {
+        clearTimeout(timerRef.current);
+        setSubmitLoading(true);
+        try {
+            if (submissionId) {
+                const answersArr = Object.entries(answers).map(([questionId, answerData]) => ({ questionId, answerData }));
+                const res = await api.post(`/submissions/${id}/submit/${submissionId}`, {
+                    answers: answersArr,
+                    isAutoSubmitted: isAuto
+                });
+                if (res.data.success) setSubmissionResult(res.data.data);
+            }
+        } catch (_) { /* show submitted screen anyway */ }
+        finally {
+            setSubmitLoading(false);
+            setSubmitted(true);
+            submittedRef.current = true;
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            if (document.fullscreenElement) {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+            }
+        }
+    };
+
+    const handleAutoSubmit = () => doSubmit(true);
+    const handleSubmit = () => {
+        setShowSubmitModal(true);
+    };
+
+    // ── Security hooks ───────────────────────────────────────────────────────
+    const submissionIdRef = useRef(null);
+    useEffect(() => { submissionIdRef.current = submissionId; }, [submissionId]);
+    const submittedRef = useRef(false);
+    useEffect(() => { submittedRef.current = submitted; }, [submitted]);
+
+    const logViolation = useCallback((type, message) => {
+        if (submittedRef.current) return;
+
+        const entry = { type, message, timestamp: new Date().toISOString() };
+        setSecurityLog(prev => [...prev, entry]);
+        setWarningMessage(message);
+        setShowWarningModal(true);
+        // ── Real-time backend logging ────────────────────────────────────────
+        const sid = submissionIdRef.current;
+        if (sid && id && id !== 'mock') {
+            api.patch(`/submissions/${sid}/proctor-event`, { type, message, timestamp: entry.timestamp })
+                .catch(() => { }); // silently ignore network errors
+        }
+    }, [id]);
+
+    // Clean up media stream on unmount
+    useEffect(() => {
+        return () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [mediaStream]);
+
+    const enterFullscreen = async () => {
+        if (!isMock) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                setMediaStream(stream);
+            } catch (err) {
+                alert('Camera and microphone permission is required to start the exam. Please allow access in your browser settings and try again.');
+                return;
+            }
+        }
+
+        const el = document.documentElement;
+        if (el.requestFullscreen) el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        setIsFullscreen(true);
+    };
+
+    useEffect(() => {
+        const onFC = () => {
+            const isFull = !!document.fullscreenElement;
+            setIsFullscreen(isFull);
+            if (!isFull) logViolation('FULLSCREEN_EXIT', '⚠️ You exited fullscreen mode. Please return immediately.');
+        };
+        document.addEventListener('fullscreenchange', onFC);
+        return () => document.removeEventListener('fullscreenchange', onFC);
+    }, [logViolation]);
+
+    useEffect(() => {
+        const handle = () => { 
+            setIsFocused(!document.hidden);
+            if (document.hidden) logViolation('TAB_SWITCH', '⚠️ Tab switch detected. Please stay on the exam tab.'); 
+        };
+        document.addEventListener('visibilitychange', handle);
+        return () => document.removeEventListener('visibilitychange', handle);
+    }, [logViolation]);
+
+    useEffect(() => {
+        const p = (e) => e.preventDefault();
+        document.addEventListener('contextmenu', p);
+        return () => document.removeEventListener('contextmenu', p);
+    }, []);
+
+    useEffect(() => {
+        const handle = (e) => {
+            const { ctrlKey, metaKey, shiftKey, key } = e;
+            const isCtrl = ctrlKey || metaKey;
+            if (key === 'F12') { e.preventDefault(); logViolation('DEV_TOOLS', '🚫 Developer tools are disabled.'); return; }
+            if (isCtrl && shiftKey && ['I', 'J', 'C'].includes(key)) { e.preventDefault(); logViolation('DEV_TOOLS', '🚫 Developer tools are disabled.'); return; }
+            if (isCtrl && key === 'c' && !e.target.closest('.monaco-editor')) { e.preventDefault(); logViolation('COPY_ATTEMPT', '🚫 Copying is prohibited.'); return; }
+            if (isCtrl && key === 'v' && !e.target.closest('.monaco-editor')) { e.preventDefault(); logViolation('PASTE_ATTEMPT', '🚫 Pasting is prohibited.'); return; }
+            if (isCtrl && (key === 'u' || key === 's')) e.preventDefault();
+        };
+        document.addEventListener('keydown', handle);
+        return () => document.removeEventListener('keydown', handle);
+    }, [logViolation]);
+
+    useEffect(() => {
+        const handleBlur = () => {
+            setIsFocused(false);
+            if (document.hidden) return; // already handled by visibilitychange
+            logViolation('FOCUS_LOST', '⚠️ Window lost focus. Close all other applications and notifications.');
+        };
+        const handleFocus = () => setIsFocused(true);
+        window.addEventListener('blur', handleBlur);
+        window.addEventListener('focus', handleFocus);
+        return () => {
+            window.removeEventListener('blur', handleBlur);
+            window.removeEventListener('focus', handleFocus);
+        };
+    }, [logViolation]);
+
+    useEffect(() => {
+        const handleKeyUp = (e) => {
+            if (e.key === 'PrintScreen') {
+                logViolation('SCREENSHOT', '⚠️ Screenshots are strictly prohibited during the exam.');
+                navigator.clipboard.writeText('Screenshots disabled').catch(() => { });
+            }
+            if (e.metaKey && e.shiftKey && (e.key === 's' || e.key === 'S')) {
+                logViolation('SCREENSHOT', '⚠️ Screenshots are strictly prohibited during the exam.');
+                navigator.clipboard.writeText('Screenshots disabled').catch(() => { });
+            }
+        };
+        window.addEventListener('keyup', handleKeyUp);
+        return () => window.removeEventListener('keyup', handleKeyUp);
+    }, [logViolation]);
+
+    const handleEditorDidMount = (editor, monaco) => {
+        editor.onKeyDown((e) => {
+            if ((e.ctrlKey || e.metaKey) && e.keyCode === monaco.KeyCode.KeyV) {
+                e.preventDefault(); e.stopPropagation();
+                logViolation('PASTE_ATTEMPT', '🚫 Pasting code is prohibited during the exam.');
+            }
+        });
+    };
+
+    const langMap = { javascript: 63, python: 71, cpp: 54, java: 62, c: 50 };
+
+    // ▶ Run against the first visible sample test case (fast feedback)
+    const handleRun = async () => {
+        if (isMock) {
+            setRunResult({ mock: true, stdout: 'Hello World!', status: { id: 3, description: 'Accepted' }, time: '0.10', memory: 1024, expectedOutput: '', input: '' });
+            setOutputTab('result');
+            return;
+        }
+        if (!currentQuestion || currentQuestion.type?.toUpperCase() === 'MCQ') return;
+        setIsRunning(true);
+        setOutputTab('result');
+        const sampleTc = (currentQuestion.testCases || []).find(tc => !tc.isHidden);
+        const stdin = sampleTc?.input || '';
+        try {
+            const res = await api.post('/execute/run', {
+                source_code: code,
+                language_id: langMap[language] || 63,
+                stdin
+            });
+            if (res.data.success) {
+                const d = res.data.data;
+                const actualOutput = (d.stdout || '').trim();
+                const expectedOutput = (sampleTc?.output || '').trim();
+                const passed = expectedOutput ? actualOutput === expectedOutput : null;
+                setRunResult({ input: stdin, expectedOutput, actualOutput, passed, time: d.time, memory: d.memory, status: d.status, stderr: d.stderr, compile_output: d.compile_output });
+            }
+        } catch (err) {
+            setRunResult({ error: err.response?.data?.msg || err.message });
+        } finally {
+            setIsRunning(false);
+        }
+    };
+
+    // ✅ Submit against ALL test cases (scored)
+    const handleSubmitCode = async () => {
+        if (isMock) {
+            setSubmitResult({ mock: true, passedCount: 1, totalCases: 2, scoreAwarded: 5, maxMarks: 10, results: [{ passed: true, input: 'hello', expectedOutput: 'olleh', actualOutput: 'olleh', time: '0.05', memory: 512, statusDescription: 'Accepted', isHidden: false }, { passed: false, input: '', expectedOutput: '', actualOutput: '', time: '0.00', memory: 0, statusDescription: 'Wrong Answer', isHidden: true }] });
+            setOutputTab('submission');
+            return;
+        }
+        if (!currentQuestion || currentQuestion.type?.toUpperCase() === 'MCQ') return;
+        setIsSubmittingCode(true);
+        setOutputTab('submission');
+        try {
+            const res = await api.post('/execute/submit', {
+                source_code: code,
+                language_id: langMap[language] || 63,
+                questionId: currentQuestion._id
+            });
+            if (res.data.success) setSubmitResult(res.data.data);
+        } catch (err) {
+            setSubmitResult({ error: err.response?.data?.msg || err.message });
+        } finally {
+            setIsSubmittingCode(false);
+        }
+    };
+
+    // ── VM Blocked screen ────────────────────────────────────────────────────
+    if (vmCheckStatus === 'vm_blocked') {
+        return (
+            <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(2,6,23,0.8)', fontFamily: 'system-ui, sans-serif' }}>
+                <div style={{ background: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(12px)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 24, padding: '48px 40px', textAlign: 'center', maxWidth: 520, width: '90%', boxShadow: '0 30px 80px rgba(0,0,0,0.6)' }}>
+                    {/* Shield icon */}
+                    <div style={{ width: 88, height: 88, background: 'rgba(239,68,68,0.12)', border: '2px solid rgba(239,68,68,0.35)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                        <svg style={{ width: 44, height: 44, color: '#ef4444' }} fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                            <path strokeLinecap='round' strokeLinejoin='round' strokeWidth='1.8'
+                                d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' />
+                        </svg>
+                    </div>
+
+                    <h1 style={{ color: '#ef4444', fontSize: 26, fontWeight: 800, marginBottom: 8, letterSpacing: '-0.5px' }}>Virtual Machine Detected</h1>
+                    <p style={{ color: '#fca5a5', fontSize: 15, marginBottom: 28, lineHeight: 1.6 }}>
+                        This exam cannot be taken inside a virtual machine or emulated environment.
+                        Please use a physical device to continue.
+                    </p>
+
+                    {/* Technical details */}
+                    <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, padding: '16px 20px', marginBottom: 28, textAlign: 'left' }}>
+                        <p style={{ color: '#f87171', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>Detection Details</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                            {[['GPU Renderer', vmInfo?.renderer || '—'], ['Vendor', vmInfo?.vendor || '—'], ['Matched Signal', vmInfo?.matchedIndicator || '—']].map(([label, val]) => (
+                                <div key={label} style={{ gridColumn: label === 'Matched Signal' ? 'span 2' : 'span 1' }}>
+                                    <span style={{ color: '#9ca3af', fontSize: 11, display: 'block', marginBottom: 2 }}>{label}</span>
+                                    <span style={{ color: '#f1f5f9', fontSize: 12, fontFamily: 'monospace', wordBreak: 'break-all' }}>{val}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 24, lineHeight: 1.6 }}>
+                        This violation has been automatically reported to your examiner.
+                        If you believe this is a mistake, please contact your exam administrator.
+                    </p>
+
+                    <button
+                        onClick={() => navigate('/student/exams')}
+                        style={{ width: '100%', padding: '14px 0', background: 'linear-gradient(135deg, #dc2626, #b91c1c)', color: '#fff', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', letterSpacing: '0.02em' }}
+                    >
+                        Return to Exam List
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // ── Submitted screen ─────────────────────────────────────────────────────
+    if (submitted) {
+        const score = submissionResult?.totalMarks ?? null;
+        const pct = submissionResult?.percentile ?? null;
+        const rank = submissionResult?.rank ?? null;
+        return (
+            <div className="h-screen flex items-center justify-center" style={{ background: 'transparent' }}>
+                <div style={{ background: 'rgba(255,255,255,0.05)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 24, padding: 48, textAlign: 'center', maxWidth: 480, width: '90%', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}>
+                    {submitLoading ? (
+                        <>
+                            <div style={{ width: 56, height: 56, border: '4px solid rgba(139,113,255,0.3)', borderTopColor: '#8B71FF', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+                            <p style={{ color: '#a0a0b0' }}>Submitting your exam...</p>
+                            <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+                        </>
+                    ) : (
+                        <>
+                            <div style={{ width: 80, height: 80, background: 'rgba(74,222,128,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px', border: '2px solid rgba(74,222,128,0.3)' }}>
+                                <svg style={{ width: 40, height: 40, color: '#4ade80' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h2 style={{ color: '#fff', fontSize: 26, fontWeight: 800, marginBottom: 8 }}>Exam Submitted! 🎉</h2>
+                            <p style={{ color: '#a0a0b0', marginBottom: 24 }}>Your response has been recorded.</p>
+
+                            {score !== null && (
+                                <div style={{ display: 'grid', gridTemplateColumns: pct !== null ? '1fr 1fr 1fr' : '1fr', gap: 12, marginBottom: 28 }}>
+                                    {[['Score', score, '#8B71FF'], ...(pct !== null ? [['Percentile', `${pct}%`, '#4ade80'], ['Rank', `#${rank}`, '#ffaa00']] : [])].map(([label, val, color]) => (
+                                        <div key={label} style={{ background: 'rgba(255,255,255,0.06)', borderRadius: 14, padding: 16 }}>
+                                            <div style={{ color, fontSize: 26, fontWeight: 800 }}>{val}</div>
+                                            <div style={{ color: '#a0a0b0', fontSize: 12, marginTop: 4 }}>{label}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            <p style={{ color: '#6b7280', fontSize: 14, marginBottom: 24 }}>You answered {Object.keys(answers).length} of {test?.questions?.length ?? 0} questions.</p>
+                            <button onClick={() => navigate('/student')} style={{ width: '100%', padding: '14px 0', background: 'linear-gradient(135deg, #8B71FF, #6c4fe8)', color: '#fff', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 700, cursor: 'pointer' }}>
+                                Return to Dashboard
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    // ── Loading / error ──────────────────────────────────────────────────────
+    if (testLoading) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-transparent relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNTQuNjI3IDU0LjYyN3YtLjAwMWMtMi41NTYgMi41NTYtNi43NiAyLjU1Ni05LjMxNiAwTDMyLjYyNyA0MS45NDJjLTIuNTU2IDIuNTU2LTYuNzYgMi41NTYtOS4zMTYgMEwyLjYyNyAxOS4yNjdjLTMuNTA1LTMuNTA4LTMuNTA4LTkuMTk4IDAtMTIuNzA2bC0uMDAxLS4wMDFjMy41MDUtMy41MDggOS4xOTgtMy41MDggMTIuNzA2IDBsMjAuNjg0IDIwLjY4M2MyLjU1NiAyLjU1NiA2Ljc2IDIuNTU2IDkuMzE2IDBMNTQuNjI3IDQuNjI3YzMuNTA1IDMuNTA4IDMuNTA4IDkuMTk4IDAgMTIuNzA2bC0uMDAxLS4wMDFDMzkuODM0IDMxLjkxIDM5LjgzNCAzNy42IDUzLjMzOSA1MTEuMTE1IGwuMDAxLS4wMDFjMy41MDUtMy41MDggOS4xOTgtMy41MDggMTIuNzA2IDB6IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4=')] opacity-20 pointer-events-none"></div>
+
+                <div className="text-center z-10">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)] mx-auto mb-5"></div>
+                    <p className="text-cyan-100/70 font-bold uppercase tracking-widest text-sm">Initializing Secure Exam...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (testError) {
+        return (
+            <div className="h-screen flex items-center justify-center bg-transparent relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNTQuNjI3IDU0LjYyN3YtLjAwMWMtMi41NTYgMi41NTYtNi43NiAyLjU1Ni05LjMxNiAwTDMyLjYyNyA0MS45NDJjLTIuNTU2IDIuNTU2LTYuNzYgMi41NTYtOS4zMTYgMEwyLjYyNyAxOS4yNjdjLTMuNTA1LTMuNTA4LTMuNTA4LTkuMTk4IDAtMTIuNzA2bC0uMDAxLS4wMDFjMy41MDUtMy41MDggOS4xOTgtMy41MDggMTIuNzA2IDBsMjAuNjg0IDIwLjY4M2MyLjU1NiAyLjU1NiA2Ljc2IDIuNTU2IDkuMzE2IDBMNTQuNjI3IDQuNjI3YzMuNTA1IDMuNTA4IDMuNTA4IDkuMTk4IDAgMTIuNzA2bC0uMDAxLS4wMDFDMzkuODM0IDMxLjkxIDM5LjgzNCAzNy42IDUzLjMzOSA1MTEuMTE1IGwuMDAxLS4wMDFjMy41MDUtMy41MDggOS4xOTgtMy41MDggMTIuNzA2IDB6IiBmaWxsPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiLz48L3N2Zz4=')] opacity-20 pointer-events-none"></div>
+
+                <div className="neo-panel bg-white border-2 border-red-500 shadow-[4px_4px_0_0_#ef4444] p-10 text-center max-w-md relative z-10 mx-5">
+                    <div className="text-red-400 text-5xl mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">⚠️</div>
+                    <h2 className="text-xl font-black text-[#000B1A] mb-2 drop-shadow-sm">Unable to Load Exam</h2>
+                    <p className="text-red-300 font-medium text-sm mb-8">{testError}</p>
+                    <button onClick={() => navigate('/student/exams')} className="w-full neo-button border-red-500 text-red-500 hover:shadow-[4px_4px_0_0_#ef4444] font-bold px-6 py-3">
+                        Back to Exam Selection
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const warningCount = securityLog.length;
+    const isMock = !id || id === 'mock';
+    const questions = test?.questions ?? [];
+
