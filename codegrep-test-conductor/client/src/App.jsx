@@ -43,10 +43,13 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   return children;
 };
 
+const rawBase = import.meta.env.BASE_URL || '/lms';
+const basename = rawBase.endsWith('/') && rawBase !== '/' ? rawBase.slice(0, -1) : rawBase;
+
 const App = () => {
   return (
     <AuthProvider>
-      <Router basename={import.meta.env.BASE_URL || '/lms'}>
+      <Router basename={basename}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
@@ -96,6 +99,8 @@ const App = () => {
             <Route path="submissions" element={<MySubmissions />} />
             <Route path="profile" element={<StudentProfile />} />
           </Route>
+
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>
