@@ -16,9 +16,13 @@ module.exports = (passport) => {
         return;
     }
 
+    const BASE_URL = process.env.BASE_URL || '/lms';
+    const defaultCallback = `${BASE_URL}/api/auth/google/callback`.replace(/\/+/g, '/');
+    const callbackURL = process.env.GOOGLE_CALLBACK_URL || defaultCallback;
+
     passport.use(
         new GoogleStrategy(
-            { clientID, clientSecret, callbackURL: '/api/auth/google/callback' },
+            { clientID, clientSecret, callbackURL },
             async (accessToken, refreshToken, profile, done) => {
                 try {
                     let user = await User.findOne({ googleId: profile.id });
