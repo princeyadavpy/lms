@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Web3Layout } from '../../components/layout/Web3Layout';
+import companyLogo from '../../assets/company-logo.png';
 
 const Register = () => {
     const { register } = useContext(AuthContext);
@@ -69,7 +70,7 @@ const Register = () => {
                     <div className="flex flex-col items-center text-center mb-7">
                         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
                             style={{ background: 'rgba(124,92,252,0.1)', border: '1px solid rgba(124,92,252,0.2)' }}>
-                            <img src="/company-logo.png" alt="HiGen Labs" className="w-10 h-10 object-contain" />
+                            <img src={companyLogo} alt="HiGen Labs" className="w-10 h-10 object-contain" />
                         </div>
                         <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Create Account</h2>
                         <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Join HiGen Labs as a Student</p>

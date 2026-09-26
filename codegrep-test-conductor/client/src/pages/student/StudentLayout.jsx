@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { Web3Background } from '../../components/layout/Web3Background';
+import companyLogo from '../../assets/company-logo.png';
 
 const NAV_ITEMS = [
     {
@@ -55,7 +56,7 @@ const StudentLayout = () => {
                 <div className="flex items-center gap-3 px-5 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                         style={{ background: 'rgba(0,212,170,0.12)', border: '1px solid rgba(0,212,170,0.2)' }}>
-                        <img src="/company-logo.png" alt="HiGen Labs" className="w-6 h-6 object-contain" />
+                        <img src={companyLogo} alt="HiGen Labs" className="w-6 h-6 object-contain" />
                     </div>
                     <div className="flex flex-col leading-none">
                         <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>HiGen Labs</span>

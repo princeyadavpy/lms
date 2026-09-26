@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { Web3Background } from '../../components/layout/Web3Background';
+import companyLogo from '../../assets/company-logo.png';
 
 const NAV_ITEMS = [
     { to: '/admin', label: 'Dashboard', icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /> },
@@ -45,7 +46,7 @@ const AdminLayout = () => {
                 <div className="flex items-center gap-3 px-5 py-5" style={{ borderBottom: '1px solid var(--border)' }}>
                     <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                         style={{ background: 'rgba(79,142,247,0.12)', border: '1px solid rgba(79,142,247,0.2)' }}>
-                        <img src="/company-logo.png" alt="HiGen Labs" className="w-6 h-6 object-contain" />
+                        <img src={companyLogo} alt="HiGen Labs" className="w-6 h-6 object-contain" />
                     </div>
                     <div className="flex flex-col leading-none">
                         <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>HiGen Labs</span>

@@ -268,7 +268,7 @@ exports.getAllSubmissions = async (req, res) => {
         const submissions = await Submission.find()
             .populate('studentId', 'name email')
             .populate('testId', 'title questions')
-            .populate('answers.questionId', 'title')
+            .populate('answers.questionId')
             .sort({ createdAt: -1 });
         res.status(200).json({ success: true, data: submissions });
     } catch (err) {
@@ -372,7 +372,7 @@ exports.exportSubmissionsToExcel = async (req, res) => {
 exports.gradeSubmissionAnswer = async (req, res) => {
     try {
         const { id, questionId } = req.params;
-        const { marks } = req.body;
+        const { marks, feedback } = req.body;
 
         if (marks == null || isNaN(marks)) {
             return res.status(400).json({ success: false, msg: 'Invalid marks provided' });
@@ -394,6 +394,8 @@ exports.gradeSubmissionAnswer = async (req, res) => {
         // Apply new marks and status
         const oldMarks = submission.answers[answerIndex].marksAwarded || 0;
         submission.answers[answerIndex].marksAwarded = Number(marks);
+        if (feedback !== undefined) submission.answers[answerIndex].teacherFeedback = String(feedback);
+        submission.answers[answerIndex].evaluatedBy = req.user?._id || req.user?.id || null;
         submission.answers[answerIndex].status = 'Evaluated';
 
         // Recalculate total marks

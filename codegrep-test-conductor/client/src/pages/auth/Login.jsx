@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { Web3Layout } from '../../components/layout/Web3Layout';
+import companyLogo from '../../assets/company-logo.png';
 
 const Login = () => {
     const { login } = useContext(AuthContext);
@@ -61,7 +62,7 @@ const Login = () => {
                         <div className="relative mb-5">
                             <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
                                 style={{ background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.2)' }}>
-                                <img src="/company-logo.png" alt="HiGen Labs" className="w-10 h-10 object-contain" />
+                                <img src={companyLogo} alt="HiGen Labs" className="w-10 h-10 object-contain" />
                             </div>
                         </div>
                         <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Welcome Back</h2>

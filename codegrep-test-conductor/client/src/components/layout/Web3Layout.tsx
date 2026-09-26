@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Web3Background } from "./Web3Background";
+import companyLogo from "../../assets/company-logo.png";
 
 export function Web3Layout({ children }: { children: React.ReactNode }) {
     const [isMounted, setIsMounted] = useState(false);
@@ -30,7 +31,7 @@ export function Web3Layout({ children }: { children: React.ReactNode }) {
                 <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4 md:px-8">
                     <Link to="/" className="flex items-center gap-3 group">
                         <div className="relative">
-                            <img src="/company-logo.png" alt="HiGen Labs Logo" className="w-9 h-9 object-contain rounded-lg" />
+                            <img src={companyLogo} alt="HiGen Labs Logo" className="w-9 h-9 object-contain rounded-lg" />
                             <div className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(0,212,170,0.15)', boxShadow: '0 0 12px rgba(0,212,170,0.3)' }} />
                         </div>
                         <div className="flex flex-col leading-none">

@@ -5,6 +5,8 @@ const answerSchema = new mongoose.Schema({
     type: { type: String, enum: ['MCQ', 'Coding'], required: true },
     answerData: { type: mongoose.Schema.Types.Mixed }, // String for MCQ, {language, code} for coding
     marksAwarded: { type: Number, default: 0 },
+    teacherFeedback: { type: String, default: '' },   // Manual review comments/feedback
+    evaluatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     aiScore: { type: Number, default: null },      // AI-based code quality / answer score
     timeTaken: { type: Number, default: 0 },         // seconds spent on this question
     status: { type: String, enum: ['Pending', 'Evaluated', 'Error'], default: 'Pending' }

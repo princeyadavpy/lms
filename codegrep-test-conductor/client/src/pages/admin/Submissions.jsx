@@ -6,110 +6,511 @@ const statusBadge = (status) => {
     return `px-2.5 py-1 rounded-none border-2 border-[#000B1A] text-xs font-black shadow-[2px_2px_0_0_#000B1A] ${colors[status] || 'bg-white text-[#000B1A]'}`;
 };
 
-const riskColor = (level) => {
-    if (!level) return 'text-[#000B1A]/70';
-    if (level === 'High') return 'text-red-600 font-bold';
-    if (level === 'Medium') return 'text-orange-500 font-semibold';
-    return 'text-green-600';
+const LANG_MAP = {
+    python: { id: 100, name: 'Python (3.12.5)' },
+    cpp: { id: 105, name: 'C++ (GCC 14.1.0)' },
+    java: { id: 91, name: 'Java (JDK 17.0.6)' },
+    javascript: { id: 97, name: 'JavaScript (Node 20)' },
+    c: { id: 103, name: 'C (GCC 14.1.0)' },
+    typescript: { id: 101, name: 'TypeScript (5.6.2)' },
+    go: { id: 106, name: 'Go (1.22.0)' },
 };
 
-// ── Answer Viewer Modal ──────────────────────────────────────────────────────
+// ── Manual Code Inspection, Grading & Judge0 Live Sandbox Modal ───────────────
 function AnswerViewer({ answer, onClose, onGrade }) {
-    const [marks, setMarks] = useState(answer?.marks != null ? answer.marks : '');
+    const [marks, setMarks] = useState(answer?.marks != null ? answer.marks : (answer?.marksAwarded != null ? answer.marksAwarded : ''));
+    const [feedback, setFeedback] = useState(answer?.teacherFeedback || '');
     const [isGrading, setIsGrading] = useState(false);
+    const [gradeSuccess, setGradeSuccess] = useState(false);
+    const [activeTab, setActiveTab] = useState('solution'); // 'solution' | 'runner'
+
+    // Runner state
+    const isCoding = answer?.type === 'Coding';
+    const initialCode = isCoding
+        ? (typeof answer?.answerData === 'string' ? answer.answerData : (answer?.answerData?.code || ''))
+        : String(answer?.answerData || '');
+    const initialLang = isCoding
+        ? (typeof answer?.answerData === 'string' ? 'javascript' : (answer?.answerData?.language || 'javascript'))
+        : 'javascript';
+
+    const [runCodeVal, setRunCodeVal] = useState(initialCode);
+    const [runLang, setRunLang] = useState(initialLang);
+    const [stdinVal, setStdinVal] = useState('');
+    const [expectedOutputVal, setExpectedOutputVal] = useState('');
+    const [isRunning, setIsRunning] = useState(false);
+    const [isTestingAll, setIsTestingAll] = useState(false);
+    const [runOutput, setRunOutput] = useState(null); // single run result
+    const [allCasesOutput, setAllCasesOutput] = useState(null); // full submit test cases result
+    const [consoleSubTab, setConsoleSubTab] = useState('stdout'); // 'stdout' | 'stderr' | 'compile' | 'cases'
 
     useEffect(() => {
-        setMarks(answer?.marks != null ? answer.marks : '');
+        setMarks(answer?.marks != null ? answer.marks : (answer?.marksAwarded != null ? answer.marksAwarded : ''));
+        setFeedback(answer?.teacherFeedback || '');
+        setGradeSuccess(false);
+
+        const c = isCoding
+            ? (typeof answer?.answerData === 'string' ? answer.answerData : (answer?.answerData?.code || ''))
+            : String(answer?.answerData || '');
+        const l = isCoding
+            ? (typeof answer?.answerData === 'string' ? 'javascript' : (answer?.answerData?.language || 'javascript'))
+            : 'javascript';
+        setRunCodeVal(c);
+        setRunLang(l);
+        setRunOutput(null);
+        setAllCasesOutput(null);
+
+        // Pre-fill stdin with first test case if available
+        const qObj = answer?.questionId;
+        if (qObj && typeof qObj === 'object' && Array.isArray(qObj.testCases) && qObj.testCases.length > 0) {
+            setStdinVal(qObj.testCases[0].input || '');
+            setExpectedOutputVal(qObj.testCases[0].output || '');
+        } else {
+            setStdinVal('');
+            setExpectedOutputVal('');
+        }
     }, [answer]);
 
     if (!answer) return null;
 
-    const isCoding = answer.type === 'Coding';
-    // answerData for coding is { language, code } in newer submissions, or a raw string in older ones
-    const code = isCoding 
-        ? (typeof answer.answerData === 'string' ? answer.answerData : (answer.answerData?.code || ''))
-        : String(answer.answerData || '');
-    const language = isCoding 
-        ? (typeof answer.answerData === 'string' ? 'unknown' : (answer.answerData?.language || 'text')) 
-        : 'text';
+    const questionObj = typeof answer.questionId === 'object' ? answer.questionId : null;
+    const qTitle = questionObj?.title || `Question ID: ${answer.questionId}`;
+    const maxMarks = questionObj?.marks || 10;
+    const testCases = questionObj?.testCases || [];
+
+    // ▶ Run Single Test Input against Judge0
+    const handleRunSingle = async () => {
+        setIsRunning(true);
+        setRunOutput(null);
+        setAllCasesOutput(null);
+        try {
+            const langId = LANG_MAP[runLang]?.id || 97;
+            const res = await api.post('/execute/run', {
+                source_code: runCodeVal,
+                language_id: langId,
+                stdin: stdinVal
+            });
+            if (res.data.success) {
+                setRunOutput(res.data.data);
+                if (res.data.data.compile_output) setConsoleSubTab('compile');
+                else if (res.data.data.stderr) setConsoleSubTab('stderr');
+                else setConsoleSubTab('stdout');
+            }
+        } catch (err) {
+            setRunOutput({
+                status: { id: 13, description: 'Internal Error' },
+                stderr: err.response?.data?.msg || err.message
+            });
+            setConsoleSubTab('stderr');
+        } finally {
+            setIsRunning(false);
+        }
+    };
+
+    // 🧪 Run Against ALL Question Test Cases via Judge0
+    const handleRunAllCases = async () => {
+        if (!questionObj?._id) return alert('Question details not fully loaded for test case execution.');
+        setIsTestingAll(true);
+        setRunOutput(null);
+        setAllCasesOutput(null);
+        try {
+            const langId = LANG_MAP[runLang]?.id || 97;
+            const res = await api.post('/execute/submit', {
+                source_code: runCodeVal,
+                language_id: langId,
+                questionId: questionObj._id
+            });
+            if (res.data.success) {
+                setAllCasesOutput(res.data.data);
+                setConsoleSubTab('cases');
+            }
+        } catch (err) {
+            alert(err.response?.data?.msg || 'Failed to execute test cases');
+        } finally {
+            setIsTestingAll(false);
+        }
+    };
+
+    // Submit manual grading & feedback
+    const handleSaveManualEvaluation = async () => {
+        if (marks === '') return alert('Please enter marks before saving evaluation');
+        setIsGrading(true);
+        setGradeSuccess(false);
+        try {
+            await onGrade(answer.questionId?._id || answer.questionId, Number(marks), feedback);
+            setGradeSuccess(true);
+            setTimeout(() => setGradeSuccess(false), 3000);
+        } catch (err) {
+            alert(err.response?.data?.msg || 'Failed to save manual evaluation');
+        } finally {
+            setIsGrading(false);
+        }
+    };
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-white/80">
-            <div className="neo-panel border-[#000B1A] w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+            <div className="neo-panel border-[#000B1A] bg-white w-full max-w-5xl max-h-[94vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
                 {/* Header */}
-                <div className="px-6 py-4 border-b-2 border-[#000B1A] bg-white flex items-center justify-between">
+                <div className="px-6 py-4 border-b-2 border-[#000B1A] bg-white flex flex-wrap items-center justify-between gap-3">
                     <div>
                         <h3 className="text-lg font-black text-[#000B1A] flex items-center gap-2 tracking-widest uppercase">
-                            {isCoding ? '💻 Student Code' : '📝 Student Answer'}
+                            🔍 Manual Code Inspection & Review
                             <span className="text-xs font-bold text-[#000B1A] bg-white border-2 border-[#000B1A] px-2 py-0.5 rounded-none uppercase tracking-wider shadow-[2px_2px_0_0_#000B1A]">
-                                {isCoding ? language : 'MCQ'}
+                                {isCoding ? runLang : 'MCQ'}
                             </span>
                         </h3>
-                        <p className="text-xs text-[#000B1A]/70 mt-0.5 font-bold">Question ID: {answer.questionId}</p>
+                        <p className="text-xs text-[#000B1A]/80 mt-0.5 font-bold truncate max-w-xl">{qTitle}</p>
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="p-2 hover:bg-[#000B1A]/5 rounded-none text-[#000B1A] transition-all"
-                    >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+
+                    {/* Mode Tabs */}
+                    <div className="flex items-center gap-2">
+                        {isCoding && (
+                            <div className="flex border-2 border-[#000B1A] rounded-none overflow-hidden shadow-[2px_2px_0_0_#000B1A]">
+                                <button
+                                    onClick={() => setActiveTab('solution')}
+                                    className={`px-3 py-1.5 text-xs font-black uppercase tracking-wider transition-colors ${activeTab === 'solution' ? 'bg-[#3b82f6] text-[#000B1A]' : 'bg-white text-[#000B1A] hover:bg-[#000B1A]/5'}`}
+                                >
+                                    📜 Manual Code Inspection
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('runner')}
+                                    className={`px-3 py-1.5 text-xs font-black uppercase tracking-wider transition-colors ${activeTab === 'runner' ? 'bg-[#10b981] text-[#000B1A]' : 'bg-white text-[#000B1A] hover:bg-[#000B1A]/5'}`}
+                                >
+                                    ⚡ Test Sandbox (Judge0)
+                                </button>
+                            </div>
+                        )}
+                        <button
+                            onClick={onClose}
+                            className="p-2 hover:bg-[#000B1A]/5 rounded-none text-[#000B1A] transition-all font-black border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A]"
+                        >
+                            ✕
+                        </button>
+                    </div>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 overflow-auto p-6 bg-white">
-                    {isCoding ? (
-                        <div className="relative rounded-none border-2 border-[#000B1A] bg-[#1e1e1e] overflow-hidden shadow-[4px_4px_0_0_#000B1A]">
-                            <div className="absolute top-3 right-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest pointer-events-none select-none">
-                                {language}
-                            </div>
-                            <pre className="p-5 font-mono text-sm leading-relaxed text-slate-300 overflow-x-auto">
-                                <code>{code}</code>
-                            </pre>
+                {/* Body Content */}
+                <div className="flex-1 overflow-auto p-6 bg-white space-y-4">
+                    {/* Tab 1: Manual Inspection & Grading */}
+                    {activeTab === 'solution' && (
+                        <div className="space-y-4">
+                            {isCoding ? (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                                    {/* Left 2 Cols: Student Code View with Line Numbers */}
+                                    <div className="md:col-span-2 space-y-3">
+                                        <div className="flex justify-between items-center bg-[#000B1A] text-white px-4 py-2 border-2 border-[#000B1A]">
+                                            <span className="text-xs font-black uppercase tracking-wider">Student Code Submission</span>
+                                            <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">{runLang}</span>
+                                        </div>
+
+                                        <div className="relative rounded-none border-2 border-[#000B1A] bg-[#1e1e1e] overflow-hidden shadow-[4px_4px_0_0_#000B1A]">
+                                            <pre className="p-5 font-mono text-xs leading-relaxed text-slate-200 overflow-x-auto max-h-[380px]">
+                                                <code>{initialCode}</code>
+                                            </pre>
+                                        </div>
+
+                                        {questionObj?.description && (
+                                            <div className="border-2 border-[#000B1A] p-4 bg-white shadow-[4px_4px_0_0_#000B1A]">
+                                                <h4 className="text-xs font-black text-[#000B1A] uppercase tracking-wider mb-1">Problem Description</h4>
+                                                <p className="text-xs font-bold text-[#000B1A]/80 whitespace-pre-wrap">{questionObj.description}</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Right 1 Col: Manual Evaluation & Feedback Form */}
+                                    <div className="border-2 border-[#000B1A] bg-slate-50 p-5 shadow-[4px_4px_0_0_#000B1A] space-y-4 flex flex-col">
+                                        <h4 className="text-xs font-black text-[#000B1A] uppercase tracking-widest border-b-2 border-[#000B1A] pb-2">
+                                            ✏️ Manual Evaluation
+                                        </h4>
+
+                                        <div>
+                                            <label className="block text-[10px] font-black text-[#000B1A] uppercase tracking-wider mb-1">
+                                                Awarded Score (Max {maxMarks} pts)
+                                            </label>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    max={maxMarks}
+                                                    value={marks}
+                                                    onChange={(e) => setMarks(e.target.value)}
+                                                    className="w-full px-3 py-2 border-2 border-[#000B1A] text-base font-black bg-white text-[#000B1A] shadow-[2px_2px_0_0_#000B1A] focus:outline-none"
+                                                    placeholder="Score"
+                                                />
+                                                <span className="text-xs font-black text-[#000B1A] whitespace-nowrap">/ {maxMarks} pts</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 flex flex-col">
+                                            <label className="block text-[10px] font-black text-[#000B1A] uppercase tracking-wider mb-1">
+                                                Teacher Feedback &amp; Review Notes
+                                            </label>
+                                            <textarea
+                                                value={feedback}
+                                                onChange={(e) => setFeedback(e.target.value)}
+                                                rows={6}
+                                                placeholder="Enter review comments for the student (e.g. Clean solution, good time complexity O(N). Missing null check)..."
+                                                className="w-full p-3 text-xs font-bold border-2 border-[#000B1A] bg-white text-[#000B1A] shadow-[2px_2px_0_0_#000B1A] focus:outline-none resize-none flex-1"
+                                            />
+                                        </div>
+
+                                        {gradeSuccess && (
+                                            <div className="bg-[#10b981] border-2 border-[#000B1A] text-[#000B1A] p-2 text-xs font-black text-center shadow-[2px_2px_0_0_#000B1A]">
+                                                ✓ Evaluation Saved Successfully!
+                                            </div>
+                                        )}
+
+                                        <button
+                                            onClick={handleSaveManualEvaluation}
+                                            disabled={isGrading}
+                                            className="neo-button !bg-[#10b981] w-full py-2.5 text-xs font-black uppercase tracking-wider disabled:opacity-50"
+                                        >
+                                            {isGrading ? 'Saving Evaluation...' : '✓ Save Manual Evaluation'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="bg-white rounded-none border-2 border-[#000B1A] p-8 text-center shadow-[4px_4px_0_0_#000B1A]">
+                                        <div className="text-xs uppercase tracking-widest text-[#000B1A] font-bold mb-4">Student Selected Option</div>
+                                        <div className="text-4xl font-black text-[#000B1A] bg-white w-20 h-20 flex items-center justify-center rounded-none mx-auto border-2 border-[#000B1A] shadow-[4px_4px_0_0_#000B1A] mb-4">
+                                            {initialCode}
+                                        </div>
+                                        {questionObj?.correctAnswer && (
+                                            <div className="mt-4 p-3 border-2 border-[#000B1A] inline-block bg-[#10b981] text-[#000B1A] font-black text-sm shadow-[2px_2px_0_0_#000B1A]">
+                                                Correct Answer: {questionObj.correctAnswer}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="border-2 border-[#000B1A] bg-slate-50 p-6 shadow-[4px_4px_0_0_#000B1A] space-y-4">
+                                        <h4 className="text-xs font-black text-[#000B1A] uppercase tracking-widest border-b-2 border-[#000B1A] pb-2">
+                                            ✏️ Manual MCQ Evaluation
+                                        </h4>
+                                        <div>
+                                            <label className="block text-[10px] font-black text-[#000B1A] uppercase tracking-wider mb-1">
+                                                Marks Awarded (Max {maxMarks} pts)
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={marks}
+                                                onChange={(e) => setMarks(e.target.value)}
+                                                className="w-full px-3 py-2 border-2 border-[#000B1A] text-sm font-bold bg-white text-[#000B1A] shadow-[2px_2px_0_0_#000B1A] focus:outline-none"
+                                            />
+                                        </div>
+                                        <button
+                                            onClick={handleSaveManualEvaluation}
+                                            disabled={isGrading}
+                                            className="neo-button !bg-[#10b981] w-full py-2.5 text-xs font-black uppercase tracking-wider"
+                                        >
+                                            {isGrading ? 'Saving...' : '✓ Save Evaluation'}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <div className="bg-white rounded-none border-2 border-[#000B1A] p-8 text-center shadow-[4px_4px_0_0_#000B1A]">
-                            <div className="text-sm uppercase tracking-widest text-[#000B1A] font-bold mb-4">Selected Option</div>
-                            <div className="text-4xl font-black text-[#000B1A] bg-white w-20 h-20 flex items-center justify-center rounded-none mx-auto border-2 border-[#000B1A] shadow-[4px_4px_0_0_#000B1A] mb-4">
-                                {code}
+                    )}
+
+                    {/* Tab 2: Interactive Judge0 Code Runner */}
+                    {activeTab === 'runner' && isCoding && (
+                        <div className="space-y-4">
+                            {/* Controls Bar */}
+                            <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-2 border-[#000B1A] bg-white shadow-[4px_4px_0_0_#000B1A]">
+                                <div className="flex items-center gap-3">
+                                    <label className="text-xs font-black text-[#000B1A] uppercase tracking-wider">Language:</label>
+                                    <select
+                                        value={runLang}
+                                        onChange={(e) => setRunLang(e.target.value)}
+                                        className="border-2 border-[#000B1A] bg-white text-[#000B1A] px-3 py-1.5 text-xs font-black shadow-[2px_2px_0_0_#000B1A] focus:outline-none"
+                                    >
+                                        {Object.entries(LANG_MAP).map(([key, val]) => (
+                                            <option key={key} value={key}>{val.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={handleRunSingle}
+                                        disabled={isRunning || isTestingAll}
+                                        className="neo-button !bg-[#3b82f6] px-4 py-2 text-xs font-black flex items-center gap-2 disabled:opacity-50"
+                                    >
+                                        {isRunning ? 'Running...' : '▶ Run Code (Judge0 API)'}
+                                    </button>
+                                    {questionObj && (
+                                        <button
+                                            onClick={handleRunAllCases}
+                                            disabled={isRunning || isTestingAll}
+                                            className="neo-button !bg-[#10b981] px-4 py-2 text-xs font-black flex items-center gap-2 disabled:opacity-50"
+                                        >
+                                            {isTestingAll ? 'Testing All Cases...' : '🧪 Test All Test Cases'}
+                                        </button>
+                                    )}
+                                </div>
                             </div>
-                            <p className="text-[#000B1A]/70 text-sm font-bold">This is the answer selected by the student for this multiple choice question.</p>
+
+                            {/* Preset Test Case Selector */}
+                            {testCases.length > 0 && (
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs font-black text-[#000B1A] uppercase tracking-wider">Load Input:</span>
+                                    {testCases.map((tc, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => {
+                                                setStdinVal(tc.input || '');
+                                                setExpectedOutputVal(tc.output || '');
+                                            }}
+                                            className="px-2.5 py-1 border-2 border-[#000B1A] bg-white text-[#000B1A] text-[10px] font-black uppercase tracking-wider shadow-[2px_2px_0_0_#000B1A] hover:bg-[#000B1A]/5 transition-colors"
+                                        >
+                                            Case #{idx + 1} {tc.isHidden ? '🔒 (hidden)' : '👁️'}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Code + Input Editor Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {/* Code Editor Area */}
+                                <div className="md:col-span-2 border-2 border-[#000B1A] rounded-none overflow-hidden shadow-[4px_4px_0_0_#000B1A]">
+                                    <div className="bg-[#000B1A] text-white px-4 py-2 text-xs font-black uppercase tracking-wider flex justify-between items-center">
+                                        <span>Editable Source Code (Sandbox)</span>
+                                        <span className="text-[10px] text-slate-400 font-normal">Judge0 Engine Ready</span>
+                                    </div>
+                                    <textarea
+                                        value={runCodeVal}
+                                        onChange={(e) => setRunCodeVal(e.target.value)}
+                                        rows={12}
+                                        className="w-full p-4 font-mono text-xs bg-[#1e1e1e] text-slate-200 outline-none resize-none leading-relaxed"
+                                    />
+                                </div>
+
+                                {/* Stdin Input Area */}
+                                <div className="border-2 border-[#000B1A] rounded-none overflow-hidden shadow-[4px_4px_0_0_#000B1A] flex flex-col bg-white">
+                                    <div className="bg-[#000B1A] text-white px-4 py-2 text-xs font-black uppercase tracking-wider">
+                                        Input (stdin)
+                                    </div>
+                                    <textarea
+                                        value={stdinVal}
+                                        onChange={(e) => setStdinVal(e.target.value)}
+                                        placeholder="Enter input parameters..."
+                                        rows={5}
+                                        className="w-full p-3 font-mono text-xs bg-white text-[#000B1A] outline-none border-b-2 border-[#000B1A] flex-1 resize-none"
+                                    />
+                                    {expectedOutputVal && (
+                                        <div className="p-3 bg-slate-50 border-t border-slate-200">
+                                            <span className="text-[10px] font-black text-[#000B1A] uppercase tracking-wider block mb-1">Expected Output:</span>
+                                            <pre className="font-mono text-[11px] text-slate-700 bg-white p-2 border border-slate-300 font-bold whitespace-pre-wrap">{expectedOutputVal}</pre>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Execution Results Console */}
+                            {(runOutput || allCasesOutput) && (
+                                <div className="border-2 border-[#000B1A] bg-white shadow-[4px_4px_0_0_#000B1A] p-4 space-y-3">
+                                    {/* Stats Summary Bar */}
+                                    <div className="flex flex-wrap items-center justify-between gap-3 border-b-2 border-[#000B1A] pb-3">
+                                        <div className="flex items-center gap-3">
+                                            <span className="text-xs font-black text-[#000B1A] uppercase tracking-widest">Execution Result:</span>
+                                            {runOutput && (
+                                                <span className={`px-2.5 py-1 text-xs font-black border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] uppercase ${runOutput.status?.id === 3 ? 'bg-[#10b981] text-[#000B1A]' : 'bg-[#ef4444] text-[#000B1A]'}`}>
+                                                    {runOutput.status?.description || 'Executed'} (ID {runOutput.status?.id})
+                                                </span>
+                                            )}
+                                            {allCasesOutput && (
+                                                <span className={`px-2.5 py-1 text-xs font-black border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] uppercase ${allCasesOutput.passedCount === allCasesOutput.totalCases ? 'bg-[#10b981] text-[#000B1A]' : 'bg-[#f97316] text-[#000B1A]'}`}>
+                                                    {allCasesOutput.passedCount} / {allCasesOutput.totalCases} Test Cases Passed ({allCasesOutput.scoreAwarded} / {allCasesOutput.maxMarks} pts)
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex items-center gap-4 text-xs font-black text-[#000B1A]">
+                                            {runOutput?.time && <span>⏱️ Time: <b>{runOutput.time}s</b></span>}
+                                            {runOutput?.memory && <span>🧠 Memory: <b>{runOutput.memory} KB</b></span>}
+                                        </div>
+                                    </div>
+
+                                    {/* Sub-Tabs: stdout | stderr | compile | cases */}
+                                    <div className="flex gap-2 border-b-2 border-[#000B1A] pb-2">
+                                        <button
+                                            onClick={() => setConsoleSubTab('stdout')}
+                                            className={`px-3 py-1 text-xs font-black uppercase border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] ${consoleSubTab === 'stdout' ? 'bg-[#3b82f6] text-[#000B1A]' : 'bg-white text-[#000B1A]'}`}
+                                        >
+                                            Standard Output (stdout)
+                                        </button>
+                                        {runOutput?.stderr && (
+                                            <button
+                                                onClick={() => setConsoleSubTab('stderr')}
+                                                className={`px-3 py-1 text-xs font-black uppercase border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] ${consoleSubTab === 'stderr' ? 'bg-[#ef4444] text-[#000B1A]' : 'bg-white text-[#000B1A]'}`}
+                                            >
+                                                Standard Error (stderr)
+                                            </button>
+                                        )}
+                                        {runOutput?.compile_output && (
+                                            <button
+                                                onClick={() => setConsoleSubTab('compile')}
+                                                className={`px-3 py-1 text-xs font-black uppercase border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] ${consoleSubTab === 'compile' ? 'bg-[#ef4444] text-[#000B1A]' : 'bg-white text-[#000B1A]'}`}
+                                            >
+                                                Compiler Output
+                                            </button>
+                                        )}
+                                        {allCasesOutput && (
+                                            <button
+                                                onClick={() => setConsoleSubTab('cases')}
+                                                className={`px-3 py-1 text-xs font-black uppercase border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] ${consoleSubTab === 'cases' ? 'bg-[#10b981] text-[#000B1A]' : 'bg-white text-[#000B1A]'}`}
+                                            >
+                                                Test Cases Matrix
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {/* Console Content */}
+                                    <div className="bg-[#1e1e1e] p-4 font-mono text-xs text-slate-200 rounded-none max-h-60 overflow-y-auto">
+                                        {consoleSubTab === 'stdout' && (
+                                            <pre className="whitespace-pre-wrap">{runOutput?.stdout || '(No stdout output returned)'}</pre>
+                                        )}
+                                        {consoleSubTab === 'stderr' && (
+                                            <pre className="text-red-400 whitespace-pre-wrap">{runOutput?.stderr || 'No stderr'}</pre>
+                                        )}
+                                        {consoleSubTab === 'compile' && (
+                                            <pre className="text-orange-400 whitespace-pre-wrap">{runOutput?.compile_output || 'No compilation errors'}</pre>
+                                        )}
+                                        {consoleSubTab === 'cases' && allCasesOutput && (
+                                            <div className="space-y-3 font-sans">
+                                                {allCasesOutput.results?.map((res, i) => (
+                                                    <div key={i} className={`p-3 border-2 border-[#000B1A] rounded-none text-xs font-bold ${res.passed ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500' : 'bg-rose-950/80 text-rose-300 border-rose-500'}`}>
+                                                        <div className="flex justify-between items-center mb-1">
+                                                            <span>Test Case #{i + 1} {res.isHidden ? '🔒 (hidden)' : ''}</span>
+                                                            <span className="font-black uppercase">{res.passed ? '✓ PASSED' : '✕ FAILED'} ({res.statusDescription})</span>
+                                                        </div>
+                                                        <div className="grid grid-cols-2 gap-2 text-[11px] font-mono mt-2">
+                                                            <div>
+                                                                <span className="text-slate-400 block">Expected:</span>
+                                                                <pre className="bg-black/50 p-1">{res.expectedOutput}</pre>
+                                                            </div>
+                                                            <div>
+                                                                <span className="text-slate-400 block">Actual Output:</span>
+                                                                <pre className="bg-black/50 p-1">{res.actualOutput || '(none)'}</pre>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
 
-                {/* Footer / Grading */}
+                {/* Footer */}
                 <div className="px-6 py-4 border-t-2 border-[#000B1A] flex items-center justify-between bg-white">
-                    {isCoding ? (
-                        <div className="flex items-center gap-3">
-                            <label className="text-xs font-black uppercase tracking-wider text-[#000B1A]">Grade:</label>
-                            <input
-                                type="number"
-                                value={marks}
-                                onChange={(e) => setMarks(e.target.value)}
-                                className="w-20 px-3 py-1.5 border-2 border-[#000B1A] text-sm font-bold bg-white text-[#000B1A] shadow-[2px_2px_0_0_#000B1A] focus:outline-none"
-                                placeholder="Marks"
-                            />
-                            <button
-                                onClick={async () => {
-                                    if (marks === '') return;
-                                    setIsGrading(true);
-                                    await onGrade(answer.questionId?._id || answer.questionId, Number(marks));
-                                    setIsGrading(false);
-                                }}
-                                disabled={isGrading}
-                                className="neo-button !bg-[#10b981] px-4 py-1.5 text-xs disabled:opacity-50"
-                            >
-                                {isGrading ? 'Saving...' : 'Submit Grade'}
-                            </button>
-                        </div>
-                    ) : (
-                        <div></div>
-                    )}
+                    <span className="text-xs font-bold text-[#000B1A]/70">
+                        {answer?.teacherFeedback ? `Feedback attached: "${answer.teacherFeedback.slice(0, 40)}..."` : 'No teacher feedback added yet'}
+                    </span>
                     <button
                         onClick={onClose}
-                        className="neo-button px-6 py-2"
+                        className="neo-button px-6 py-2 text-xs font-black"
                     >
                         Close
                     </button>
@@ -119,7 +520,7 @@ function AnswerViewer({ answer, onClose, onGrade }) {
     );
 }
 
-// ── Expandable Proctor Detail Panel ──────────────────────────────────────────
+// ── Expandable Proctor & Student Submissions Detail Panel ───────────────────
 function ProctorDetail({ sub, onViewAnswer }) {
     const log = sub.proctorLog || {};
     const events = log.flaggedEvents || [];
@@ -134,22 +535,22 @@ function ProctorDetail({ sub, onViewAnswer }) {
 
     return (
         <tr>
-            <td colSpan="9" className="px-0 py-0 bg-white border-b-2 border-[#000B1A]">
+            <td colSpan="10" className="px-0 py-0 bg-white border-b-2 border-[#000B1A]">
                 <div className="px-6 py-5">
                     {/* Summary row */}
-                    <div className="flex items-center gap-3 mb-4">
-                        <span className="text-sm font-black text-[#000B1A] uppercase tracking-widest">🛡️ Proctoring Report</span>
+                    <div className="flex items-center gap-3 mb-4 flex-wrap">
+                        <span className="text-sm font-black text-[#000B1A] uppercase tracking-widest">🛡️ Proctoring & Solution Report</span>
                         <span className={`text-xs px-2.5 py-1 rounded-none border-2 shadow-[2px_2px_0_0_#000B1A] font-black uppercase ${log.riskLevel === 'High' ? 'bg-[#ef4444] text-[#000B1A] border-[#000B1A]' :
                             log.riskLevel === 'Medium' ? 'bg-[#f97316] text-[#000B1A] border-[#000B1A]' :
                                 'bg-[#10b981] text-[#000B1A] border-[#000B1A]'}`}>
                             Risk: {log.riskLevel || 'Low'}
                         </span>
-                        <span className="text-xs text-[#000B1A]/70 font-bold">Total violations: <b>{total}</b></span>
-                        {sub.ipAddress && <span className="text-xs text-[#000B1A]/60 ml-auto font-bold">IP: {sub.ipAddress}</span>}
+                        <span className="text-xs text-[#000B1A]/80 font-bold">Total violations: <b>{total}</b></span>
+                        {sub.ipAddress && <span className="text-xs text-[#000B1A]/70 ml-auto font-bold">IP: {sub.ipAddress}</span>}
                     </div>
 
                     {/* Violation counters */}
-                    <div className="grid grid-cols-5 gap-3 mb-4">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
                         {violations.map(v => (
                             <div key={v.label} className={`rounded-none border-2 p-3 text-center shadow-[4px_4px_0_0_#000B1A] ${v.value > 0 ? 'border-[#ef4444] bg-[#ef4444]' : 'border-[#000B1A] bg-white'}`}>
                                 <div className="text-xl mb-1">{v.icon}</div>
@@ -159,11 +560,11 @@ function ProctorDetail({ sub, onViewAnswer }) {
                         ))}
                     </div>
 
-                    {/* Flagged event timeline */}
+                    {/* Timeline */}
                     {events.length > 0 ? (
-                        <div>
-                            <p className="text-xs font-black text-[#000B1A] uppercase tracking-wider mb-2">Event Timeline</p>
-                            <div className="max-h-40 overflow-y-auto bg-white border-2 border-[#000B1A] rounded-none divide-y-2 divide-white/80 shadow-[4px_4px_0_0_#000B1A]">
+                        <div className="mb-4">
+                            <p className="text-xs font-black text-[#000B1A] uppercase tracking-wider mb-2">Flagged Violation Timeline</p>
+                            <div className="max-h-36 overflow-y-auto bg-white border-2 border-[#000B1A] rounded-none divide-y-2 divide-white/80 shadow-[4px_4px_0_0_#000B1A]">
                                 {events.map((ev, i) => (
                                     <div key={i} className="px-4 py-2 flex items-center gap-3 text-sm">
                                         <span className="font-mono text-[#000B1A]/70 font-bold text-xs w-22 flex-shrink-0">
@@ -182,52 +583,46 @@ function ProctorDetail({ sub, onViewAnswer }) {
                                 ))}
                             </div>
                         </div>
-                    ) : (
-                        <p className="text-sm text-[#000B1A]/70 font-bold">No flagged events recorded.</p>
-                    )}
+                    ) : null}
 
-                    {/* Answers summary */}
+                    {/* Answers List */}
                     {sub.answers?.length > 0 && (
-                        <div className="mt-4">
-                            <p className="text-xs font-black text-[#000B1A] uppercase tracking-wider mb-2">Answers ({sub.answers.length} questions)</p>
-                            <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                        <div>
+                            <p className="text-xs font-black text-[#000B1A] uppercase tracking-wider mb-2">Student Solutions ({sub.answers.length} questions)</p>
+                            <div className="grid grid-cols-1 gap-2 max-h-64 overflow-y-auto pr-2">
                                 {sub.answers.map((ans, i) => {
-                                    const qList = sub.testId?.questions || [];
-                                    const qId = ans.questionId?._id || ans.questionId;
-                                    const exactNum = qList.findIndex(id => id.toString() === (qId ? qId.toString() : '')) + 1;
-                                    const qTitle = ans.questionId?.title || 'Unknown Question';
+                                    const qObj = typeof ans.questionId === 'object' ? ans.questionId : null;
+                                    const qTitle = qObj?.title || 'Question';
+                                    const isCoding = ans.type === 'Coding';
+                                    const langName = isCoding ? (typeof ans.answerData === 'string' ? 'code' : (ans.answerData?.language || 'code')) : 'MCQ';
 
                                     return (
-                                        <div key={i} className="flex items-center gap-3 text-xs bg-white border-2 border-[#0d0a1c] rounded-none px-4 py-2.5 shadow-[4px_4px_0_0_#0d0a1c] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-transform group text-[#000B1A]">
+                                        <div key={i} className="flex items-center gap-3 text-xs bg-white border-2 border-[#0d0a1c] rounded-none px-4 py-2.5 shadow-[4px_4px_0_0_#0d0a1c] text-[#000B1A]">
                                             <div className="w-8 h-8 rounded-none bg-white flex items-center justify-center font-black text-[#000B1A] border-2 border-[#0d0a1c] flex-shrink-0">
-                                                {exactNum || i + 1}
+                                                {i + 1}
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 mb-0.5">
-                                                    <span className={`text-[10px] font-bold uppercase tracking-widest ${ans.type === 'Coding' ? 'text-blue-500' : 'text-purple-500'}`}>
-                                                        {ans.type}
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${isCoding ? 'text-blue-600' : 'text-purple-600'}`}>
+                                                        {ans.type} ({langName})
                                                     </span>
-                                                    {ans.status === 'Pending' && <span className="bg-[#facc15] text-[#000B1A] px-1.5 py-0.5 rounded-none border-2 border-[#0d0a1c] text-[9px] font-black shadow-[2px_2px_0_0_#0d0a1c]">PENDING EVAL</span>}
-                                                    <span className="text-[#000B1A]/60 text-[9px] font-bold truncate">• {qTitle}</span>
+                                                    {ans.status === 'Pending' && <span className="bg-[#facc15] text-[#000B1A] px-1.5 py-0.5 rounded-none border-2 border-[#0d0a1c] text-[9px] font-black">PENDING EVAL</span>}
+                                                    {ans.teacherFeedback && <span className="bg-[#10b981] text-[#000B1A] px-1.5 py-0.5 rounded-none border-2 border-[#0d0a1c] text-[9px] font-black">REVIEWED</span>}
                                                 </div>
-                                                <div className="text-[#000B1A] truncate font-black">
-                                                    {ans.type === 'Coding'
-                                                        ? `Language: ${typeof ans.answerData === 'string' ? 'unknown' : (ans.answerData?.language || 'unknown')}`
-                                                        : `Selected: ${ans.answerData || '—'}`}
-                                                </div>
+                                                <div className="text-[#000B1A] truncate font-black">{qTitle}</div>
                                             </div>
-                                            {ans.marks != null && (
+                                            {ans.marksAwarded != null && (
                                                 <div className="text-right flex-shrink-0">
-                                                    <div className={`font-black text-sm ${ans.marks > 0 ? 'text-green-600' : ans.marks < 0 ? 'text-red-500' : 'text-slate-400'}`}>
-                                                        {ans.marks > 0 ? `+${ans.marks}` : ans.marks} pts
+                                                    <div className={`font-black text-sm ${ans.marksAwarded > 0 ? 'text-green-600' : 'text-slate-400'}`}>
+                                                        +{ans.marksAwarded} pts
                                                     </div>
                                                 </div>
                                             )}
                                             <button
                                                 onClick={() => onViewAnswer({ ...ans, submissionId: sub._id })}
-                                                className="neo-button px-3 py-1.5 text-[10px] font-black flex-shrink-0"
+                                                className="neo-button !bg-[#3b82f6] px-3 py-1.5 text-[10px] font-black flex-shrink-0"
                                             >
-                                                View Solution
+                                                {isCoding ? '🔍 Inspect & Grade Code' : 'View Answer'}
                                             </button>
                                         </div>
                                     );
@@ -241,104 +636,16 @@ function ProctorDetail({ sub, onViewAnswer }) {
     );
 }
 
-// ── Export Modal ────────────────────────────────────────────────────────
-function ExportModal({ onClose, submissions }) {
-    const tests = [...new Map(submissions.filter(s => s.testId).map(s => [s.testId._id, s.testId])).values()];
-    const [selectedTest, setSelectedTest] = useState(tests.length > 0 ? tests[0]._id : '');
-    const [reportType, setReportType] = useState('summary');
-    const [loading, setLoading] = useState(false);
-
-    const handleExport = async () => {
-        if (!selectedTest) return alert('Please select a test');
-        setLoading(true);
-        try {
-            const res = await api.get(`/admin/submissions/export/${selectedTest}?type=${reportType}`, { responseType: 'blob' });
-            const url = window.URL.createObjectURL(new Blob([res.data]));
-            const a = document.createElement('a');
-            a.href = url;
-            const testTitle = tests.find(t => t._id === selectedTest)?.title || 'Test';
-            a.download = `Test_Results_${testTitle.replace(/\\s+/g, '_')}.xlsx`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            onClose();
-        } catch (err) {
-            console.error(err);
-            alert('Export failed. Make sure you have the correct permissions.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[110]">
-            <div className="neo-panel bg-white border-[#000B1A] w-[90%] max-w-[400px] p-8">
-                <div className="flex justify-between items-center mb-5">
-                    <h3 className="text-[#000B1A] text-lg font-black uppercase tracking-widest m-0">📊 Export Report</h3>
-                    <button onClick={onClose} className="text-[#000B1A] hover:bg-[#000B1A]/5 border-2 border-transparent hover:border-[#000B1A] rounded-none w-8 h-8 flex items-center justify-center transition-colors">✕</button>
-                </div>
-
-                {tests.length === 0 ? (
-                    <p className="text-sm font-bold text-[#000B1A]/70">No test data available to export.</p>
-                ) : (
-                    <div className="space-y-4">
-                        <div>
-                            <label className="block text-[10px] font-black text-[#000B1A] uppercase tracking-wider mb-2">Select Test</label>
-                            <select value={selectedTest} onChange={e => setSelectedTest(e.target.value)}
-                                className="w-full border-2 border-[#000B1A] rounded-none bg-white text-[#000B1A] px-3 py-2 text-sm shadow-[4px_4px_0_0_#000B1A] focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] transition-transform font-bold">
-                                {tests.map(t => <option key={t._id} value={t._id}>{t.title}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-[10px] font-black text-[#000B1A] uppercase tracking-wider mb-2">Report Type</label>
-                            <div className="flex gap-3">
-                                <button onClick={() => setReportType('summary')}
-                                    className={`flex-1 py-2 text-xs font-black uppercase tracking-wider border-2 border-[#000B1A] transition-transform shadow-[2px_2px_0_0_#000B1A] hover:-translate-y-0.5 ${reportType === 'summary' ? 'bg-[#3b82f6] text-[#000B1A]' : 'bg-white text-[#000B1A]'}`}>
-                                    Summary
-                                </button>
-                                <button onClick={() => setReportType('complete')}
-                                    className={`flex-1 py-2 text-xs font-black uppercase tracking-wider border-2 border-[#000B1A] transition-transform shadow-[2px_2px_0_0_#000B1A] hover:-translate-y-0.5 ${reportType === 'complete' ? 'bg-[#10b981] text-[#000B1A]' : 'bg-white text-[#000B1A]'}`}>
-                                    Complete Details
-                                </button>
-                            </div>
-                            <p className="text-[10px] text-[#000B1A]/70 font-bold uppercase tracking-wider mt-2">
-                                {reportType === 'summary' ? 'Includes basic details, scores, and proctoring stats.' : 'Includes everything in summary, plus columns for each question\'s answer and marks.'}
-                            </p>
-                        </div>
-                        <button onClick={handleExport} disabled={loading || !selectedTest}
-                            className="neo-button w-full mt-2 py-3 text-sm disabled:opacity-60">
-                            {loading ? 'Generating...' : 'Download Excel'}
-                        </button>
-                    </div>
-                )}
-            </div>
-        </div>
-    );
-}
-
-// ── Main Submissions Page ─────────────────────────────────────────────────────
+// ── Main Submissions Management Component ──────────────────────────────────
 const Submissions = () => {
     const [submissions, setSubmissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [expanded, setExpanded] = useState(null); // _id of expanded row
+    const [expanded, setExpanded] = useState(null);
     const [search, setSearch] = useState('');
+    const [selectedStudentId, setSelectedStudentId] = useState('All');
     const [filterRisk, setFilterRisk] = useState('All');
     const [viewingAnswer, setViewingAnswer] = useState(null);
-    const [showExportModal, setShowExportModal] = useState(false);
-
-    const handleGrade = async (submissionId, questionId, marks) => {
-        try {
-            const res = await api.put(`/admin/submissions/${submissionId}/grade/${questionId}`, { marks });
-            if (res.data.success) {
-                setSubmissions(prev => prev.map(s => s._id === submissionId ? res.data.data : s));
-                setViewingAnswer(null);
-            }
-        } catch (err) {
-            alert(err.response?.data?.msg || 'Failed to grade submission');
-        }
-    };
 
     const loadSubmissions = async () => {
         setLoading(true);
@@ -351,8 +658,19 @@ const Submissions = () => {
 
     useEffect(() => { loadSubmissions(); }, []);
 
+    const handleGrade = async (submissionId, questionId, marks, feedback) => {
+        try {
+            const res = await api.put(`/admin/submissions/${submissionId}/grade/${questionId}`, { marks, feedback });
+            if (res.data.success) {
+                setSubmissions(prev => prev.map(s => s._id === submissionId ? res.data.data : s));
+            }
+        } catch (err) {
+            alert(err.response?.data?.msg || 'Failed to grade submission');
+        }
+    };
+
     const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this submission? This will reset the student\'s attempt count for this test.')) return;
+        if (!window.confirm('Delete this submission? This will reset the student\'s attempt count.')) return;
         try {
             const res = await api.delete(`/admin/submissions/${id}`);
             if (res.data.success) {
@@ -368,139 +686,159 @@ const Submissions = () => {
         return (l.tabSwitches ?? 0) + (l.fullscreenExits ?? 0) + (l.copyAttempts ?? 0) + (l.pasteAttempts ?? 0) + (l.devToolsDetected ?? 0);
     };
 
+    // Extract unique students list for the Student Filter Dropdown
+    const studentsList = [...new Map(
+        submissions
+            .filter(s => s.studentId && s.studentId._id)
+            .map(s => [s.studentId._id, s.studentId])
+    ).values()];
+
+    const selectedStudentObj = selectedStudentId !== 'All'
+        ? studentsList.find(s => s._id === selectedStudentId)
+        : null;
+
+    // Filter logic
     const filtered = submissions.filter(sub => {
-        const searchLower = search ? search.toLowerCase() : '';
+        const searchLower = search.toLowerCase();
         const matchSearch = !search ||
             (sub.studentId?.name?.toLowerCase() || '').includes(searchLower) ||
             (sub.studentId?.email?.toLowerCase() || '').includes(searchLower) ||
             (sub.testId?.title?.toLowerCase() || '').includes(searchLower);
+
+        const matchStudent = selectedStudentId === 'All' || sub.studentId?._id === selectedStudentId;
         const risk = sub.proctorLog?.riskLevel || 'Low';
         const matchRisk = filterRisk === 'All' || risk === filterRisk;
-        return matchSearch && matchRisk;
+
+        return matchSearch && matchStudent && matchRisk;
     });
 
-    const handleDownloadJSON = (sub) => {
-        const report = {
-            student: {
-                name: sub.studentId?.name,
-                email: sub.studentId?.email,
-                ip: sub.ipAddress
-            },
-            test: {
-                title: sub.testId?.title,
-                submittedAt: sub.submitTime,
-                score: sub.totalMarks,
-                percentile: sub.percentile,
-                rank: sub.rank
-            },
-            proctoring: {
-                riskLevel: sub.proctorLog?.riskLevel || 'Low',
-                tabSwitches: sub.proctorLog?.tabSwitches || 0,
-                fullscreenExits: sub.proctorLog?.fullscreenExits || 0,
-                copyAttempts: sub.proctorLog?.copyAttempts || 0,
-                pasteAttempts: sub.proctorLog?.pasteAttempts || 0,
-                devToolsDetected: sub.proctorLog?.devToolsDetected || 0,
-                flaggedEvents: sub.proctorLog?.flaggedEvents || []
-            },
-            answers: sub.answers?.map(ans => ({
-                questionId: ans.questionId?._id || ans.questionId,
-                type: ans.type,
-                marks: ans.marks,
-                answer: ans.type === 'Coding' ? ans.answerData?.code : ans.answerData,
-                language: ans.answerData?.language || 'N/A'
-            }))
-        };
-
-        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Submission_${sub.studentId?.name?.replace(/\s+/g, '_')}_${sub.testId?.title?.replace(/\s+/g, '_')}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    };
+    // Calculate student statistics if a particular user is selected
+    const selectedStudentStats = selectedStudentObj ? {
+        totalExams: filtered.length,
+        avgScore: filtered.length > 0 ? Math.round(filtered.reduce((acc, curr) => acc + (curr.totalMarks || 0), 0) / filtered.length) : 0,
+        totalViolations: filtered.reduce((acc, curr) => acc + totalViolations(curr), 0),
+        highRiskCount: filtered.filter(s => s.proctorLog?.riskLevel === 'High').length
+    } : null;
 
     return (
-        <div className="neo-panel border-[#000B1A] overflow-hidden min-h-[600px]">
-            {showExportModal && <ExportModal onClose={() => setShowExportModal(false)} submissions={submissions} />}
-
+        <div className="neo-panel bg-white border-[#000B1A] overflow-hidden min-h-[600px] space-y-0">
             {/* Header */}
             <div className="p-6 border-b-2 border-[#000B1A] flex flex-wrap justify-between items-center gap-3 bg-white">
                 <div>
-                    <h2 className="text-xl font-black uppercase tracking-widest text-[#000B1A]">All Submissions</h2>
-                    <p className="text-sm text-[#000B1A]/70 font-bold mt-0.5">Review every exam submission — click a row to see proctor report and student answers</p>
+                    <h2 className="text-xl font-black uppercase tracking-widest text-[#000B1A]">Manual Code Review &amp; Grading Console</h2>
+                    <p className="text-xs text-[#000B1A]/80 font-bold mt-0.5">Inspect student code manually, add custom teacher feedback, override grades, and test solutions in Judge0 sandbox</p>
                 </div>
-                <span className="text-sm font-black text-[#000B1A] bg-white border-2 border-[#000B1A] px-3 py-1 rounded-none shadow-[2px_2px_0_0_#000B1A]">{submissions.length} submissions</span>
+                <div className="flex items-center gap-2">
+                    <span className="text-xs font-black text-[#000B1A] bg-white border-2 border-[#000B1A] px-3 py-1 shadow-[2px_2px_0_0_#000B1A]">{filtered.length} submissions shown</span>
+                </div>
             </div>
 
-            {/* Filters */}
-            <div className="px-6 py-3 border-b-2 border-[#000B1A] flex flex-wrap items-center gap-3 bg-white">
+            {/* Filter Toolbar */}
+            <div className="p-4 border-b-2 border-[#000B1A] bg-slate-50 flex flex-wrap items-center gap-3">
+                {/* Search Bar */}
                 <input
-                    placeholder="Search by student, email, or test..."
+                    placeholder="Search by student name, email, or test title..."
                     value={search} onChange={e => setSearch(e.target.value)}
-                    className="flex-1 min-w-[200px] border-2 border-[#000B1A] rounded-none bg-white text-[#000B1A] placeholder-gray-500 px-3 py-2 text-sm focus:outline-none shadow-[4px_4px_0_0_#000B1A] focus:translate-x-[2px] focus:translate-y-[2px] transition-all font-bold"
+                    className="flex-1 min-w-[220px] border-2 border-[#000B1A] rounded-none bg-white text-[#000B1A] placeholder-gray-500 px-3 py-2 text-xs focus:outline-none shadow-[2px_2px_0_0_#000B1A] font-bold"
                 />
+
+                {/* Filter by Particular Student */}
                 <div className="flex items-center gap-2">
+                    <span className="text-xs text-[#000B1A] font-black uppercase">Filter Student:</span>
+                    <select
+                        value={selectedStudentId}
+                        onChange={e => setSelectedStudentId(e.target.value)}
+                        className="border-2 border-[#000B1A] rounded-none bg-white text-[#000B1A] px-3 py-2 text-xs font-bold shadow-[2px_2px_0_0_#000B1A] focus:outline-none"
+                    >
+                        <option value="All">All Students ({studentsList.length})</option>
+                        {studentsList.map(st => (
+                            <option key={st._id} value={st._id}>{st.name} ({st.email})</option>
+                        ))}
+                    </select>
+                </div>
+
+                {/* Filter by Risk Level */}
+                <div className="flex items-center gap-1.5">
                     <span className="text-xs text-[#000B1A] font-black uppercase">Risk:</span>
                     {['All', 'Low', 'Medium', 'High'].map(r => (
                         <button key={r} onClick={() => setFilterRisk(r)}
-                            className={`px-3 py-1.5 rounded-none border-2 border-[#000B1A] text-xs font-black transition-all shadow-[2px_2px_0_0_#000B1A] ${filterRisk === r
+                            className={`px-2.5 py-1.5 text-xs font-black border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] ${filterRisk === r
                                 ? r === 'High' ? 'bg-[#ef4444] text-[#000B1A]' : r === 'Medium' ? 'bg-[#f97316] text-[#000B1A]' : 'bg-[#3b82f6] text-[#000B1A]'
-                                : 'bg-white text-[#000B1A] hover:bg-[#000B1A]/5'}`}>
+                                : 'bg-white text-[#000B1A]'}`}>
                             {r}
                         </button>
                     ))}
                 </div>
-                <button
-                    onClick={() => setShowExportModal(true)}
-                    disabled={submissions.length === 0}
-                    className="neo-button ml-auto !bg-[#10b981] disabled:opacity-50 py-2 px-4 text-xs font-black flex items-center gap-2"
-                >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    Export Excel Report
-                </button>
             </div>
 
+            {/* Individual Student Selected Header Overview */}
+            {selectedStudentObj && selectedStudentStats && (
+                <div className="p-5 border-b-2 border-[#000B1A] bg-[#3b82f6]/10 text-[#000B1A] flex flex-wrap items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-none bg-[#3b82f6] text-[#000B1A] border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] flex items-center justify-center text-xl font-black">
+                            {selectedStudentObj.name?.charAt(0).toUpperCase() || 'U'}
+                        </div>
+                        <div>
+                            <h3 className="text-base font-black uppercase tracking-wider">{selectedStudentObj.name}</h3>
+                            <p className="text-xs font-bold text-[#000B1A]/80">{selectedStudentObj.email}</p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-xs font-black">
+                        <div className="bg-white border-2 border-[#000B1A] px-3 py-1.5 shadow-[2px_2px_0_0_#000B1A]">
+                            Total Exams: <b>{selectedStudentStats.totalExams}</b>
+                        </div>
+                        <div className="bg-white border-2 border-[#000B1A] px-3 py-1.5 shadow-[2px_2px_0_0_#000B1A]">
+                            Avg Score: <b>{selectedStudentStats.avgScore} pts</b>
+                        </div>
+                        <div className="bg-white border-2 border-[#000B1A] px-3 py-1.5 shadow-[2px_2px_0_0_#000B1A]">
+                            Violations: <b className="text-red-600">{selectedStudentStats.totalViolations}</b>
+                        </div>
+                        <button
+                            onClick={() => setSelectedStudentId('All')}
+                            className="neo-button px-3 py-1 text-xs"
+                        >
+                            Reset Student Filter ✕
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {/* Table */}
             {loading ? (
                 <div className="flex items-center justify-center h-64">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+                    <div className="animate-spin rounded-none h-8 w-8 border-b-4 border-[#000B1A]" />
                 </div>
             ) : error ? (
-                <div className="flex items-center justify-center h-64 text-red-500">{error}</div>
+                <div className="flex items-center justify-center h-64 text-red-600 font-black">{error}</div>
             ) : (
                 <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-white border-b-2 border-[#000B1A] text-[#000B1A]">
-                                {['', 'Student', 'Test', 'Score', 'Status', 'Violations ⚠️', 'Risk', 'Auto Submit', 'Submitted At', 'Actions'].map(h => (
-                                    <th key={h} className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.1em]">{h}</th>
+                                {['', 'Student', 'Test Title', 'Score', 'Status', 'Violations', 'Risk Level', 'Submitted At', 'Actions'].map(h => (
+                                    <th key={h} className="px-4 py-3.5 text-[10px] font-black uppercase tracking-widest">{h}</th>
                                 ))}
                             </tr>
                         </thead>
                         <tbody className="divide-y-2 divide-white/80">
                             {filtered.length === 0 ? (
-                                <tr><td colSpan="9" className="text-center p-12 text-[#000B1A]/70 font-bold">
-                                    <div className="flex flex-col items-center space-y-2">
-                                        <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                                        <span className="font-black text-[#000B1A]">No submissions found</span>
-                                        <span className="text-xs">Try adjusting your filters or search terms.</span>
-                                    </div>
-                                </td></tr>
+                                <tr>
+                                    <td colSpan="9" className="text-center p-12 text-[#000B1A]/70 font-bold">
+                                        No submissions found matching criteria.
+                                    </td>
+                                </tr>
                             ) : filtered.map(sub => {
                                 const viols = totalViolations(sub);
                                 const risk = sub.proctorLog?.riskLevel || 'Low';
                                 const isOpen = expanded === sub._id;
+
                                 return (
                                     <React.Fragment key={sub._id}>
                                         <tr
                                             onClick={() => setExpanded(isOpen ? null : sub._id)}
                                             className={`cursor-pointer transition-colors ${isOpen ? 'bg-blue-500/20' : 'hover:bg-[#000B1A]/5'}`}
                                         >
-                                            {/* Expand arrow */}
                                             <td className="px-4 py-4 w-8">
                                                 <div className={`w-6 h-6 rounded-none border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] flex items-center justify-center transition-all ${isOpen ? 'bg-[#3b82f6] text-[#000B1A]' : 'bg-white text-[#000B1A]'}`}>
                                                     <svg className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -509,19 +847,16 @@ const Submissions = () => {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-4">
-                                                <div className="font-black text-[#000B1A] text-sm tracking-tight">{sub.studentId?.name || '—'}</div>
-                                                <div className="text-[10px] text-[#000B1A]/70 font-medium uppercase tracking-wider">{sub.studentId?.email || ''}</div>
+                                                <div className="font-black text-[#000B1A] text-sm">{sub.studentId?.name || '—'}</div>
+                                                <div className="text-[10px] text-[#000B1A]/70 font-bold uppercase">{sub.studentId?.email || ''}</div>
                                             </td>
-                                            <td className="px-4 py-4 text-[#000B1A] text-sm max-w-[140px] truncate font-bold" title={sub.testId?.title}>
+                                            <td className="px-4 py-4 text-[#000B1A] text-sm font-bold truncate max-w-[180px]">
                                                 {sub.testId?.title || '—'}
                                             </td>
                                             <td className="px-4 py-4">
                                                 <span className={`font-black text-sm ${(sub.totalMarks ?? 0) > 0 ? 'text-[#10b981]' : 'text-[#000B1A]'}`}>
                                                     {sub.totalMarks ?? 0} pts
                                                 </span>
-                                                {sub.percentile != null && (
-                                                    <div className="text-[10px] text-[#000B1A]/70 font-bold uppercase">Top {100 - sub.percentile}%</div>
-                                                )}
                                             </td>
                                             <td className="px-4 py-4"><span className={statusBadge(sub.status)}>{sub.status}</span></td>
                                             <td className="px-4 py-4">
@@ -530,41 +865,23 @@ const Submissions = () => {
                                                 </span>
                                             </td>
                                             <td className="px-4 py-4">
-                                                <span className={`px-2.5 py-1 rounded-none border-2 text-[10px] shadow-[2px_2px_0_0_#000B1A] font-black uppercase tracking-wider ${risk === 'High' ? 'bg-[#ef4444] text-[#000B1A] border-[#000B1A]' :
+                                                <span className={`px-2 py-0.5 rounded-none border-2 text-[10px] shadow-[2px_2px_0_0_#000B1A] font-black uppercase ${risk === 'High' ? 'bg-[#ef4444] text-[#000B1A] border-[#000B1A]' :
                                                     risk === 'Medium' ? 'bg-[#f97316] text-[#000B1A] border-[#000B1A]' :
                                                         'bg-[#10b981] text-[#000B1A] border-[#000B1A]'}`}>
                                                     {risk}
                                                 </span>
                                             </td>
-                                            <td className="px-4 py-4">
-                                                <span className={`px-2.5 py-1 rounded-none border-2 shadow-[2px_2px_0_0_#000B1A] text-[10px] font-black uppercase tracking-wider ${sub.isAutoSubmitted ? 'bg-[#f97316] text-[#000B1A] border-[#000B1A]' : 'bg-white text-[#000B1A] border-[#000B1A]'}`}>
-                                                    {sub.isAutoSubmitted ? '⏰ Auto' : '✓ Manual'}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-4 text-[#000B1A]/70 text-xs whitespace-nowrap font-bold">
+                                            <td className="px-4 py-4 text-[#000B1A]/80 text-xs whitespace-nowrap font-bold">
                                                 {sub.submitTime ? new Date(sub.submitTime).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : '—'}
                                             </td>
                                             <td className="px-4 py-4" onClick={e => e.stopPropagation()}>
-                                                <div className="flex items-center gap-1">
-                                                    <button
-                                                        onClick={() => handleDownloadJSON(sub)}
-                                                        className="p-2 text-[#000B1A] hover:text-[#3b82f6] hover:bg-[#000B1A]/5 transition-colors"
-                                                        title="Download Detailed Report (JSON)"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                                        </svg>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(sub._id)}
-                                                        className="p-2 text-[#000B1A] hover:text-[#ef4444] hover:bg-[#000B1A]/5 transition-colors"
-                                                        title="Delete Submission (Reset Attempt)"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
+                                                <button
+                                                    onClick={() => handleDelete(sub._id)}
+                                                    className="p-1.5 border-2 border-[#000B1A] bg-white text-red-600 font-black shadow-[2px_2px_0_0_#000B1A] hover:bg-red-50 text-xs"
+                                                    title="Delete Submission"
+                                                >
+                                                    Delete
+                                                </button>
                                             </td>
                                         </tr>
                                         {isOpen && <ProctorDetail sub={sub} onViewAnswer={setViewingAnswer} />}
@@ -576,11 +893,11 @@ const Submissions = () => {
                 </div>
             )}
 
-            {/* Answer Viewer Modal */}
+            {/* Answer Viewer + Judge0 Live Code Runner Modal */}
             <AnswerViewer
                 answer={viewingAnswer}
                 onClose={() => setViewingAnswer(null)}
-                onGrade={(questionId, marks) => handleGrade(viewingAnswer.submissionId, questionId, marks)}
+                onGrade={(questionId, marks, feedback) => handleGrade(viewingAnswer.submissionId, questionId, marks, feedback)}
             />
         </div>
     );

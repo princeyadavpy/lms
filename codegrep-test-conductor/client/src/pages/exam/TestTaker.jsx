@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import CodeEditor from '../../components/CodeEditor';
 import { detectVirtualMachine } from '../../utils/vmDetection';
+import companyLogo from '../../assets/company-logo.png';
 
 const TestTaker = () => {
     const { id } = useParams();
@@ -679,7 +680,7 @@ const TestTaker = () => {
             <header className="h-14 px-5 flex justify-between items-center z-10 shrink-0" style={{ background: '#161d35', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
                 <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'rgba(0,212,170,0.12)', border: '1px solid rgba(0,212,170,0.2)' }}>
-                        <img src="/company-logo.png" alt="HiGen Labs" className="w-5 h-5 object-contain" />
+                        <img src={companyLogo} alt="HiGen Labs" className="w-5 h-5 object-contain" />
                     </div>
                     <div className="flex flex-col leading-none">
                         <span className="text-sm font-semibold" style={{ color: '#e8eaf6' }}>{isMock ? 'Sandbox Environment' : (test?.title || 'Exam Session')}</span>
