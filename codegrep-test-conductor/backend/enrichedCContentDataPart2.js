@@ -285,7 +285,7 @@ A **nested loop** occurs when one loop is placed inside the body of another loop
 
 #### Execution Mechanics
 For each single iteration of the **outer loop**, the entire **inner loop** runs from start to completion.
-- If the outer loop runs $M$ times and the inner loop runs $N$ times, the inner loop body executes $M \\times N$ total times.
+- If the outer loop runs M times and the inner loop runs N times, the inner loop body executes M \× N total times.
 
 \`\`\`
  Outer Loop (i = 0 to M-1)
@@ -403,13 +403,13 @@ If you need to track the exam scores of 100 students, creating 100 individual va
 #### Core Characteristics of C Arrays
 1. **Homogeneous:** Every element in the array has identical data type and byte size.
 2. **Contiguous Memory:** Elements reside directly adjacent to one another in physical RAM without gaps.
-3. **Zero-Based Indexing:** The first element is at index \`0\`, and the last element of an array of size $N$ is at index $N-1$.
-4. **Direct $O(1)$ Random Access:** Any element can be read or written instantly using its index.
+3. **Zero-Based Indexing:** The first element is at index \`0\`, and the last element of an array of size N is at index N-1.
+4. **Direct O(1) Random Access:** Any element can be read or written instantly using its index.
 5. **Fixed Size:** Array bounds must be determined at compile time (or stack allocation time) and cannot grow or shrink dynamically.
 
 #### Memory Mapping Formula
-Because elements are contiguous, the memory address of any element at index $i$ is calculated directly by the hardware:
-$$\\text{Address of } arr[i] = \\text{Base Address} + (i \\times \\text{sizeof}(\\text{Data Type}))$$
+Because elements are contiguous, the memory address of any element at index i is calculated directly by the hardware:
+\Address of  arr[i] = \Base Address + (i \× \sizeof(\Data Type))
 
 \`\`\`
  Array: int arr[4] = {10, 20, 30, 40}; (assuming 4 bytes per int)
@@ -477,7 +477,7 @@ int length = sizeof(arr) / sizeof(arr[0]);
 
 #### 3. Common Array Operations
 - **Traversal:** Iterating through elements using a \`for\` loop from index \`0\` to \`length - 1\`.
-- **Search (Linear Search):** Checking each element sequentially until the target is found ($O(n)$).
+- **Search (Linear Search):** Checking each element sequentially until the target is found (O(n)).
 - **Extremes:** Tracking minimum and maximum values across the dataset.`,
         codeSnippets: [
             {
@@ -550,7 +550,7 @@ While humans visualize a 2D array as a grid, physical RAM is strictly a 1D seque
 \`\`\`
 
 #### Address Formula in Row-Major Order
-$$\\text{Address}(arr[i][j]) = \\text{Base} + ((i \\times \\text{Cols}) + j) \\times \\text{sizeof}(\\text{Type})$$`,
+\Address(arr[i][j]) = \Base + ((i \× \Cols) + j) \× \sizeof(\Type)`,
         codeSnippets: [
             {
                 language: 'c',
@@ -591,7 +591,7 @@ int main(void) {
 A **multidimensional array** extends array indexing to three or more dimensions. In C, an array can have an arbitrary number of dimensions, bounded only by available system memory.
 
 #### 3D Arrays: Tensors and Depth Grids
-A 3D array is conceptually an **array of 2D arrays** (Blocks $\\times$ Rows $\\times$ Columns):
+A 3D array is conceptually an **array of 2D arrays** (Blocks \× Rows \× Columns):
 \`\`\`c
 int tensor[BLOCKS][ROWS][COLS];
 \`\`\`
@@ -608,9 +608,9 @@ Think of a 3D array as a book:
 \`\`\`
 
 #### Real-World Applications
-1. **3D Computer Graphics:** Storing voxel data or 3D vector coordinates $(x, y, z)$.
-2. **Color Digital Images:** Height $\\times$ Width $\\times$ Color Channels (RGB: 3 channels).
-3. **Time-Series Sensor Grids:** Time-step $\\times$ Sensor-Row $\\times$ Sensor-Column.`,
+1. **3D Computer Graphics:** Storing voxel data or 3D vector coordinates (x, y, z).
+2. **Color Digital Images:** Height \× Width \× Color Channels (RGB: 3 channels).
+3. **Time-Series Sensor Grids:** Time-step \× Sensor-Row \× Sensor-Column.`,
         codeSnippets: [
             {
                 language: 'c',
@@ -738,7 +738,7 @@ Unlike modern languages with a built-in \`string\` object, C has **no primitive 
 
 #### The Null Terminator (\`'\\0'\`)
 The null character has an ASCII value of \`0\`. It serves as a sentinel marker informing library functions (like \`printf\`, \`strlen\`) where the string text ends in memory.
-- To store a string of length $N$, the character array must be sized at least $N + 1$ to accommodate the trailing \`'\\0'\`.
+- To store a string of length N, the character array must be sized at least N + 1 to accommodate the trailing \`'\\0'\`.
 
 \`\`\`
  Storing "HiGen" in memory:

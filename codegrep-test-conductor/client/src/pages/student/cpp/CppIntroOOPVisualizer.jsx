@@ -364,7 +364,7 @@ export default function CppIntroOOPVisualizer({ activeLesson, lessonOrder, lesso
                         </div>
 
                         {/* Pillar Selector Pills */}
-                        <div className="grid grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 bg-slate-100 p-1 rounded-xl">
                             {[
                                 { id: 'encapsulation', label: 'Encapsulation' },
                                 { id: 'abstraction', label: 'Abstraction' },
@@ -392,7 +392,7 @@ export default function CppIntroOOPVisualizer({ activeLesson, lessonOrder, lesso
                                     <Shield className="w-4 h-4 text-emerald-600" />
                                     <span>Encapsulation (Data Hiding &amp; Bundling)</span>
                                 </div>
-                                <div className="grid grid-cols-2 gap-3 text-center">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-center">
                                     <div className="p-3 bg-white rounded-xl border border-red-200 shadow-2xs">
                                         <span className="text-[10px] font-bold text-red-600 uppercase block">Private Scope (Hidden)</span>
                                         <div className="mt-1 font-mono text-xs text-slate-800 font-semibold space-y-0.5">
@@ -464,7 +464,7 @@ export default function CppIntroOOPVisualizer({ activeLesson, lessonOrder, lesso
                                     <RefreshCw className="w-4 h-4 text-amber-600" />
                                     <span>Polymorphism (One Interface, Many Forms)</span>
                                 </div>
-                                <div className="grid grid-cols-2 gap-2 text-center text-xs">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-center text-xs">
                                     <div className="p-2.5 bg-white rounded-lg border border-slate-200">
                                         <span className="text-[10px] font-bold text-slate-400 block uppercase">Compile-Time</span>
                                         <span className="font-semibold text-slate-800">Function &amp; Operator Overloading</span>

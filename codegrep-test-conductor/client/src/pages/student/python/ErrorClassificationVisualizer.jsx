@@ -311,7 +311,7 @@ export default function ErrorClassificationVisualizer() {
                                 Lifecycle Stages
                             </span>
                         </div>
-                        <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs font-mono">
                             <div className={`p-2 rounded-xl border transition-all ${
                                 selectedExample === 0
                                     ? currentStepData?.parserStatus === 'failed'
@@ -405,7 +405,7 @@ export default function ErrorClassificationVisualizer() {
                             </div>
 
                             {/* Active Variables in Memory Pod */}
-                            <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
                                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                                     <div className="text-[10px] text-slate-400">VARIABLE: a</div>
                                     <div className="font-bold text-slate-800 text-base">100</div>

@@ -12,7 +12,7 @@ module.exports = {
     // ── MODULE 4: DICTIONARIES AND SETS ───────────────────────────────────────
     "4-1": {
         content: `### 4.1 Python Dictionaries: Hash Map Architecture
-A \`dict\` stores key-value pairs backed by a high-performance hash table with $O(1)$ average time complexity for lookups, insertions, and deletions:
+A \`dict\` stores key-value pairs backed by a high-performance hash table with O(1) average time complexity for lookups, insertions, and deletions:
 \`\`\`python
 student = {
     "id": 101,
@@ -103,7 +103,7 @@ print("Unique IDs:", unique_ids)
 \`\`\`
 
 ### 4.6 Core Set Mutators
-- \`.add(elem)\`: Inserts an element ($O(1)$).
+- \`.add(elem)\`: Inserts an element (O(1)).
 - \`.remove(elem)\`: Removes element; raises \`KeyError\` if absent.
 - \`.discard(elem)\`: Removes element safely without raising an error if absent.`,
         codeSnippets: [

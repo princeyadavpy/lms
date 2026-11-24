@@ -204,17 +204,17 @@ const StudentDashboard = () => {
                 </div>
 
                 {/* Reference Dashboard KPI Stats Grid */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-slate-100">
                     {stats.map((s, i) => {
                         const Icon = s.icon;
                         return (
-                            <div key={i} className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/70 hover:bg-slate-50 transition-all flex flex-col justify-between">
-                                <div className="flex items-center justify-between gap-2 mb-2">
-                                    <div className="ref-label text-[10px]">
-                                        <Icon size={14} className="text-slate-400" />
-                                        <span>{s.label}</span>
+                            <div key={i} className="p-3 sm:p-4 rounded-xl bg-slate-50/70 border border-slate-200/70 hover:bg-slate-50 transition-all flex flex-col justify-between min-w-0">
+                                <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
+                                    <div className="ref-label text-[10px] min-w-0">
+                                        <Icon size={13} className="text-slate-400 shrink-0" />
+                                        <span className="truncate">{s.label}</span>
                                     </div>
-                                    <span className="ref-badge-green text-[10px]">
+                                    <span className="ref-badge-green text-[10px] shrink-0">
                                         {s.delta}
                                     </span>
                                 </div>

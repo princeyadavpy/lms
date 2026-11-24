@@ -445,7 +445,7 @@ function ImportBuilderPanel({ onAnimate }) {
         <h3 className="text-sm font-semibold text-white">Import Statement Builder</h3>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
         {/* Style picker */}
         <div>
           <label className="block text-xs text-gray-400 mb-1">Import style</label>

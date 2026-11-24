@@ -2,6 +2,7 @@ const Course = require('../models/Course');
 const Batch = require('../models/Batch');
 const StudentProgress = require('../models/StudentProgress');
 const User = require('../models/User');
+const Notification = require('../models/Notification');
 
 // POST /api/courses â€” Create course
 exports.createCourse = async (req, res) => {
@@ -665,6 +666,22 @@ exports.allocateInstitutions = async (req, res) => {
         course.allocatedInstitutions = Array.isArray(institutionIds) ? institutionIds : [];
         await course.save();
 
+        if (course.allocatedInstitutions.length > 0) {
+            const instStudents = await User.find({
+                role: 'Student',
+                institutionId: { $in: course.allocatedInstitutions }
+            }).select('_id').lean();
+            if (instStudents.length > 0) {
+                await Notification.insertMany(instStudents.map(s => ({
+                    userId: s._id,
+                    title: 'New Course Allocated',
+                    body: `"${course.title}" (${course.code}) has been allocated to your institution. Start learning now!`,
+                    type: 'institution_allocated',
+                    link: `/student/courses/${course._id}/learn`
+                }))).catch(() => {});
+            }
+        }
+
         const populated = await Course.findById(course._id)
             .populate('allocatedInstitutions', 'name code domain')
             .lean();
@@ -698,6 +715,13 @@ exports.allocateStudents = async (req, res) => {
                 { _id: { $in: studentIds } },
                 { $addToSet: { enrolledCourses: course._id } }
             );
+            await Notification.insertMany(studentIds.map(sid => ({
+                userId: sid,
+                title: 'Course Allocated to You',
+                body: `Admin allocated "${course.title}" (${course.code}) to your account. Start learning now!`,
+                type: 'course_allocated',
+                link: `/student/courses/${course._id}/learn`
+            }))).catch(() => {});
         }
 
         res.status(200).json({

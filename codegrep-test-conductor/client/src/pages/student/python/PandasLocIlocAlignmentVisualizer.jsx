@@ -333,7 +333,7 @@ export default function PandasLocIlocAlignmentVisualizer() {
                         {EXAMPLES[selectedExample].id === 'loc-vs-iloc' && (
                             <div className="space-y-4">
                                 {/* Rule Badge Pill */}
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className={`p-3 rounded-xl border text-xs transition-all ${
                                         activeStepData?.mode === 'loc' ? 'bg-amber-50 border-amber-300 ring-2 ring-amber-200' : 'bg-slate-50 border-slate-200'
                                     }`}>
@@ -464,7 +464,7 @@ export default function PandasLocIlocAlignmentVisualizer() {
                                             dtype: float64
                                         </span>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-2 text-xs font-mono">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-mono">
                                         <div className="p-2 bg-white rounded-lg border border-red-200 flex flex-col items-center">
                                             <span className="text-[10px] text-purple-700 font-bold">'x'</span>
                                             <span className="text-sm font-black text-rose-600 mt-1">NaN</span>

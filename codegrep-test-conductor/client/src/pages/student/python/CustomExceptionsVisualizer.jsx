@@ -338,7 +338,7 @@ export default function CustomExceptionsVisualizer() {
                                 <span>INHERITANCE: Exception ➔ InsufficientFundsError</span>
                                 <span>CUSTOM PAYLOAD ATTRIBUTES</span>
                             </div>
-                            <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                                 <div className="p-2 rounded bg-slate-950 border border-slate-800 text-orange-300">
                                     self.balance = balance
                                 </div>
@@ -386,7 +386,7 @@ export default function CustomExceptionsVisualizer() {
 
                             {/* Payload Details */}
                             {currentStepData?.customPayload ? (
-                                <div className="grid grid-cols-3 gap-2 font-mono text-center text-xs">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-center text-xs">
                                     <div className="p-2 bg-white rounded-lg border border-slate-200">
                                         <div className="text-[10px] text-slate-400">BALANCE</div>
                                         <div className="font-bold text-slate-800">${currentStepData.customPayload.balance}</div>

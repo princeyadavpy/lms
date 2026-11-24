@@ -650,7 +650,7 @@ export default function OOPOverviewVisualizer() {
                                         </div>
 
                                         {/* 3 Branching Boxes */}
-                                        <div className="grid grid-cols-3 gap-2 pt-1">
+                                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
                                             <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 text-center space-y-1">
                                                 <div className="text-xs font-mono font-bold text-blue-400">class Dog</div>
                                                 <div className="text-xs font-mono text-emerald-400 font-bold bg-slate-900 py-1 rounded">"Woof!" 🐶</div>
@@ -704,7 +704,7 @@ export default function OOPOverviewVisualizer() {
                                                 </span>
                                                 <span className="text-[10px] bg-amber-800 px-2 py-0.5 rounded">Simple &amp; Clean</span>
                                             </div>
-                                            <div className="grid grid-cols-3 gap-2 text-center text-xs font-mono">
+                                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs font-mono">
                                                 <div className="p-2 bg-amber-950 rounded border border-amber-600 font-bold">car.drive()</div>
                                                 <div className="p-2 bg-amber-950 rounded border border-amber-600 font-bold">car.brake()</div>
                                                 <div className="p-2 bg-amber-950 rounded border border-amber-600 font-bold">car.steer()</div>
@@ -724,7 +724,7 @@ export default function OOPOverviewVisualizer() {
                                                 </span>
                                                 <span>Internal Machinery</span>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-2 text-slate-300 pt-1">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-300 pt-1">
                                                 <div className="p-2 bg-slate-950 rounded border border-slate-800">• Fuel Injection Timing</div>
                                                 <div className="p-2 bg-slate-950 rounded border border-slate-800">• Hydraulic Braking Valves</div>
                                                 <div className="p-2 bg-slate-950 rounded border border-slate-800">• Transmission Gear Ratios</div>

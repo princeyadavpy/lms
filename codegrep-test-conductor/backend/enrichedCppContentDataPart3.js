@@ -24,10 +24,10 @@ module.exports = {
 \`\`\`
 
 #### Forms of Inheritance
-1. **Single Inheritance:** A single derived class inherits from one single base class ($A \\rightarrow B$).
-2. **Multiple Inheritance:** A single derived class inherits directly from two or more base classes ($A, B \\rightarrow C$).
-3. **Multilevel Inheritance:** A class inherits from a derived class, forming a chain ($A \\rightarrow B \\rightarrow C$).
-4. **Hierarchical Inheritance:** Multiple derived classes inherit from a single common base class ($A \\rightarrow B$ and $A \\rightarrow C$).
+1. **Single Inheritance:** A single derived class inherits from one single base class (A \→ B).
+2. **Multiple Inheritance:** A single derived class inherits directly from two or more base classes (A, B \→ C).
+3. **Multilevel Inheritance:** A class inherits from a derived class, forming a chain (A \→ B \→ C).
+4. **Hierarchical Inheritance:** Multiple derived classes inherit from a single common base class (A \→ B and A \→ C).
 5. **Hybrid Inheritance:** A combination of two or more forms of inheritance (e.g., forming a diamond).
 
 #### Access Visibility in Inheritance Modes
@@ -357,9 +357,9 @@ stream.read(reinterpret_cast<char*>(&object), sizeof(object));
 \`\`\`
 
 #### In-Place Record Updating
-To update record $N$ in a binary file without rewriting preceding records:
+To update record N in a binary file without rewriting preceding records:
 1. Open in bidirectional binary mode: \`std::fstream file("data.bin", std::ios::in | std::ios::out | std::ios::binary);\`.
-2. Seek write pointer directly to record $N$:
+2. Seek write pointer directly to record N:
    \`\`\`cpp
    file.seekp(N * sizeof(Record), std::ios::beg);
    \`\`\`

@@ -402,7 +402,7 @@ export default function PandasStatsGroupbyMissingVisualizer() {
                         {/* CASE 2: Missing Data Sanitization Station */}
                         {EXAMPLES[selectedExample].id === 'missing-data-cleaning' && (
                             <div className="space-y-4">
-                                <div className="grid grid-cols-2 gap-3 text-xs">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                                     <div className="p-3 bg-red-50 border border-red-200 rounded-xl space-y-1">
                                         <div className="font-bold text-red-900 flex items-center gap-1.5">
                                             <AlertTriangle className="w-4 h-4 text-red-600" />

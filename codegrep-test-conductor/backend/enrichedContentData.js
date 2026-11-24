@@ -490,7 +490,7 @@ print(nums[::-1])  # [60, 50, 40, 30, 20, 10] (reversed)
 \`\`\`
 
 ### 3.3 Sorting & Reversing Operations
-- \`nums.sort()\`: In-place mutation using Timsort ($O(N \log N)$), returns \`None\`.
+- \`nums.sort()\`: In-place mutation using Timsort (O(N log N)), returns \`None\`.
 - \`sorted(nums)\`: Returns a **new** sorted list without mutating the original.`,
         codeSnippets: [
             {

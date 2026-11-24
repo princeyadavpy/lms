@@ -4,6 +4,7 @@ const User = require('../models/User');
 const Course = require('../models/Course');
 const Test = require('../models/Test');
 const StudentProgress = require('../models/StudentProgress');
+const Notification = require('../models/Notification');
 const bcrypt = require('bcryptjs');
 
 // POST /api/batches — Create batch
@@ -141,6 +142,21 @@ exports.assignCoursesToBatch = async (req, res) => {
 
         // Initialize progress for all enrolled students for newly assigned courses
         const courses = await Course.find({ _id: { $in: courseIds } });
+        if (batch.students.length > 0 && courses.length > 0) {
+            const notifs = [];
+            for (const studentId of batch.students) {
+                for (const course of courses) {
+                    notifs.push({
+                        userId: studentId,
+                        title: 'New Course Allocated',
+                        body: `"${course.title}" (${course.code}) was allocated to your batch "${batch.name}".`,
+                        type: 'course_allocated',
+                        link: `/student/courses/${course._id}/learn`
+                    });
+                }
+            }
+            await Notification.insertMany(notifs).catch(() => {});
+        }
         for (const studentId of batch.students) {
             for (const course of courses) {
                 const firstModuleId = course.modules?.[0]?._id;
@@ -186,6 +202,16 @@ exports.assignExamsToBatch = async (req, res) => {
         testIds.forEach(id => existingSet.add(id.toString()));
         batch.assignedExams = Array.from(existingSet);
         await batch.save();
+
+        if (batch.students.length > 0 && testIds.length > 0) {
+            await Notification.insertMany(batch.students.map(sid => ({
+                userId: sid,
+                title: 'New Exam Assigned',
+                body: `A new exam has been assigned to your batch "${batch.name}".`,
+                type: 'exam_allocated',
+                link: '/student/exams'
+            }))).catch(() => {});
+        }
 
         res.status(200).json({ success: true, data: batch });
     } catch (err) {
@@ -253,6 +279,16 @@ exports.bulkEnrollStudents = async (req, res) => {
         studentIdsToEnroll.forEach(id => batchStudentSet.add(id.toString()));
         batch.students = Array.from(batchStudentSet);
         await batch.save();
+
+        if (studentIdsToEnroll.length > 0) {
+            await Notification.insertMany(studentIdsToEnroll.map(sid => ({
+                userId: sid,
+                title: 'Enrolled in Batch',
+                body: `You have been allocated to batch "${batch.name}" (${batch.code}).`,
+                type: 'batch_allocated',
+                link: '/student/courses'
+            }))).catch(() => {});
+        }
 
         // Initialize progress for all newly enrolled students across assigned courses
         if (batch.assignedCourses && batch.assignedCourses.length > 0) {

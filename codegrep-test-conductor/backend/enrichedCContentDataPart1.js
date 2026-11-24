@@ -412,8 +412,8 @@ Used to combine conditional tests:
 #### 4. Bitwise Operators
 Operate directly on individual bits of integer numbers:
 - \`&\` (Bitwise AND), \`|\` (Bitwise OR), \`^\` (Bitwise XOR), \`~\` (Bitwise NOT/1's complement)
-- \`<<\` (Left Shift): Shifts bits left, multiplying by $2^n$ (\`5 << 1\` is \`10\`).
-- \`>>\` (Right Shift): Shifts bits right, dividing by $2^n$ (\`10 >> 1\` is \`5\`).
+- \`<<\` (Left Shift): Shifts bits left, multiplying by 2^n (\`5 << 1\` is \`10\`).
+- \`>>\` (Right Shift): Shifts bits right, dividing by 2^n (\`10 >> 1\` is \`5\`).
 
 #### 5. Assignment & Compound Assignment
 - Standard assignment: \`=\`
@@ -462,14 +462,14 @@ A **constant** (or literal) is a fixed value that cannot be altered by the progr
 #### 1. Integer Constants
 Fixed whole numbers without fractional points:
 - **Decimal:** Digits \`0-9\` (e.g., \`42\`, \`-100\`).
-- **Octal:** Starts with prefix \`0\` followed by digits \`0-7\` (e.g., \`052\` = $5 \\times 8^1 + 2 \\times 8^0 = 42_{10}$).
-- **Hexadecimal:** Starts with prefix \`0x\` or \`0X\` followed by digits \`0-9\` and \`a-f\` (e.g., \`0x2A\` = $2 \\times 16^1 + 10 \\times 16^0 = 42_{10}$).
+- **Octal:** Starts with prefix \`0\` followed by digits \`0-7\` (e.g., \`052\` = 5 \× 8^1 + 2 \× 8^0 = 42_{10}).
+- **Hexadecimal:** Starts with prefix \`0x\` or \`0X\` followed by digits \`0-9\` and \`a-f\` (e.g., \`0x2A\` = 2 \× 16^1 + 10 \× 16^0 = 42_{10}).
 - **Suffixes:** \`U\` or \`u\` for unsigned (\`500U\`), \`L\` or \`l\` for long (\`100000L\`).
 
 #### 2. Real (Floating-Point) Constants
 Numbers containing fractional parts or exponential scientific notation:
 - **Fractional form:** \`3.14159\`, \`-0.005\`
-- **Exponential form:** \`1.5e3\` ($1.5 \\times 10^3 = 1500.0$), \`2.8E-4\` ($2.8 \\times 10^{-4}$)
+- **Exponential form:** \`1.5e3\` (1.5 \× 10^3 = 1500.0), \`2.8E-4\` (2.8 \× 10^{-4})
 - By default, floating literals are of type \`double\`. Suffix \`f\` specifies \`float\` (\`3.14f\`).
 
 #### 3. Character Constants
@@ -600,14 +600,14 @@ Data types in C define the size of memory allocated, the range of values that ca
 #### Primary (Fundamental) Data Types on Standard 64-bit Systems
 | Data Type | Keyword | Typical Size | Range of Values | Format Specifier |
 | :--- | :--- | :--- | :--- | :--- |
-| **Character** | \`char\` | 1 Byte | $-128$ to $127$ | \`%c\` |
-| **Unsigned Char** | \`unsigned char\` | 1 Byte | $0$ to $255$ | \`%c\` or \`%u\` |
-| **Integer** | \`int\` | 4 Bytes | $-2,147,483,648$ to $+2,147,483,647$ | \`%d\` or \`%i\` |
-| **Unsigned Int** | \`unsigned int\` | 4 Bytes | $0$ to $4,294,967,295$ | \`%u\` |
-| **Short Int** | \`short int\` | 2 Bytes | $-32,768$ to $+32,767$ | \`%hd\` |
-| **Long Int** | \`long int\` | 8 Bytes | $-9.22 \\times 10^{18}$ to $+9.22 \\times 10^{18}$ | \`%ld\` |
-| **Float** | \`float\` | 4 Bytes | $\\approx 3.4 \\times 10^{\\pm 38}$ (6-7 decimal places) | \`%f\` |
-| **Double** | \`double\` | 8 Bytes | $\\approx 1.7 \\times 10^{\\pm 308}$ (15 decimal places) | \`%lf\` |
+| **Character** | \`char\` | 1 Byte | -128 to 127 | \`%c\` |
+| **Unsigned Char** | \`unsigned char\` | 1 Byte | 0 to 255 | \`%c\` or \`%u\` |
+| **Integer** | \`int\` | 4 Bytes | -2,147,483,648 to +2,147,483,647 | \`%d\` or \`%i\` |
+| **Unsigned Int** | \`unsigned int\` | 4 Bytes | 0 to 4,294,967,295 | \`%u\` |
+| **Short Int** | \`short int\` | 2 Bytes | -32,768 to +32,767 | \`%hd\` |
+| **Long Int** | \`long int\` | 8 Bytes | -9.22 \× 10^{18} to +9.22 \× 10^{18} | \`%ld\` |
+| **Float** | \`float\` | 4 Bytes | \≈ 3.4 \× 10^{\pm 38} (6-7 decimal places) | \`%f\` |
+| **Double** | \`double\` | 8 Bytes | \≈ 1.7 \× 10^{\pm 308} (15 decimal places) | \`%lf\` |
 | **Long Double** | \`long double\` | 16 Bytes | Extended precision (19 decimal places) | \`%Lf\` |
 | **Void** | \`void\` | 0 Bytes | Valueless / Generic pointer indicator | N/A |
 
@@ -1040,7 +1040,7 @@ An **arithmetic expression** is a combination of constants, variable identifiers
    \`\`\`
 
 #### Common Arithmetic Formulas in C
-- **Temperature Conversion ($C = \\frac{5}{9}(F - 32)$):**
+- **Temperature Conversion (C = 5/9(F - 32)):**
   \`\`\`c
   // WRONG: 5 / 9 performs integer division = 0!
   celsius = (5 / 9) * (fahrenheit - 32); 
@@ -1048,7 +1048,7 @@ An **arithmetic expression** is a combination of constants, variable identifiers
   // CORRECT: Using floating-point literal 5.0 / 9.0
   celsius = (5.0 / 9.0) * (fahrenheit - 32);
   \`\`\`
-- **Euclidean Distance ($\\sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$):**
+- **Euclidean Distance (\√((x_2 - x_1)^2 + (y_2 - y_1)^2)):**
   \`\`\`c
   #include <math.h>
   double dist = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));

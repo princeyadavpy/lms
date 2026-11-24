@@ -177,14 +177,68 @@ const renderMarkdownContent = (raw) => {
             .replace(/'/g, '&#039;');
     };
 
+    const formatMathExpr = (expr) => {
+        let m = String(expr)
+            // Recover control chars created by unescaped \f (\frac), \t (\times, \Theta, \text), \r (\rightarrow)
+            .replace(/\x0crac/g, '\\frac')
+            .replace(/\trac/g, '\\frac')
+            .replace(/\t(?=[a-zA-Z])/g, '\\t')
+            .replace(/\r(?=[a-zA-Z])/g, '\\r')
+            // Fractions: \frac{a}{b} -> (a)/(b) or a/b
+            .replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, (_, num, den) => `${num}/${den}`)
+            // Greek & math symbols
+            .replace(/\\Theta/g, 'Θ')
+            .replace(/\\Omega/g, 'Ω')
+            .replace(/\\Sigma/g, 'Σ')
+            .replace(/\\alpha/g, 'α')
+            .replace(/\\beta/g, 'β')
+            .replace(/\\theta/g, 'θ')
+            .replace(/\\times/g, '×')
+            .replace(/\\cdot/g, '·')
+            .replace(/\\rightarrow|\\to/g, '→')
+            .replace(/\\leftarrow/g, '←')
+            .replace(/\\le(?:q)?/g, '≤')
+            .replace(/\\ge(?:q)?/g, '≥')
+            .replace(/\\ne(?:q)?/g, '≠')
+            .replace(/\\approx/g, '≈')
+            .replace(/\\infty/g, '∞')
+            .replace(/\\sum/g, '∑')
+            .replace(/\\log/g, 'log')
+            .replace(/\\sqrt\{([^}]*)\}/g, '√($1)')
+            .replace(/\\text\{([^}]*)\}/g, '$1')
+            .replace(/\\mathrm\{([^}]*)\}/g, '$1')
+            .replace(/\\mathbf\{([^}]*)\}/g, '$1')
+            .replace(/\\,/g, ' ')
+            // Superscripts and subscripts
+            .replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>')
+            .replace(/\^([0-9a-zA-Z]+)/g, '<sup>$1</sup>')
+            .replace(/_\{([^}]+)\}/g, '<sub>$1</sub>')
+            .replace(/_([0-9a-zA-Z]+)/g, '<sub>$1</sub>');
+        return `<span class="font-mono text-[12px] font-semibold text-slate-900 bg-slate-100/80 px-1.5 py-0.5 rounded">${m}</span>`;
+    };
+
     const formatInline = (text) => {
         let t = text;
+        // Inline code (`code`) — protect first so $ inside code is untouched
+        const codePlaceholders = [];
+        t = t.replace(/`([^`]+)`/g, (_, code) => {
+            const idx = codePlaceholders.length;
+            codePlaceholders.push(`<code class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-mono text-[11px] border border-blue-200/70 font-semibold">${code}</code>`);
+            return `@@CODE_${idx}@@`;
+        });
+        // Display/Inline math ($...$ or $$...$$)
+        t = t.replace(/\$\$([^$\n]+?)\$\$/g, (_, expr) => formatMathExpr(expr));
+        t = t.replace(/\$([^$\n]+?)\$/g, (full, expr) => {
+            // Skip currency like "$100" if somehow paired or single
+            if (/^\d[\d,.]*\s/.test(expr)) return full;
+            return formatMathExpr(expr);
+        });
         // Bold (**text**)
         t = t.replace(/\*\*(.*?)\*\*/g, '<strong class="text-slate-900 font-bold">$1</strong>');
         // Italics (*text*)
         t = t.replace(/\*(.*?)\*/g, '<em class="text-slate-800 italic">$1</em>');
-        // Inline code (`code`)
-        t = t.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 font-mono text-[11px] border border-blue-200/70 font-semibold">$1</code>');
+        // Restore protected inline code
+        t = t.replace(/@@CODE_(\d+)@@/g, (_, idx) => codePlaceholders[Number(idx)] || '');
         return t;
     };
 

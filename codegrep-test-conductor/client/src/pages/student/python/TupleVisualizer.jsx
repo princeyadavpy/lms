@@ -396,7 +396,7 @@ export default function TupleVisualizer() {
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-3 gap-2.5 text-xs font-mono">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
                                 <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-950 text-center">
                                     <span className="text-[10px] text-blue-700 font-bold block mb-1">first</span>
                                     <span className="text-lg font-bold text-blue-900">{unpackingResult.first}</span>

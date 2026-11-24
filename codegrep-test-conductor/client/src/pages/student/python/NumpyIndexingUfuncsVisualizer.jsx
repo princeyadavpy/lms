@@ -331,7 +331,7 @@ export default function NumpyIndexingUfuncsVisualizer() {
 
                                     <div className="grid grid-rows-3 gap-2 max-w-xs mx-auto">
                                         {matrix3x3.map((row, r) => (
-                                            <div key={r} className="grid grid-cols-3 gap-2">
+                                            <div key={r} className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                                                 {row.map((val, c) => {
                                                     const cellKey = `${r},${c}`;
                                                     const isHighlighted = (currentStepData?.highlightedCells || []).includes(cellKey);
@@ -363,7 +363,7 @@ export default function NumpyIndexingUfuncsVisualizer() {
                         ) : (
                             /* TRANSPOSE & UFUNCS VIEWER */
                             <div className="space-y-3 font-mono text-xs">
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
                                         <div className="text-slate-500 text-[10px]">ORIGINAL (2, 3)</div>
                                         <div className="font-bold text-slate-800">

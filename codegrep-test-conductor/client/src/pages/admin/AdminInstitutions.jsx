@@ -152,7 +152,7 @@ const AdminInstitutions = () => {
                                     <p className="text-xs font-medium text-slate-500">{inst.domain}</p>
                                 )}
 
-                                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs">
                                     <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
                                         <span className="text-[10px] text-slate-500 uppercase font-bold block mb-0.5">Active Batches</span>
                                         <span className="text-base font-black text-blue-600">{inst.stats?.batchCount || 0}</span>

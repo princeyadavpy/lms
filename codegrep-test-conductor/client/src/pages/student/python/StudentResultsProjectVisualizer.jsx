@@ -263,7 +263,7 @@ export default function StudentResultsProjectVisualizer() {
                     </div>
 
                     {/* Pipeline Stage Indicators */}
-                    <div className="grid grid-cols-5 gap-1.5 text-center text-[10px] font-bold">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 text-center text-[10px] font-bold">
                         {[
                             { s: 1, label: '1. Ingest' },
                             { s: 2, label: '2. Totals' },

@@ -340,7 +340,7 @@ export default function CppFunctionsVisualizer({ activeLesson, lessonOrder, less
                             </div>
 
                             {/* VPTR arrow to VTable Box */}
-                            <div className="grid grid-cols-2 gap-3 items-center">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-center">
                                 <div className="p-3 bg-white border border-slate-300 rounded-xl shadow-2xs space-y-1">
                                     <span className="text-[10px] font-bold uppercase text-slate-400 block">Object Header</span>
                                     <div className="px-2 py-1 bg-blue-50 border border-blue-200 rounded text-blue-800 font-mono text-xs font-bold flex items-center justify-between">

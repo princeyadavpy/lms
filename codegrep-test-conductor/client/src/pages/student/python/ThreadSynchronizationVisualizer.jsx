@@ -375,7 +375,7 @@ export default function ThreadSynchronizationVisualizer() {
                         </div>
 
                         {/* WORKER ACTIONS COMPARISON BOX */}
-                        <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
                             <div className={`p-3 rounded-xl border-2 space-y-1 transition-all ${
                                 currentStepData?.t1Action === 'inside_vault' || currentStepData?.t1Action === 'write_1'
                                     ? 'bg-blue-50 border-blue-500'

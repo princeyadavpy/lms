@@ -341,7 +341,7 @@ const AdminCourses = () => {
                                     </div>
 
                                     {/* Metrics Pill Grid */}
-                                    <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center text-xs">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center text-xs">
                                         <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
                                             <span className="text-[10px] text-slate-500 block font-bold uppercase mb-0.5">Modules</span>
                                             <span className="text-sm font-black text-slate-900">{course.totalModulesCount || 0}</span>
@@ -406,7 +406,7 @@ const AdminCourses = () => {
 
                                 {/* Action Buttons */}
                                 <div className="pt-3 border-t border-slate-100 flex flex-col gap-2">
-                                    <div className="grid grid-cols-2 gap-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                         <button
                                             onClick={() => openInstAllocation(course)}
                                             className="w-full py-2 px-2.5 rounded-xl text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100/70 transition-colors flex items-center justify-center gap-1 cursor-pointer"

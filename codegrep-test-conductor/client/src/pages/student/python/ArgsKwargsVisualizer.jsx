@@ -321,7 +321,7 @@ export default function ArgsKwargsVisualizer() {
                   Target Signature: <code className="text-slate-800 font-bold">add(a, b, c=0)</code>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div className="p-3 bg-white rounded-xl border border-blue-200 text-center space-y-1">
                     <div className="text-[10px] uppercase font-bold text-blue-600">Param: a</div>
                     <div className="text-base font-mono font-bold text-slate-900">
@@ -430,7 +430,7 @@ export default function ArgsKwargsVisualizer() {
                   Incoming Keyword Arguments: <code className="text-rose-300 font-bold">config(host="localhost", port=8080, debug=True)</code>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {[
                     { k: 'host', v: '"localhost"' },
                     { k: 'port', v: '8080' },

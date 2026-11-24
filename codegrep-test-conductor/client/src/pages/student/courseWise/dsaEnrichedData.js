@@ -96,7 +96,7 @@ void  list_destroy(List* list);
         title: "1.2 Algorithm representation and complexity",
         content: `### 1.2 Asymptotic Notations & Algorithmic Complexity (Big-O, Ω, Θ)
 
-Algorithm analysis measures resource consumption (primarily **Time** and **Auxiliary Space**) as the input size $n$ approaches infinity ($n \to \infty$). Asymptotic notations provide a rigorous mathematical framework to classify algorithms independently of machine hardware, CPU clock speed, operating systems, or compiler optimizations.
+Algorithm analysis measures resource consumption (primarily **Time** and **Auxiliary Space**) as the input size n approaches infinity (n → ∞). Asymptotic notations provide a rigorous mathematical framework to classify algorithms independently of machine hardware, CPU clock speed, operating systems, or compiler optimizations.
 
 #### Mathematical Definitions of Asymptotic Notations
 
@@ -114,31 +114,31 @@ Algorithm analysis measures resource consumption (primarily **Time** and **Auxil
                n₀                                 n₀                                 n₀
 \`\`\`
 
-1. **Big-O Notation ($O$) — Asymptotic Upper Bound**:
-   $$f(n) = O(g(n)) \iff \exists c > 0, n_0 \ge 1 \text{ such that } 0 \le f(n) \le c \cdot g(n) \quad \forall n \ge n_0$$
-   - Represents the **worst-case guarantee**: the algorithm will never consume more time than $c \cdot g(n)$ for large inputs.
-2. **Big-Omega Notation ($\Omega$) — Asymptotic Lower Bound**:
-   $$f(n) = \Omega(g(n)) \iff \exists c > 0, n_0 \ge 1 \text{ such that } 0 \le c \cdot g(n) \le f(n) \quad \forall n \ge n_0$$
-   - Represents the **best-case performance**: the algorithm requires at least $c \cdot g(n)$ operations even under optimal input conditions.
-3. **Big-Theta Notation ($\Theta$) — Asymptotically Tight Bound**:
-   $$f(n) = \Theta(g(n)) \iff \exists c_1, c_2 > 0, n_0 \ge 1 \text{ such that } 0 \le c_1 \cdot g(n) \le f(n) \le c_2 \cdot g(n) \quad \forall n \ge n_0$$
-   - Proves that $f(n) = O(g(n))$ and $f(n) = \Omega(g(n))$ simultaneously.
-4. **Little-o ($o$) and Little-omega ($\omega$)**:
-   - Strictly non-tight bounds: $f(n) = o(g(n)) \implies \lim_{n \to \infty} \frac{f(n)}{g(n)} = 0$; $f(n) = \omega(g(n)) \implies \lim_{n \to \infty} \frac{f(n)}{g(n)} = \infty$.
+1. **Big-O Notation (O) — Asymptotic Upper Bound**:
+   f(n) = O(g(n)) \iff \exists c > 0, n_0 ≥ 1  such that  0 ≤ f(n) ≤ c · g(n) \quad \forall n ≥ n_0
+   - Represents the **worst-case guarantee**: the algorithm will never consume more time than c · g(n) for large inputs.
+2. **Big-Omega Notation (Ω) — Asymptotic Lower Bound**:
+   f(n) = Ω(g(n)) \iff \exists c > 0, n_0 ≥ 1  such that  0 ≤ c · g(n) ≤ f(n) \quad \forall n ≥ n_0
+   - Represents the **best-case performance**: the algorithm requires at least c · g(n) operations even under optimal input conditions.
+3. **Big-Theta Notation (Θ) — Asymptotically Tight Bound**:
+   f(n) = Θ(g(n)) \iff \exists c_1, c_2 > 0, n_0 ≥ 1  such that  0 ≤ c_1 · g(n) ≤ f(n) ≤ c_2 · g(n) \quad \forall n ≥ n_0
+   - Proves that f(n) = O(g(n)) and f(n) = Ω(g(n)) simultaneously.
+4. **Little-o (o) and Little-omega (\omega)**:
+   - Strictly non-tight bounds: f(n) = o(g(n)) \implies \lim_{n → ∞} f(n)/g(n) = 0; f(n) = \omega(g(n)) \implies \lim_{n → ∞} f(n)/g(n) = ∞.
 
 ---
 
 #### Hierarchy of Complexity Classes
-$$O(1) < O(\log \log n) < O(\log n) < O(\sqrt{n}) < O(n) < O(n \log n) < O(n^2) < O(n^3) < O(2^n) < O(n!)$$
+O(1) < O(log log n) < O(log n) < O(√(n)) < O(n) < O(n log n) < O(n^2) < O(n^3) < O(2^n) < O(n!)
 
-| Complexity Class | Common Name | Typical Exemplar Algorithm | Operations for $n = 10^6$ |
+| Complexity Class | Common Name | Typical Exemplar Algorithm | Operations for n = 10^6 |
 | :--- | :--- | :--- | :--- |
-| $O(1)$ | Constant Time | Hash table lookup, Stack push/pop | $\sim 1$ |
-| $O(\log n)$ | Logarithmic Time | Binary Search, BST Search (Balanced) | $\sim 20$ |
-| $O(n)$ | Linear Time | Linear Scan, Quickselect (Average), Counting Sort | $10^6$ |
-| $O(n \log n)$ | Linearithmic | Merge Sort, Heap Sort, Quick Sort (Average) | $\approx 2 \times 10^7$ |
-| $O(n^2)$ | Quadratic | Bubble Sort, Selection Sort, Insertion Sort (Worst) | $10^{12}$ (Stalls CPU) |
-| $O(2^n)$ | Exponential | Recursive Fibonacci, 0/1 Knapsack Brute Force | $\approx 10^{301029}$ (Intractable) |`,
+| O(1) | Constant Time | Hash table lookup, Stack push/pop | \sim 1 |
+| O(log n) | Logarithmic Time | Binary Search, BST Search (Balanced) | \sim 20 |
+| O(n) | Linear Time | Linear Scan, Quickselect (Average), Counting Sort | 10^6 |
+| O(n log n) | Linearithmic | Merge Sort, Heap Sort, Quick Sort (Average) | ≈ 2 × 10^7 |
+| O(n^2) | Quadratic | Bubble Sort, Selection Sort, Insertion Sort (Worst) | 10^{12} (Stalls CPU) |
+| O(2^n) | Exponential | Recursive Fibonacci, 0/1 Knapsack Brute Force | ≈ 10^{301029} (Intractable) |`,
         codeSnippets: [
             {
                 language: "c",
@@ -189,17 +189,17 @@ long long compute_sum(const int arr[], int n) {
 In physical computer hardware, Random Access Memory (RAM) is a linear, one-dimensional addressable sequence of byte cells. Multi-dimensional arrays are mathematical abstractions that must be flattened into linear memory addresses.
 
 #### Address Translation Formulas
-Let an array $A$ have dimensions $R \times C$ (Rows $\times$ Columns) with element size $S = \text{sizeof}(T)$, and base address $\text{Base}(A)$:
+Let an array A have dimensions R × C (Rows × Columns) with element size S = sizeof(T), and base address Base(A):
 
 1. **Row-Major Order (Standard in C, C++, Python, Java)**:
    Consecutive elements of the same row are placed in contiguous memory addresses.
-   $$\text{Address}(A[i][j]) = \text{Base}(A) + \left( i \times C + j \right) \times S$$
-   *Generalized for 3D array $A[D_1][D_2][D_3]$:*
-   $$\text{Address}(A[i][j][k]) = \text{Base} + \left( i \cdot (D_2 \cdot D_3) + j \cdot D_3 + k \right) \times S$$
+   Address(A[i][j]) = Base(A) + ≤ft( i × C + j \right) × S
+   *Generalized for 3D array A[D_1][D_2][D_3]:*
+   Address(A[i][j][k]) = Base + ≤ft( i · (D_2 · D_3) + j · D_3 + k \right) × S
 
 2. **Column-Major Order (Standard in Fortran, MATLAB, R, Julia)**:
    Consecutive elements of the same column are stored contiguously.
-   $$\text{Address}(A[i][j]) = \text{Base}(A) + \left( j \times R + i \right) \times S$$
+   Address(A[i][j]) = Base(A) + ≤ft( j × R + i \right) × S
 
 \`\`\`
    2D Array Matrix:                     Physical Memory Storage in C (Row-Major):
@@ -448,11 +448,11 @@ A **Stack** is a linear data structure following the **Last-In, First-Out (LIFO)
 \`\`\`
 
 #### Core Operations and Invariants
-- **\`push(x)\`**: Inserts element $x$ onto the top of the stack. Time: $O(1)$.
-- **\`pop()\`**: Removes and returns the top element. Precondition: Stack must not be empty (prevents **Underflow**). Time: $O(1)$.
-- **\`peek()\` / \`top()\`**: Returns the value of the top element without removing it. Time: $O(1)$.
-- **\`isEmpty()\`**: Returns true if stack contains zero elements. Time: $O(1)$.
-- **\`isFull()\`**: Applicable only to fixed-size array implementations when \`top == capacity - 1\` (prevents **Overflow**). Time: $O(1)$.
+- **\`push(x)\`**: Inserts element x onto the top of the stack. Time: O(1).
+- **\`pop()\`**: Removes and returns the top element. Precondition: Stack must not be empty (prevents **Underflow**). Time: O(1).
+- **\`peek()\` / \`top()\`**: Returns the value of the top element without removing it. Time: O(1).
+- **\`isEmpty()\`**: Returns true if stack contains zero elements. Time: O(1).
+- **\`isFull()\`**: Applicable only to fixed-size array implementations when \`top == capacity - 1\` (prevents **Overflow**). Time: O(1).
 
 ---
 
@@ -462,7 +462,7 @@ A **Stack** is a linear data structure following the **Last-In, First-Out (LIFO)
 | **Memory Overhead** | Zero per-element overhead; allocated contiguously. | 8 bytes per node for the \`next\` pointer (64-bit systems). |
 | **Capacity Limits** | Static limit; subject to stack overflow. | Dynamic; constrained only by total available heap memory. |
 | **Cache Performance**| Outstanding spatial locality due to contiguous RAM. | Poor cache performance due to scattered heap node pointers. |
-| **Time Complexity** | Strictly $O(1)$ constant time for all operations. | Strictly $O(1)$ constant time at the linked list head. |`,
+| **Time Complexity** | Strictly O(1) constant time for all operations. | Strictly O(1) constant time at the linked list head. |`,
         codeSnippets: [
             {
                 language: "c",
@@ -516,7 +516,7 @@ Arithmetic expressions can be expressed in three distinct notations:
 3. **Prefix (Polish Notation)**: Operators precede their operands (e.g., \`+ A * B C\`).
 
 #### Dijkstra's Shunting-Yard Algorithm
-Invented by **Edsger Dijkstra**, the Shunting-Yard algorithm utilizes an operator stack to convert human-readable infix expressions into machine-executable postfix notation in $O(N)$ linear time.
+Invented by **Edsger Dijkstra**, the Shunting-Yard algorithm utilizes an operator stack to convert human-readable infix expressions into machine-executable postfix notation in O(N) linear time.
 
 \`\`\`
    Infix Token Stream: "A + B * C"
@@ -602,11 +602,11 @@ Postfix expressions (Reverse Polish Notation) allow arithmetic calculations with
 1. Initialize an empty numeric operand stack.
 2. Scan the postfix token sequence from **left to right**.
 3. If the token is an **operand** (number), push its value onto the stack.
-4. If the token is an **operator** ($\odot \in \{+, -, *, /, \^\dots\}$):
-   - Pop the top element: $\text{operand}_2 = \text{pop}()$.
-   - Pop the next top element: $\text{operand}_1 = \text{pop}()$.
-   - Compute: $\text{result} = \text{operand}_1 \odot \text{operand}_2$.
-   - Push $\text{result}$ back onto the stack.
+4. If the token is an **operator** (\odot \in \{+, -, *, /, \^\dots\}):
+   - Pop the top element: operand_2 = pop().
+   - Pop the next top element: operand_1 = pop().
+   - Compute: result = operand_1 \odot operand_2.
+   - Push result back onto the stack.
 5. At the end of the expression, the stack contains exactly one value: the final evaluated result.
 
 \`\`\`
@@ -627,7 +627,7 @@ Postfix expressions (Reverse Polish Notation) allow arithmetic calculations with
 ---
 
 #### Prefix Evaluation
-Prefix expressions are evaluated similarly, but scanned from **right to left**, popping $\text{operand}_1$ first and $\text{operand}_2$ second: $\text{result} = \text{operand}_1 \odot \text{operand}_2$.`,
+Prefix expressions are evaluated similarly, but scanned from **right to left**, popping operand_1 first and operand_2 second: result = operand_1 \odot operand_2.`,
         codeSnippets: [
             {
                 language: "c",
@@ -701,19 +701,19 @@ A **Linked List** is a linear data structure composed of self-referential nodes 
 #### Core Operations and Complexity Analysis
 | Operation | Array (Static) | Singly Linked List | Doubly Linked List |
 | :--- | :--- | :--- | :--- |
-| **Insert at Head** | $O(N)$ (requires shifting) | $O(1)$ | $O(1)$ |
-| **Insert at Tail** | $O(1)$ (amortized) | $O(1)$ with tail pointer | $O(1)$ with tail pointer |
-| **Insert at Index $k$** | $O(N)$ (requires shifting) | $O(k)$ (requires traversal) | $O(k)$ |
-| **Delete Given Node Pointer**| $O(N)$ | $O(N)$ (needs predecessor) | $O(1)$ (\`node->prev->next = node->next\`) |
-| **Random Access ($A[k]$)** | $O(1)$ direct index calculation | $O(k)$ sequential traversal | $O(k)$ sequential traversal |
+| **Insert at Head** | O(N) (requires shifting) | O(1) | O(1) |
+| **Insert at Tail** | O(1) (amortized) | O(1) with tail pointer | O(1) with tail pointer |
+| **Insert at Index k** | O(N) (requires shifting) | O(k) (requires traversal) | O(k) |
+| **Delete Given Node Pointer**| O(N) | O(N) (needs predecessor) | O(1) (\`node->prev->next = node->next\`) |
+| **Random Access (A[k])** | O(1) direct index calculation | O(k) sequential traversal | O(k) sequential traversal |
 
 ---
 
 #### Classical Algorithmic Techniques
 1. **In-Place List Reversal (Three-Pointer Method)**:
-   Maintains three pointers (\`prev\`, \`curr\`, \`next\`), reversing the link \`curr->next = prev\` in a single pass ($O(N)$ time, $O(1)$ space).
+   Maintains three pointers (\`prev\`, \`curr\`, \`next\`), reversing the link \`curr->next = prev\` in a single pass (O(N) time, O(1) space).
 2. **Floyd’s Cycle-Finding Algorithm (Tortoise and Hare)**:
-   Uses a slow pointer advancing 1 step and a fast pointer advancing 2 steps. If a cycle exists, they are guaranteed to meet inside the loop in $O(N)$ time.`,
+   Uses a slow pointer advancing 1 step and a fast pointer advancing 2 steps. If a cycle exists, they are guaranteed to meet inside the loop in O(N) time.`,
         codeSnippets: [
             {
                 language: "c",
@@ -770,18 +770,18 @@ A **Queue** is a linear data structure operating under the **First-In, First-Out
 \`\`\`
 
 #### Operations and Invariants
-- **\`enqueue(x)\`**: Inserts element $x$ at the rear. Time: $O(1)$.
-- **\`dequeue()\`**: Removes and returns element from the front. Time: $O(1)$.
-- **\`front()\` / \`peek()\`**: Inspects the front element without removing it. Time: $O(1)$.
-- **\`isEmpty()\`**: Evaluates \`front == -1 || front > rear\`. Time: $O(1)$.
+- **\`enqueue(x)\`**: Inserts element x at the rear. Time: O(1).
+- **\`dequeue()\`**: Removes and returns element from the front. Time: O(1).
+- **\`front()\` / \`peek()\`**: Inspects the front element without removing it. Time: O(1).
+- **\`isEmpty()\`**: Evaluates \`front == -1 || front > rear\`. Time: O(1).
 
 ---
 
 #### The False Overflow Problem in Linear Arrays
 When a linear queue is implemented with a simple array, advancing \`rear\` and \`front\` sequentially causes an issue:
-Even if items are dequeued, leaving unused slots at indices $0, 1 \dots$, once \`rear == capacity - 1\`, the queue reports **Overflow** despite having free memory.
-- *Solution 1*: Shift all remaining elements left on every dequeue ($O(N)$ per dequeue — highly inefficient).
-- *Solution 2*: **Circular Queue** with modulo arithmetic (optimal $O(1)$ — see Topic 3.3).
+Even if items are dequeued, leaving unused slots at indices 0, 1 \dots, once \`rear == capacity - 1\`, the queue reports **Overflow** despite having free memory.
+- *Solution 1*: Shift all remaining elements left on every dequeue (O(N) per dequeue — highly inefficient).
+- *Solution 2*: **Circular Queue** with modulo arithmetic (optimal O(1) — see Topic 3.3).
 - *Solution 3*: **Linked List Queue** (maintaining head and tail pointers).`,
         codeSnippets: [
             {
@@ -863,15 +863,15 @@ A **Circular Queue** (or **Ring Buffer**) connects the last memory slot back to 
 \`\`\`
 
 #### Modulo Arithmetic Formulas
-Let $C$ be the fixed capacity of the circular array:
+Let C be the fixed capacity of the circular array:
 1. **Advance Rear Index**:
-   $$\text{rear} = (\text{rear} + 1) \pmod C$$
+   rear = (rear + 1) \pmod C
 2. **Advance Front Index**:
-   $$\text{front} = (\text{front} + 1) \pmod C$$
+   front = (front + 1) \pmod C
 3. **Queue Full Condition**:
-   $$(\text{rear} + 1) \pmod C == \text{front}$$
+   (rear + 1) \pmod C == front
 4. **Queue Empty Condition**:
-   $$\text{front} == -1$$
+   front == -1
 
 ---
 
@@ -967,7 +967,7 @@ When a recursive call occurs, the runtime environment allocates an **Activation 
 
 #### Head Recursion vs. Tail Recursion
 - **Head Recursion**: The recursive call is made before performing other calculations. Work is executed during call stack *unwinding*.
-- **Tail Recursion**: The recursive call is the final operation in the function. Modern optimizing compilers (\`-O2\`) perform **Tail-Call Elimination (TCO)**, transforming the recursion into an iterative jump, reducing stack space from $O(N)$ to $O(1)$.`,
+- **Tail Recursion**: The recursive call is the final operation in the function. Modern optimizing compilers (\`-O2\`) perform **Tail-Call Elimination (TCO)**, transforming the recursion into an iterative jump, reducing stack space from O(N) to O(1).`,
         codeSnippets: [
             {
                 language: "c",
@@ -1004,10 +1004,10 @@ long long factorial_tail(int n, long long accumulator) {
         content: `### 4.2 Fibonacci Numbers & Recurrence Relation Analysis
 
 The Fibonacci sequence is defined by the linear recurrence relation:
-$$F(0) = 0, \quad F(1) = 1, \quad F(n) = F(n-1) + F(n-2) \quad \text{for } n \ge 2$$
+F(0) = 0, \quad F(1) = 1, \quad F(n) = F(n-1) + F(n-2) \quad for  n ≥ 2
 
 #### The Exponential Tree of Naive Recursion
-A naive recursive implementation branches twice per call, generating a recursion tree of height $n$:
+A naive recursive implementation branches twice per call, generating a recursion tree of height n:
 
 \`\`\`
                                   fib(5)
@@ -1021,19 +1021,19 @@ A naive recursive implementation branches twice per call, generating a recursion
       fib(1)fib(0)
 \`\`\`
 
-- **Time Complexity**: $O(2^n)$ (more precisely $O(\phi^n)$ where $\phi = \frac{1 + \sqrt{5}}{2} \approx 1.618$ is the Golden Ratio).
-- **Redundant Subproblems**: For $n=5$, \`fib(3)\` is computed 2 times, \`fib(2)\` is computed 3 times, and \`fib(1)\` is computed 5 times.
+- **Time Complexity**: O(2^n) (more precisely O(\phi^n) where \phi = 1 + √(5)/2 ≈ 1.618 is the Golden Ratio).
+- **Redundant Subproblems**: For n=5, \`fib(3)\` is computed 2 times, \`fib(2)\` is computed 3 times, and \`fib(1)\` is computed 5 times.
 
 ---
 
 #### Evolution from Recursion to Dynamic Programming
 | Approach | Recurrence Strategy | Time Complexity | Space Complexity |
 | :--- | :--- | :--- | :--- |
-| **Naive Recursion** | Pure divide-and-conquer tree | $O(2^n)$ | $O(n)$ stack depth |
-| **Memoization (Top-Down DP)**| Cache results in a lookup table | $O(n)$ | $O(n)$ heap + stack |
-| **Tabulation (Bottom-Up DP)**| Iteratively compute $F(0) \to F(n)$| $O(n)$ | $O(n)$ array |
-| **Space-Optimized DP** | Keep only two prior variables | $O(n)$ | $O(1)$ constant space |
-| **Matrix Exponentiation** | $\begin{pmatrix} 1 & 1 \\ 1 & 0 \end{pmatrix}^n$ via fast exp | $O(\log n)$ | $O(1)$ space |`,
+| **Naive Recursion** | Pure divide-and-conquer tree | O(2^n) | O(n) stack depth |
+| **Memoization (Top-Down DP)**| Cache results in a lookup table | O(n) | O(n) heap + stack |
+| **Tabulation (Bottom-Up DP)**| Iteratively compute F(0) → F(n)| O(n) | O(n) array |
+| **Space-Optimized DP** | Keep only two prior variables | O(n) | O(1) constant space |
+| **Matrix Exponentiation** | \begin{pmatrix} 1 & 1 \ 1 & 0 \end{pmatrix}^n via fast exp | O(log n) | O(1) space |`,
         codeSnippets: [
             {
                 language: "c",
@@ -1085,21 +1085,21 @@ long long fibonacci_optimized(int n) {
 \`\`\`
 
 #### The Classical N-Queens Problem
-Place $N$ chess queens on an $N \times N$ chessboard such that no two queens attack each other (no two queens share the same row, column, or diagonal).
+Place N chess queens on an N × N chessboard such that no two queens attack each other (no two queens share the same row, column, or diagonal).
 - **Row Constraint**: Place exactly one queen per row.
 - **Column Constraint**: Ensure column index is unvisited.
 - **Diagonal Constraints**:
-  - Main Diagonal ($\setminus$): Row and column indices share the same difference: \`row - col == constant\`.
-  - Anti-Diagonal ($/$): Row and column indices share the same sum: \`row + col == constant\`.
+  - Main Diagonal (\setminus): Row and column indices share the same difference: \`row - col == constant\`.
+  - Anti-Diagonal (/): Row and column indices share the same sum: \`row + col == constant\`.
 - **Pruning**: If a candidate square violates any constraint, prune the entire subtree immediately without recursing further.
 
 ---
 
 #### 0/1 Knapsack Problem (Backtracking vs. DP)
-Given weights $W_i$ and values $V_i$, maximize total value within weight capacity $C$:
-- **Binary Choice**: For each item $i$, explore two branches:
-  1. *Include item $i$*: Decrement capacity $C - W_i$ and add $V_i$.
-  2. *Exclude item $i$*: Maintain capacity $C$.
+Given weights W_i and values V_i, maximize total value within weight capacity C:
+- **Binary Choice**: For each item i, explore two branches:
+  1. *Include item i*: Decrement capacity C - W_i and add V_i.
+  2. *Exclude item i*: Maintain capacity C.
 - **Bounding Function**: If current accumulated weight exceeds capacity, prune immediately.`,
         codeSnippets: [
             {
@@ -1169,10 +1169,10 @@ bool solve_nqueens(int board[N][N], int row) {
 \`\`\`
 
 #### Complexity Analysis
-- **Best-Case Time**: $O(1)$ (target resides at index 0).
-- **Worst-Case Time**: $O(N)$ (target resides at the last index or is absent).
-- **Average-Case Time**: $O(N)$ ($\approx \frac{N+1}{2}$ comparisons).
-- **Auxiliary Space**: $O(1)$ in-place search.
+- **Best-Case Time**: O(1) (target resides at index 0).
+- **Worst-Case Time**: O(N) (target resides at the last index or is absent).
+- **Average-Case Time**: O(N) (≈ N+1/2 comparisons).
+- **Auxiliary Space**: O(1) in-place search.
 
 ---
 
@@ -1220,7 +1220,7 @@ int sentinel_linear_search(int arr[], int n, int target) {
         title: "5.2 Binary search",
         content: `### 5.2 Binary Search & Logarithmic Interval Bisection
 
-**Binary Search** is an optimal search algorithm that operates on **monotonically sorted** collections. It repeatedly divides the search interval in half using the divide-and-conquer strategy, achieving logarithmic $O(\log N)$ time.
+**Binary Search** is an optimal search algorithm that operates on **monotonically sorted** collections. It repeatedly divides the search interval in half using the divide-and-conquer strategy, achieving logarithmic O(log N) time.
 
 \`\`\`
    Target = 54
@@ -1240,7 +1240,7 @@ A classic implementation bug in binary search is writing:
 \`\`\`c
 int mid = (low + high) / 2; /* Dangerous: can overflow 32-bit signed integer! */
 \`\`\`
-If \`low + high\` exceeds $2^{31} - 1 = 2,147,483,647$, the calculation rolls over into a negative number, causing invalid memory indexing. The safe formulation is:
+If \`low + high\` exceeds 2^{31} - 1 = 2,147,483,647, the calculation rolls over into a negative number, causing invalid memory indexing. The safe formulation is:
 \`\`\`c
 int mid = low + (high - low) / 2; /* Safe: guarantees no arithmetic overflow */
 \`\`\`
@@ -1248,9 +1248,9 @@ int mid = low + (high - low) / 2; /* Safe: guarantees no arithmetic overflow */
 ---
 
 #### Complexity Derivation via Recurrence
-$$T(n) = T\left(\frac{n}{2}\right) + O(1)$$
-By the Master Theorem ($a=1, b=2, c=0 \implies \log_2 1 = 0 = c$), the time complexity is strictly:
-$$T(n) = \Theta(\log n)$$`,
+T(n) = T≤ft(n/2\right) + O(1)
+By the Master Theorem (a=1, b=2, c=0 \implies log_2 1 = 0 = c), the time complexity is strictly:
+T(n) = Θ(log n)`,
         codeSnippets: [
             {
                 language: "c",
@@ -1293,14 +1293,14 @@ int binary_search_safe(const int arr[], int n, int target) {
         title: "5.3 Quickselect",
         content: `### 5.3 Quickselect Algorithm & Order Statistics (k-th Smallest Element)
 
-**Quickselect** (developed by Tony Hoare) finds the **$k$-th smallest (or largest) element** in an unsorted array without sorting the entire array. While full sorting requires $O(N \log N)$ time, Quickselect achieves **$O(N)$ average linear time**.
+**Quickselect** (developed by Tony Hoare) finds the **k-th smallest (or largest) element** in an unsorted array without sorting the entire array. While full sorting requires O(N log N) time, Quickselect achieves **O(N) average linear time**.
 
 #### Algorithmic Strategy
 Quickselect leverages the **partitioning step** of Quicksort:
-1. Select a pivot element and partition the array such that all elements $\le$ pivot are placed to its left, and all elements $>$ pivot are placed to its right.
+1. Select a pivot element and partition the array such that all elements ≤ pivot are placed to its left, and all elements > pivot are placed to its right.
 2. The pivot lands at its final sorted position \`p_idx\`.
 3. **Pruning Decision**:
-   - If \`p_idx == k\`, the pivot IS the $k$-th smallest element! Return \`arr[p_idx]\`.
+   - If \`p_idx == k\`, the pivot IS the k-th smallest element! Return \`arr[p_idx]\`.
    - If \`k < p_idx\`, the target must reside in the **left partition**; recurse only on the left subarray.
    - If \`k > p_idx\`, the target must reside in the **right partition**; recurse only on the right subarray.
 
@@ -1317,9 +1317,9 @@ Quickselect leverages the **partitioning step** of Quicksort:
 ---
 
 #### Complexity Analysis
-- **Average-Case Time**: $T(n) = T(n/2) + O(n) \implies O(N)$ linear time.
-- **Worst-Case Time**: $O(N^2)$ (occurs with poor pivot selection on already-sorted input).
-- **Mitigation**: Randomized pivot selection or the **Median-of-Medians** algorithm guarantees worst-case $O(N)$ runtime.`,
+- **Average-Case Time**: T(n) = T(n/2) + O(n) \implies O(N) linear time.
+- **Worst-Case Time**: O(N^2) (occurs with poor pivot selection on already-sorted input).
+- **Mitigation**: Randomized pivot selection or the **Median-of-Medians** algorithm guarantees worst-case O(N) runtime.`,
         codeSnippets: [
             {
                 language: "c",
@@ -1386,14 +1386,14 @@ int quickselect(int arr[], int low, int high, int k) {
 \`\`\`
 
 #### Algorithmic Invariants
-- After pass $i$, the largest $i$ elements are guaranteed to be in their final sorted positions at the tail of the array.
-- Total comparisons without optimization: $\frac{n(n-1)}{2} = \Theta(n^2)$.
+- After pass i, the largest i elements are guaranteed to be in their final sorted positions at the tail of the array.
+- Total comparisons without optimization: n(n-1)/2 = Θ(n^2).
 - **Stability**: Bubble sort is **stable**; identical elements never swap past each other.
 
 ---
 
 #### Adaptive Early-Termination Flag
-If an entire pass completes **without a single swap**, the array is already sorted. Introducing a boolean \`swapped\` flag reduces the best-case runtime on sorted input from $O(N^2)$ to $O(N)$ linear time:`,
+If an entire pass completes **without a single swap**, the array is already sorted. Introducing a boolean \`swapped\` flag reduces the best-case runtime on sorted input from O(N^2) to O(N) linear time:`,
         codeSnippets: [
             {
                 language: "c",
@@ -1447,8 +1447,8 @@ void bubble_sort_adaptive(int arr[], int n) {
 \`\`\`
 
 #### Complexity and Memory Properties
-- **Comparisons**: Always $\frac{n(n-1)}{2} = \Theta(n^2)$ regardless of initial ordering.
-- **Swaps**: Performs at most $n - 1$ swaps ($O(N)$ writes).
+- **Comparisons**: Always n(n-1)/2 = Θ(n^2) regardless of initial ordering.
+- **Swaps**: Performs at most n - 1 swaps (O(N) writes).
 - **Stability**: **Unstable** (e.g. \`[4a, 4b, 1]\` swaps \`4a\` with \`1\`, moving \`4a\` after \`4b\`).
 - **Optimal Hardware Use Case**: Ideal for embedded systems with Flash EEPROM memory where memory write cycles degrade physical silicon and reads are cheap.`,
         codeSnippets: [
@@ -1500,10 +1500,10 @@ void selection_sort(int arr[], int n) {
 \`\`\`
 
 #### Key Characteristics
-- **Adaptive**: Operates in $O(N)$ linear time when the array is already sorted or nearly sorted.
+- **Adaptive**: Operates in O(N) linear time when the array is already sorted or nearly sorted.
 - **Online**: Can sort a list as it receives it in real time from a data stream.
 - **Stable**: Preserves the relative order of duplicate elements.
-- **Hybrid Algorithm Engine**: Serves as the base-case sorting engine in production hybrid algorithms like **Timsort** (Python/Java) and **Introsort** (C++ \`std::sort\`) for small subarrays ($n \le 16$ or $32$) due to low constant factors and cache locality.`,
+- **Hybrid Algorithm Engine**: Serves as the base-case sorting engine in production hybrid algorithms like **Timsort** (Python/Java) and **Introsort** (C++ \`std::sort\`) for small subarrays (n ≤ 16 or 32) due to low constant factors and cache locality.`,
         codeSnippets: [
             {
                 language: "c",
@@ -1564,15 +1564,15 @@ void insertion_sort(int arr[], int n) {
 \`\`\`
 
 #### Recurrence Relation and Master Theorem
-$$T(n) = 2T\left(\frac{n}{2}\right) + \Theta(n)$$
-By Master Theorem Case 2: $a=2, b=2 \implies n^{\log_2 2} = n^1 \implies T(n) = \Theta(n \log n)$ across **all** cases (Worst, Average, and Best).
+T(n) = 2T≤ft(n/2\right) + Θ(n)
+By Master Theorem Case 2: a=2, b=2 \implies n^{log_2 2} = n^1 \implies T(n) = Θ(n log n) across **all** cases (Worst, Average, and Best).
 
 ---
 
 #### Key Characteristics
-- **Guaranteed $O(N \log N)$**: Never degrades to quadratic runtime.
+- **Guaranteed O(N log N)**: Never degrades to quadratic runtime.
 - **Stable**: Preserves relative ordering during merging by preferring left subarray elements when values match (\`left[i] <= right[j]\`).
-- **Space Requirement**: Requires $O(N)$ auxiliary heap memory for the temporary merge buffer.
+- **Space Requirement**: Requires O(N) auxiliary heap memory for the temporary merge buffer.
 - **External Sorting**: Ideal for sorting massive datasets that do not fit in RAM (stored on disk).`,
         codeSnippets: [
             {
@@ -1647,7 +1647,7 @@ void merge_sort(int arr[], int left, int right) {
 #### Partitioning Schemes
 1. **Lomuto Partition Scheme**:
    - Pivot is chosen as the last element.
-   - Slower, but simpler: a single index $i$ tracks the partition boundary. Performs more swaps.
+   - Slower, but simpler: a single index i tracks the partition boundary. Performs more swaps.
 2. **Hoare Partition Scheme**:
    - Uses two pointers moving toward each other from opposite ends of the array.
    - Performs approximately **3× fewer swaps** than Lomuto and partitions more efficiently.
@@ -1655,8 +1655,8 @@ void merge_sort(int arr[], int left, int right) {
 ---
 
 #### Complexity and Pivot Selection
-- **Average-Case Time**: $O(N \log N)$ with excellent CPU cache locality.
-- **Worst-Case Time**: $O(N^2)$ (occurs when the pivot is consistently the smallest or largest element, e.g., already sorted input with naive last-element pivot).
+- **Average-Case Time**: O(N log N) with excellent CPU cache locality.
+- **Worst-Case Time**: O(N^2) (occurs when the pivot is consistently the smallest or largest element, e.g., already sorted input with naive last-element pivot).
 - **Mitigation**: **Randomized Pivot** or **Median-of-Three** (median of first, middle, and last elements) avoids quadratic worst-case behavior in production systems.`,
         codeSnippets: [
             {
@@ -1709,7 +1709,7 @@ void quick_sort(int arr[], int low, int high) {
         title: "6.6 Heapsort",
         content: `### 6.6 Heap Sort & Complete Binary Max-Heap Tree
 
-**Heap Sort** is an in-place, non-recursive sorting algorithm with a guaranteed $O(N \log N)$ runtime. It leverages a **Complete Binary Max-Heap** data structure stored in a flat array.
+**Heap Sort** is an in-place, non-recursive sorting algorithm with a guaranteed O(N log N) runtime. It leverages a **Complete Binary Max-Heap** data structure stored in a flat array.
 
 \`\`\`
        Array Representation: [90, 75, 80, 40, 60, 70]
@@ -1722,20 +1722,20 @@ void quick_sort(int arr[], int low, int high) {
 \`\`\`
 
 #### Array Index Mapping for Zero-Indexed Heaps
-For node at index $i$:
-- **Left Child**: $2i + 1$
-- **Right Child**: $2i + 2$
-- **Parent**: $\lfloor(i - 1) / 2\rfloor$
+For node at index i:
+- **Left Child**: 2i + 1
+- **Right Child**: 2i + 2
+- **Parent**: \lfloor(i - 1) / 2\rfloor
 
 ---
 
 #### Two-Phase Algorithmic Strategy
 1. **Phase 1: Build Max-Heap (\`buildMaxHeap\`)**:
-   Converts an unsorted array into a Max-Heap where \`parent >= children\`. Starts at the last non-leaf node ($\lfloor n/2 \rfloor - 1$) and calls \`heapifyDown\` up to the root.
-   - **Time Complexity**: Computed as $\sum_{h=0}^{\log n} \frac{n}{2^{h+1}} O(h) = \mathbf{O(N)}$ linear time.
+   Converts an unsorted array into a Max-Heap where \`parent >= children\`. Starts at the last non-leaf node (\lfloor n/2 \rfloor - 1) and calls \`heapifyDown\` up to the root.
+   - **Time Complexity**: Computed as ∑_{h=0}^{log n} n/2^{h+1} O(h) = O(N) linear time.
 2. **Phase 2: Extraction & Sorting**:
    Repeatedly swap the root element (maximum value at index 0) with the last element of the heap, reduce heap size by 1, and restore the max-heap property via \`heapifyDown(0)\`.
-   - **Time Complexity**: $n$ extractions $\times O(\log n) = \mathbf{O(N \log N)}$.`,
+   - **Time Complexity**: n extractions × O(log n) = O(N log N).`,
         codeSnippets: [
             {
                 language: "c",
@@ -1790,7 +1790,7 @@ void heap_sort(int arr[], int n) {
         title: "6.7 Counting sort",
         content: `### 6.7 Counting Sort & Non-Comparison Integer Key Distribution
 
-**Counting Sort** is a non-comparison integer sorting algorithm that breaks the theoretical $\Omega(N \log N)$ lower bound of comparison-based sorting, achieving **$O(N + K)$ linear time**, where $K$ is the range of keys.
+**Counting Sort** is a non-comparison integer sorting algorithm that breaks the theoretical Ω(N log N) lower bound of comparison-based sorting, achieving **O(N + K) linear time**, where K is the range of keys.
 
 \`\`\`
    Input Array: [4, 2, 2, 8, 3, 3, 1] (Range K = 8)
@@ -1807,18 +1807,18 @@ void heap_sort(int arr[], int n) {
 \`\`\`
 
 #### Algorithmic Procedure
-1. Determine the maximum key value $K$. Allocate an array \`count\` of size $K + 1$ initialized to 0.
+1. Determine the maximum key value K. Allocate an array \`count\` of size K + 1 initialized to 0.
 2. Count the occurrences of each value: \`count[arr[i]]++\`.
-3. Compute **cumulative prefix sums** in \`count\`: each index now stores the total count of elements $\le$ that key, representing its 1-based ending output index.
+3. Compute **cumulative prefix sums** in \`count\`: each index now stores the total count of elements ≤ that key, representing its 1-based ending output index.
 4. Iterate through the input array from **right to left** (tail to head), placing elements into an output array at \`count[arr[i]] - 1\`, and decrement \`count[arr[i]]\`.
    - Traversing right-to-left guarantees **Stability**.
 
 ---
 
 #### Complexity and Limitations
-- **Time Complexity**: $O(N + K)$ in all cases.
-- **Space Complexity**: $O(N + K)$ auxiliary memory.
-- **Applicability**: Highly efficient when $K = O(N)$ (small key range), but impractical when $K \gg N$ (e.g., sorting 100 elements with values up to $10^9$ requires a 1GB count array).`,
+- **Time Complexity**: O(N + K) in all cases.
+- **Space Complexity**: O(N + K) auxiliary memory.
+- **Applicability**: Highly efficient when K = O(N) (small key range), but impractical when K \gg N (e.g., sorting 100 elements with values up to 10^9 requires a 1GB count array).`,
         codeSnippets: [
             {
                 language: "c",
@@ -1869,7 +1869,7 @@ void counting_sort(int arr[], int n, int max_val) {
         title: "7.1 Graphs",
         content: `### 7.1 Graph Representation: Adjacency Matrix vs Adjacency List
 
-A **Graph** $G = (V, E)$ consists of a set of vertices (nodes) $V$ and a set of edges $E$ connecting pairs of vertices. Graphs may be **directed (digraph)** or **undirected**, and **weighted** or **unweighted**.
+A **Graph** G = (V, E) consists of a set of vertices (nodes) V and a set of edges E connecting pairs of vertices. Graphs may be **directed (digraph)** or **undirected**, and **weighted** or **unweighted**.
 
 \`\`\`
    Graph Topology:                  Adjacency Matrix:       Adjacency List:
@@ -1885,11 +1885,11 @@ A **Graph** $G = (V, E)$ consists of a set of vertices (nodes) $V$ and a set of 
 | Feature | Adjacency Matrix | Adjacency List |
 | :--- | :--- | :--- |
 | **Data Structure** | 2D Array: \`bool adj[V][V]\` or \`int weight[V][V]\` | Array of Linked Lists or dynamic vectors |
-| **Space Complexity** | $\Theta(V^2)$ bytes regardless of edge count | $\Theta(V + E)$ (Directed) / $\Theta(V + 2E)$ (Undirected)|
-| **Edge Query $(u, v)$** | $O(1)$ constant time lookup: \`adj[u][v]\` | $O(\text{deg}(u))$ (scan linked list) |
-| **Enumerate Neighbors**| $O(V)$ scan across entire row | $O(\text{deg}(u))$ scan only existing neighbors |
-| **Add Vertex** | $O(V^2)$ requires matrix reallocation | $O(1)$ append new list head |
-| **Dense vs Sparse** | Optimal for **Dense Graphs** ($E \approx V^2$) | Optimal for **Sparse Graphs** ($E \ll V^2$) |`,
+| **Space Complexity** | Θ(V^2) bytes regardless of edge count | Θ(V + E) (Directed) / Θ(V + 2E) (Undirected)|
+| **Edge Query (u, v)** | O(1) constant time lookup: \`adj[u][v]\` | O(deg(u)) (scan linked list) |
+| **Enumerate Neighbors**| O(V) scan across entire row | O(deg(u)) scan only existing neighbors |
+| **Add Vertex** | O(V^2) requires matrix reallocation | O(1) append new list head |
+| **Dense vs Sparse** | Optimal for **Dense Graphs** (E ≈ V^2) | Optimal for **Sparse Graphs** (E \ll V^2) |`,
         codeSnippets: [
             {
                 language: "c",
@@ -1940,7 +1940,7 @@ void add_edge(Graph *g, int src, int dest, int weight) {
         title: "7.2 Simple trees",
         content: `### 7.2 Hierarchical Tree Structures & Terminology
 
-A **Tree** is an undirected, connected, acyclic graph. In a rooted tree, there is a designated **root** node from which every other node is reachable via a unique path. A tree with $N$ vertices always contains exactly $N - 1$ edges.
+A **Tree** is an undirected, connected, acyclic graph. In a rooted tree, there is a designated **root** node from which every other node is reachable via a unique path. A tree with N vertices always contains exactly N - 1 edges.
 
 \`\`\`
                           Root: [A] (Depth = 0, Level = 1)
@@ -1957,9 +1957,9 @@ A **Tree** is an undirected, connected, acyclic graph. In a rooted tree, there i
 - **Edge**: The directed or undirected link connecting parent to child.
 - **Leaf (Terminal Node)**: A node with degree 0 (no children: D, E, G).
 - **Internal (Non-terminal) Node**: A node with at least one child.
-- **Depth of a Node**: The number of edges along the path from the root to that node ($\text{Depth}(\text{Root}) = 0$).
-- **Height of a Node**: The number of edges on the longest downward path from that node to a leaf ($\text{Height}(\text{Leaf}) = 0$).
-- **Height of a Tree**: The height of its root node ($\max \text{depth}$).`,
+- **Depth of a Node**: The number of edges along the path from the root to that node (Depth(Root) = 0).
+- **Height of a Node**: The number of edges on the longest downward path from that node to a leaf (Height(Leaf) = 0).
+- **Height of a Tree**: The height of its root node (\max depth).`,
         codeSnippets: [
             {
                 language: "c",
@@ -1997,8 +1997,8 @@ int tree_height(TreeNode *root) {
         content: `### 7.3 Binary Heaps & Priority Queues (Min-Heap / Max-Heap)
 
 A **Binary Heap** is a complete binary tree that satisfies the **Heap Order Invariant**:
-- **Max-Heap Property**: For every node $i$ other than the root, $\text{val}(\text{parent}(i)) \ge \text{val}(i)$. The root holds the maximum element.
-- **Min-Heap Property**: For every node $i$ other than the root, $\text{val}(\text{parent}(i)) \le \text{val}(i)$. The root holds the minimum element.
+- **Max-Heap Property**: For every node i other than the root, val(parent(i)) ≥ val(i). The root holds the maximum element.
+- **Min-Heap Property**: For every node i other than the root, val(parent(i)) ≤ val(i). The root holds the minimum element.
 
 #### Array Index Mapping (0-Indexed)
 \`\`\`
@@ -2008,9 +2008,9 @@ A **Binary Heap** is a complete binary tree that satisfies the **Heap Order Inva
 \`\`\`
 
 #### Core Operations and Mechanics
-1. **\`insert(x)\`**: Place $x$ at the next free leaf position at the end of the array to maintain the complete tree property. Call **\`siftUp(index)\`**: swap with parent while parent violates the heap property. Time: $O(\log N)$.
-2. **\`extractMax()\` / \`extractMin()\`**: Copy root value for return. Move the last leaf element to the root position. Decrement heap size by 1. Call **\`siftDown(0)\`**: repeatedly swap with the larger child (in max-heap) until heap invariant is restored. Time: $O(\log N)$.
-3. **\`peek()\`**: Direct return of \`arr[0]\` in $O(1)$ constant time.`,
+1. **\`insert(x)\`**: Place x at the next free leaf position at the end of the array to maintain the complete tree property. Call **\`siftUp(index)\`**: swap with parent while parent violates the heap property. Time: O(log N).
+2. **\`extractMax()\` / \`extractMin()\`**: Copy root value for return. Move the last leaf element to the root position. Decrement heap size by 1. Call **\`siftDown(0)\`**: repeatedly swap with the larger child (in max-heap) until heap invariant is restored. Time: O(log N).
+3. **\`peek()\`**: Direct return of \`arr[0]\` in O(1) constant time.`,
         codeSnippets: [
             {
                 language: "c",
@@ -2076,10 +2076,10 @@ A **Priority Queue** is an Abstract Data Type where each element has an associat
 #### Implementation Comparison
 | Backing Data Structure | \`insert()\` | \`extractMax()\` | \`peekMax()\` |
 | :--- | :--- | :--- | :--- |
-| **Unsorted Array** | $O(1)$ append | $O(N)$ linear scan | $O(N)$ |
-| **Sorted Array** | $O(N)$ shift | $O(1)$ remove tail | $O(1)$ |
-| **Binary Heap** | $\mathbf{O(\log N)}$ | $\mathbf{O(\log N)}$ | $\mathbf{O(1)}$ |
-| **Fibonacci Heap** | $O(1)$ amortized | $O(\log N)$ amortized| $O(1)$ |
+| **Unsorted Array** | O(1) append | O(N) linear scan | O(N) |
+| **Sorted Array** | O(N) shift | O(1) remove tail | O(1) |
+| **Binary Heap** | O(log N) | O(log N) | O(1) |
+| **Fibonacci Heap** | O(1) amortized | O(log N) amortized| O(1) |
 
 ---
 
@@ -2135,8 +2135,8 @@ A **Binary Tree** is a tree data structure in which every node has at most two c
 
 1. **Full (Proper) Tree**: Every node has either 0 or 2 children.
 2. **Complete Tree**: Every level is completely filled, except possibly the last level, which is filled from left to right.
-3. **Perfect Tree**: All internal nodes have two children and all leaves are at the exact same depth. Total nodes $N = 2^{h+1} - 1$.
-4. **Degenerate (Skewed) Tree**: Every internal node has only one child, degrading to a linked list with $O(N)$ operations.
+3. **Perfect Tree**: All internal nodes have two children and all leaves are at the exact same depth. Total nodes N = 2^{h+1} - 1.
+4. **Degenerate (Skewed) Tree**: Every internal node has only one child, degrading to a linked list with O(N) operations.
 
 ---
 
@@ -2183,9 +2183,9 @@ LCRSNode* create_lcrs_node(int val) {
         content: `### 7.6 Binary Search Tree (BST) Invariant & 3-Case Deletion
 
 A **Binary Search Tree (BST)** is a binary tree with the **BST Ordering Invariant**:
-For every node $X$:
-- All keys in the **left subtree** of $X$ are strictly smaller: $\text{key}(L) < \text{key}(X)$.
-- All keys in the **right subtree** of $X$ are strictly greater: $\text{key}(R) > \text{key}(X)$.
+For every node X:
+- All keys in the **left subtree** of X are strictly smaller: key(L) < key(X).
+- All keys in the **right subtree** of X are strictly greater: key(R) > key(X).
 - Both left and right subtrees must also be binary search trees.
 
 \`\`\`
@@ -2198,20 +2198,20 @@ For every node $X$:
 \`\`\`
 
 #### Search and Insertion
-- **Search**: Start at root. If \`target < curr->key\`, go left; if \`target > curr->key\`, go right; if equal, return found. Time: $O(h)$ where $h$ is tree height ($O(\log N)$ balanced, $O(N)$ skewed).
+- **Search**: Start at root. If \`target < curr->key\`, go left; if \`target > curr->key\`, go right; if equal, return found. Time: O(h) where h is tree height (O(log N) balanced, O(N) skewed).
 - **Inorder Traversal Property**: Inorder traversal (Left, Root, Right) of any BST yields keys in **monotonically sorted order**.
 
 ---
 
 #### The Three Cases of BST Deletion
-Deleting a node $Z$ requires maintaining the BST invariant:
-1. **Case 1: $Z$ is a Leaf Node (No children)**:
-   Simply set the parent's pointer to $Z$ to \`NULL\` and free $Z$.
-2. **Case 2: $Z$ has Exactly One Child**:
-   Bypass $Z$ by pointing its parent directly to $Z$'s child, then free $Z$.
-3. **Case 3: $Z$ has Two Children**:
-   - Find $Z$'s **Inorder Successor** (smallest node in $Z$'s right subtree: go right once, then left until NULL).
-   - Copy the successor's key into $Z$.
+Deleting a node Z requires maintaining the BST invariant:
+1. **Case 1: Z is a Leaf Node (No children)**:
+   Simply set the parent's pointer to Z to \`NULL\` and free Z.
+2. **Case 2: Z has Exactly One Child**:
+   Bypass Z by pointing its parent directly to Z's child, then free Z.
+3. **Case 3: Z has Two Children**:
+   - Find Z's **Inorder Successor** (smallest node in Z's right subtree: go right once, then left until NULL).
+   - Copy the successor's key into Z.
    - Recursively delete the successor node (which is guaranteed to fall into Case 1 or Case 2).`,
         codeSnippets: [
             {
@@ -2287,13 +2287,13 @@ Tree traversal is the process of visiting every node in a tree data structure ex
 
 #### Depth-First Traversals (DFS)
 DFS explores subtrees as deeply as possible before backtracking. Implemented via recursion or an explicit LIFO stack:
-1. **Preorder (Root $\to$ Left $\to$ Right)**:
+1. **Preorder (Root → Left → Right)**:
    - Visit sequence: \`1, 2, 4, 5, 3\`
    - *Application*: Serializing/cloning trees, prefix expressions.
-2. **Inorder (Left $\to$ Root $\to$ Right)**:
+2. **Inorder (Left → Root → Right)**:
    - Visit sequence: \`4, 2, 5, 1, 3\`
    - *Application*: Yields monotonically sorted values in Binary Search Trees.
-3. **Postorder (Left $\to$ Right $\to$ Root)**:
+3. **Postorder (Left → Right → Root)**:
    - Visit sequence: \`4, 5, 2, 3, 1\`
    - *Application*: Bottom-up tree deletion (\`free\`), directory space calculation, postfix expression evaluation.
 
@@ -2302,7 +2302,7 @@ DFS explores subtrees as deeply as possible before backtracking. Implemented via
 #### Breadth-First Traversal (BFS / Level-Order)
 Visits all nodes level-by-level from top to bottom, left-to-right:
 - Visit sequence: \`1, 2, 3, 4, 5\`
-- Implemented using a **FIFO Queue**: enqueue root; while queue is not empty, dequeue current node, visit it, and enqueue its left and right children. Time: $O(N)$, Space: $O(W)$ where $W$ is maximum tree width.`,
+- Implemented using a **FIFO Queue**: enqueue root; while queue is not empty, dequeue current node, visit it, and enqueue its left and right children. Time: O(N), Space: O(W) where W is maximum tree width.`,
         codeSnippets: [
             {
                 language: "c",
@@ -2369,7 +2369,7 @@ A **Trie** (derived from re**trie**val) is a tree-like search data structure use
 \`\`\`
 
 #### Node Architecture
-For a standard English lowercase alphabet of size $\Sigma = 26$:
+For a standard English lowercase alphabet of size Σ = 26:
 \`\`\`c
 typedef struct TrieNode {
     struct TrieNode *children[26];
@@ -2378,16 +2378,16 @@ typedef struct TrieNode {
 \`\`\`
 
 #### Operations and Algorithmic Complexity
-Let $L$ be the length of the string and $N$ be total strings in the dictionary:
-1. **\`insert(key)\`**: Traverse down character by character. If a child pointer for \`key[i] - 'a'\` is null, allocate a new node. Mark the final node with \`isEndOfWord = true\`. Time: $\mathbf{O(L)}$.
-2. **\`search(key)\`**: Follow child pointers. If any character pointer is null, the word is absent. Returns \`true\` only if the final node has \`isEndOfWord == true\`. Time: $\mathbf{O(L)}$.
-3. **\`startsWith(prefix)\`**: Identical to search, but returns \`true\` if prefix traversal finishes without encountering null pointers. Time: $\mathbf{O(L)}$.
+Let L be the length of the string and N be total strings in the dictionary:
+1. **\`insert(key)\`**: Traverse down character by character. If a child pointer for \`key[i] - 'a'\` is null, allocate a new node. Mark the final node with \`isEndOfWord = true\`. Time: O(L).
+2. **\`search(key)\`**: Follow child pointers. If any character pointer is null, the word is absent. Returns \`true\` only if the final node has \`isEndOfWord == true\`. Time: O(L).
+3. **\`startsWith(prefix)\`**: Identical to search, but returns \`true\` if prefix traversal finishes without encountering null pointers. Time: O(L).
 
 ---
 
 #### Why Use a Trie Over a Hash Table?
-- **Prefix Matching**: Supports finding all words with a given prefix (\`startsWith\`) in $O(L)$ time; impossible in standard hash tables.
-- **No Hash Collisions**: Zero collision penalties; worst-case lookup is strictly bounded by key length $L$.
+- **Prefix Matching**: Supports finding all words with a given prefix (\`startsWith\`) in O(L) time; impossible in standard hash tables.
+- **No Hash Collisions**: Zero collision penalties; worst-case lookup is strictly bounded by key length L.
 - **Alphabetical Ordering**: Naturally prints words in lexicographical order via depth-first traversal.`,
         codeSnippets: [
             {
@@ -2448,7 +2448,7 @@ bool trie_search(TrieNode *root, const char *key) {
         title: "7.9 Kruskal’s MST using disjoint sets",
         content: `### 7.9 Kruskal's Minimum Spanning Tree (MST) Algorithm
 
-A **Spanning Tree** of a connected, undirected graph $G = (V, E)$ is an acyclic subgraph that includes all $V$ vertices using exactly $V - 1$ edges. A **Minimum Spanning Tree (MST)** is a spanning tree whose sum of edge weights is minimized.
+A **Spanning Tree** of a connected, undirected graph G = (V, E) is an acyclic subgraph that includes all V vertices using exactly V - 1 edges. A **Minimum Spanning Tree (MST)** is a spanning tree whose sum of edge weights is minimized.
 
 \`\`\`
    Weighted Graph:                  Kruskal's MST (Weight = 11):
@@ -2461,22 +2461,22 @@ A **Spanning Tree** of a connected, undirected graph $G = (V, E)$ is an acyclic 
 
 #### Kruskal's Greedy Strategy
 Kruskal’s algorithm selects edges greedily in ascending order of weight:
-1. Sort all edges $E$ in non-decreasing order of weight.
-2. Initialize an empty MST forest: $T = \emptyset$.
-3. For each edge $(u, v)$ in sorted order:
-   - Check if $u$ and $v$ belong to the same connected component using **Disjoint Set Union (DSU)**.
+1. Sort all edges E in non-decreasing order of weight.
+2. Initialize an empty MST forest: T = \emptyset.
+3. For each edge (u, v) in sorted order:
+   - Check if u and v belong to the same connected component using **Disjoint Set Union (DSU)**.
    - If they are in **different components**, adding the edge will not create a cycle:
-     - Add $(u, v)$ to $T$.
-     - Union the sets containing $u$ and $v$.
-   - If they are in the **same component**, discard $(u, v)$ to avoid creating a cycle.
-4. Terminate when $T$ contains exactly $V - 1$ edges.
+     - Add (u, v) to T.
+     - Union the sets containing u and v.
+   - If they are in the **same component**, discard (u, v) to avoid creating a cycle.
+4. Terminate when T contains exactly V - 1 edges.
 
 ---
 
 #### Complexity Analysis
-- **Edge Sorting**: $O(E \log E)$ time.
-- **DSU Operations**: $2E$ find operations and $V - 1$ union operations take $O(E \cdot \alpha(V))$ time, where $\alpha$ is the Inverse Ackermann function.
-- **Total Time Complexity**: $\mathbf{O(E \log E)}$ (or $\mathbf{O(E \log V)}$ since $E \le V^2 \implies \log E \le 2\log V$).`,
+- **Edge Sorting**: O(E log E) time.
+- **DSU Operations**: 2E find operations and V - 1 union operations take O(E · α(V)) time, where α is the Inverse Ackermann function.
+- **Total Time Complexity**: O(E log E) (or O(E log V) since E ≤ V^2 \implies log E ≤ 2log V).`,
         codeSnippets: [
             {
                 language: "c",
@@ -2535,7 +2535,7 @@ void kruskal_mst(Edge edges[], int V, int E) {
         title: "7.10 Dijkstra's Algorithm",
         content: `### 7.10 Dijkstra's Single-Source Shortest Path Algorithm
 
-**Dijkstra's Algorithm** (conceived by Edsger Dijkstra) solves the **Single-Source Shortest Path (SSSP)** problem on graphs with **non-negative edge weights**. It computes the minimum cost path from a source vertex $S$ to every other vertex in the graph.
+**Dijkstra's Algorithm** (conceived by Edsger Dijkstra) solves the **Single-Source Shortest Path (SSSP)** problem on graphs with **non-negative edge weights**. It computes the minimum cost path from a source vertex S to every other vertex in the graph.
 
 \`\`\`
    Shortest Path Relaxation Step:
@@ -2547,24 +2547,24 @@ void kruskal_mst(Edge edges[], int V, int E) {
 \`\`\`
 
 #### Algorithmic Procedure
-1. Initialize a distance array: $\text{dist}[S] = 0$, and $\text{dist}[v] = \infty$ for all $v \neq S$.
-2. Insert source $(0, S)$ into a **Min-Heap Priority Queue**.
+1. Initialize a distance array: dist[S] = 0, and dist[v] = ∞ for all v ≠ S.
+2. Insert source (0, S) into a **Min-Heap Priority Queue**.
 3. While the priority queue is not empty:
-   - Extract vertex $u$ with minimum tentative distance.
-   - If extracted distance is greater than $\text{dist}[u]$, ignore (stale heap entry).
-   - For each neighbor $v$ of $u$:
+   - Extract vertex u with minimum tentative distance.
+   - If extracted distance is greater than dist[u], ignore (stale heap entry).
+   - For each neighbor v of u:
      - **Edge Relaxation**:
-       $$\text{if } \text{dist}[u] + \text{weight}(u, v) < \text{dist}[v]:$$
-       $$\text{dist}[v] = \text{dist}[u] + \text{weight}(u, v)$$
-       Push $(\text{dist}[v], v)$ into the Min-Heap.
+       if  dist[u] + weight(u, v) < dist[v]:
+       dist[v] = dist[u] + weight(u, v)
+       Push (dist[v], v) into the Min-Heap.
 
 ---
 
 #### Complexity Analysis
 - With a Binary Min-Heap:
-  - $V$ calls to \`extractMin()\`: $O(V \log V)$.
-  - At most $E$ distance relaxations pushing to heap: $O(E \log V)$.
-  - **Total Time Complexity**: $\mathbf{O((V + E) \log V)}$.
+  - V calls to \`extractMin()\`: O(V log V).
+  - At most E distance relaxations pushing to heap: O(E log V).
+  - **Total Time Complexity**: O((V + E) log V).
 - **Fatal Limitation**: Dijkstra's fails completely on graphs with **negative edge weights** (requires Bellman-Ford).`,
         codeSnippets: [
             {
@@ -2599,12 +2599,12 @@ void relax_edge(int u, int v, int weight, int dist[]) {
         title: "7.11 Disjoint sets",
         content: `### 7.11 Disjoint Set Union (DSU) with Path Compression & Rank
 
-**Disjoint Set Union (DSU)**, also called **Union-Find**, manages a collection of disjoint (non-overlapping) sets. It supports two primary operations in nearly $O(1)$ amortized time:
-1. **\`find(x)\`**: Determines which set element $x$ belongs to by returning the representative root of $x$'s set.
-2. **\`union(x, y)\`**: Merges the sets containing elements $x$ and $y$.
+**Disjoint Set Union (DSU)**, also called **Union-Find**, manages a collection of disjoint (non-overlapping) sets. It supports two primary operations in nearly O(1) amortized time:
+1. **\`find(x)\`**: Determines which set element x belongs to by returning the representative root of x's set.
+2. **\`union(x, y)\`**: Merges the sets containing elements x and y.
 
 #### The Two Crucial Optimizations
-A naive array implementation can degenerate into a linear chain of height $N$, making operations $O(N)$. Two optimizations prevent this:
+A naive array implementation can degenerate into a linear chain of height N, making operations O(N). Two optimizations prevent this:
 
 \`\`\`
    Path Compression in Find(4):
@@ -2622,14 +2622,14 @@ A naive array implementation can degenerate into a linear chain of height $N$, m
    }
    \`\`\`
 2. **Union by Rank / Size (during \`union\`)**:
-   Always attach the root of the shallower tree to the root of the deeper tree, keeping tree height bounded by $O(\log N)$.
+   Always attach the root of the shallower tree to the root of the deeper tree, keeping tree height bounded by O(log N).
 
 ---
 
 #### Amortized Complexity
-When both Path Compression and Union by Rank are combined, any sequence of $M$ operations on $N$ elements executes in:
-$$O(M \cdot \alpha(N))$$
-Where $\alpha(N)$ is the **Inverse Ackermann Function**. For all physically conceivable values of $N \le 10^{80}$ (atoms in the observable universe), $\alpha(N) \le 4$, making DSU effectively **$O(1)$ constant time per operation**.`,
+When both Path Compression and Union by Rank are combined, any sequence of M operations on N elements executes in:
+O(M · α(N))
+Where α(N) is the **Inverse Ackermann Function**. For all physically conceivable values of N ≤ 10^{80} (atoms in the observable universe), α(N) ≤ 4, making DSU effectively **O(1) constant time per operation**.`,
         codeSnippets: [
             {
                 language: "c",
@@ -2690,7 +2690,7 @@ void dsu_union(DSU *dsu, int x, int y) {
         title: "7.12 Floyd-Warshall's algorithm",
         content: `### 7.12 Floyd-Warshall All-Pairs Shortest Path Dynamic Programming
 
-The **Floyd-Warshall Algorithm** is a Dynamic Programming algorithm that finds the shortest paths between **all pairs of vertices** in a weighted, directed graph in $O(V^3)$ time. It handles negative edge weights, provided the graph contains **no negative cycles**.
+The **Floyd-Warshall Algorithm** is a Dynamic Programming algorithm that finds the shortest paths between **all pairs of vertices** in a weighted, directed graph in O(V^3) time. It handles negative edge weights, provided the graph contains **no negative cycles**.
 
 \`\`\`
    Core DP Recurrence:
@@ -2706,13 +2706,13 @@ The **Floyd-Warshall Algorithm** is a Dynamic Programming algorithm that finds t
 \`\`\`
 
 #### Dynamic Programming Formulation
-Let $D^{(k)}[i][j]$ represent the shortest path from vertex $i$ to vertex $j$ considering only intermediate vertices from the set $\{0, 1, \dots, k\}$.
-$$D^{(k)}[i][j] = \min\left( D^{(k-1)}[i][j], \quad D^{(k-1)}[i][k] + D^{(k-1)}[k][j] \right)$$
+Let D^{(k)}[i][j] represent the shortest path from vertex i to vertex j considering only intermediate vertices from the set \{0, 1, \dots, k\}.
+D^{(k)}[i][j] = \min≤ft( D^{(k-1)}[i][j], \quad D^{(k-1)}[i][k] + D^{(k-1)}[k][j] \right)
 
 ---
 
 #### Negative Cycle Detection
-In the final distance matrix, all diagonal entries $\text{dist}[i][i]$ should be 0 (the shortest distance from a node to itself). If any diagonal entry becomes **negative** ($\text{dist}[i][i] < 0$), the graph contains a **negative weight cycle**, which allows paths to loop indefinitely to reduce cost to $-\infty$.`,
+In the final distance matrix, all diagonal entries dist[i][i] should be 0 (the shortest distance from a node to itself). If any diagonal entry becomes **negative** (dist[i][i] < 0), the graph contains a **negative weight cycle**, which allows paths to loop indefinitely to reduce cost to -∞.`,
         codeSnippets: [
             {
                 language: "c",
@@ -2771,8 +2771,8 @@ Graph traversal algorithms systematically visit every reachable vertex and edge 
 | :--- | :--- | :--- |
 | **Backing Data Structure** | FIFO Queue | LIFO Stack (or Call Stack) |
 | **Exploration Style** | Level-by-level, radial expansion | Path-by-path, deep dives with backtracking |
-| **Time Complexity** | $O(V + E)$ | $O(V + E)$ |
-| **Space Complexity** | $O(V)$ (queue can hold maximum breadth) | $O(V)$ (stack holds maximum depth) |
+| **Time Complexity** | O(V + E) | O(V + E) |
+| **Space Complexity** | O(V) (queue can hold maximum breadth) | O(V) (stack holds maximum depth) |
 | **Shortest Path** | Guarantees shortest path on **unweighted** graphs | Does NOT guarantee shortest paths |
 | **Classic Applications** | Shortest path hops, Web crawlers, P2P flood | Topological sort, Cycle detection, Biconnectivity |`,
         codeSnippets: [
@@ -2822,11 +2822,11 @@ void bfs(int graph[MAX_V][MAX_V], int V, int start_node) {
         title: "7.14 AVL trees, B-trees",
         content: `### 7.14 Self-Balancing Trees: AVL Rotations & Multi-Way B-Trees
 
-When standard BSTs receive pre-sorted data, they degrade into skewed linear chains with $O(N)$ operations. **Self-Balancing Trees** maintain a strictly bounded height $h = O(\log N)$ by performing tree rotations during insertions and deletions.
+When standard BSTs receive pre-sorted data, they degrade into skewed linear chains with O(N) operations. **Self-Balancing Trees** maintain a strictly bounded height h = O(log N) by performing tree rotations during insertions and deletions.
 
 #### AVL Trees (Adelson-Velsky and Landis)
 An **AVL Tree** is a strictly height-balanced BST where every node satisfies the **Balance Factor Invariant**:
-$$\text{BF}(\text{node}) = \text{Height}(\text{Left Subtree}) - \text{Height}(\text{Right Subtree}) \in \{-1, 0, +1\}$$
+BF(node) = Height(Left Subtree) - Height(Right Subtree) \in \{-1, 0, +1\}
 
 \`\`\`
    The Four AVL Rotation Cases:
@@ -2846,7 +2846,7 @@ $$\text{BF}(\text{node}) = \text{Height}(\text{Left Subtree}) - \text{Height}(\t
 
 #### Multi-Way B-Trees for Disk Storage
 While AVL trees are ideal for in-memory operations, magnetic disks and SSDs read and write data in blocks (pages of 4KB to 64KB).
-A **B-Tree** is a self-balancing search tree where internal nodes can have hundreds of keys and children ($M$-way branching):
+A **B-Tree** is a self-balancing search tree where internal nodes can have hundreds of keys and children (M-way branching):
 - Shallow tree height: A B-Tree storing billions of records may have a height of only 3 or 4.
 - Minimizes disk I/O seek operations, making B-Trees the standard index structure for relational database storage engines (e.g., PostgreSQL, MySQL InnoDB).`,
         codeSnippets: [
@@ -2897,7 +2897,7 @@ AVLNode* rotate_right(AVLNode *y) {
         title: "7.15 Threaded trees",
         content: `### 7.15 Threaded Trees & Stackless Inorder Traversal
 
-In a standard binary tree of $N$ nodes, exactly $N + 1$ child pointers are \`NULL\`, wasting roughly half of the tree's pointer memory. **Threaded Binary Trees** (invented by A.J. Perlis and C. Thornton) repurpose these null pointers as \"threads\":
+In a standard binary tree of N nodes, exactly N + 1 child pointers are \`NULL\`, wasting roughly half of the tree's pointer memory. **Threaded Binary Trees** (invented by A.J. Perlis and C. Thornton) repurpose these null pointers as \"threads\":
 - A \`NULL\` left pointer is modified to point to the node's **inorder predecessor**.
 - A \`NULL\` right pointer is modified to point to the node's **inorder successor**.
 
@@ -2913,7 +2913,7 @@ In a standard binary tree of $N$ nodes, exactly $N + 1$ child pointers are \`NUL
 \`\`\`
 
 #### Stackless Inorder Traversal
-Because every leaf node points directly to its inorder successor, the tree can be traversed in sorted order without recursion, an explicit call stack, or memory allocation ($O(1)$ auxiliary space):
+Because every leaf node points directly to its inorder successor, the tree can be traversed in sorted order without recursion, an explicit call stack, or memory allocation (O(1) auxiliary space):
 1. Find the leftmost node (the minimum key).
 2. While current node is not null:
    - Visit current node.
@@ -2970,7 +2970,7 @@ void threaded_inorder(TBNode *root) {
         title: "8.1 Hashing by chaining",
         content: `### 8.1 Hash Tables, Collision Resolution & Separate Chaining
 
-A **Hash Table** is a data structure that maps keys to values using a mathematical **hash function** $h(k)$ that computes an integer index into an array of buckets, aiming to achieve **$O(1)$ average-case dictionary operations** (\`insert\`, \`search\`, \`delete\`).
+A **Hash Table** is a data structure that maps keys to values using a mathematical **hash function** h(k) that computes an integer index into an array of buckets, aiming to achieve **O(1) average-case dictionary operations** (\`insert\`, \`search\`, \`delete\`).
 
 \`\`\`
    Key: "Alice" ──► Hash Function h(k) ──► Index: 2
@@ -2986,21 +2986,21 @@ A **Hash Table** is a data structure that maps keys to values using a mathematic
 \`\`\`
 
 #### The Collision Problem & Pigeonhole Principle
-By the Pigeonhole Principle, if the universe of possible keys $U$ is larger than table capacity $M$ ($|U| > M$), collisions are mathematically inevitable: distinct keys $k_1 \neq k_2$ will hash to the same bucket ($h(k_1) = h(k_2)$).
+By the Pigeonhole Principle, if the universe of possible keys U is larger than table capacity M ($|U| > M$), collisions are mathematically inevitable: distinct keys k_1 ≠ k_2 will hash to the same bucket (h(k_1) = h(k_2)).
 
 ---
 
 #### Collision Resolution Strategies
 1. **Separate Chaining (Open Hashing)**:
    Each bucket contains a pointer to a linked list of entries that hash to that slot.
-   - **Load Factor**: $\alpha = \frac{n}{m}$ (average keys per bucket).
-   - Expected search time: $\Theta(1 + \alpha)$ time.
-   - Graceful degradation: continues functioning even when $\alpha > 1$.
+   - **Load Factor**: α = n/m (average keys per bucket).
+   - Expected search time: Θ(1 + α) time.
+   - Graceful degradation: continues functioning even when α > 1.
 2. **Open Addressing (Closed Hashing)**:
    All entries reside directly within the array itself. When a collision occurs, alternative slots are probed systematically:
-   - *Linear Probing*: $h(k, i) = (h(k) + i) \pmod m$ (prone to primary clustering).
-   - *Quadratic Probing*: $h(k, i) = (h(k) + c_1 i + c_2 i^2) \pmod m$ (reduces clustering).
-   - *Double Hashing*: $h(k, i) = (h_1(k) + i \cdot h_2(k)) \pmod m$ (optimal permutation).`,
+   - *Linear Probing*: h(k, i) = (h(k) + i) \pmod m (prone to primary clustering).
+   - *Quadratic Probing*: h(k, i) = (h(k) + c_1 i + c_2 i^2) \pmod m (reduces clustering).
+   - *Double Hashing*: h(k, i) = (h_1(k) + i · h_2(k)) \pmod m (optimal permutation).`,
         codeSnippets: [
             {
                 language: "c",
@@ -3059,7 +3059,7 @@ bool hash_search(HashTable *ht, int key) {
         title: "8.2 Perfect hashing function",
         content: `### 8.2 Universal Perfect Hashing & Two-Level Lookup O(1)
 
-While standard hash tables provide $O(1)$ *average-case* lookup time, their *worst-case* search time can degrade to $O(N)$ when malicious or unlucky inputs collide into a single chain. **Perfect Hashing** (the FKS scheme by Fredman, Komlós, and Szemerédi) guarantees **$O(1)$ worst-case search time** with $O(N)$ total memory for static sets.
+While standard hash tables provide O(1) *average-case* lookup time, their *worst-case* search time can degrade to O(N) when malicious or unlucky inputs collide into a single chain. **Perfect Hashing** (the FKS scheme by Fredman, Komlós, and Szemerédi) guarantees **O(1) worst-case search time** with O(N) total memory for static sets.
 
 \`\`\`
    Fredman-Komlós-Szemerédi (FKS) Two-Level Architecture:
@@ -3075,19 +3075,19 @@ While standard hash tables provide $O(1)$ *average-case* lookup time, their *wor
 
 #### The Two-Level FKS Construction
 1. **Level 1 (Primary Table)**:
-   Hashes $N$ keys into $M = N$ primary buckets using a universal hash function $h(k) = ((ak + b) \pmod p) \pmod M$.
-   - Let $n_j$ be the number of keys assigned to bucket $j$.
+   Hashes N keys into M = N primary buckets using a universal hash function h(k) = ((ak + b) \pmod p) \pmod M.
+   - Let n_j be the number of keys assigned to bucket j.
 2. **Level 2 (Secondary Tables)**:
-   Each primary bucket $j$ has an independent secondary hash table of size:
-   $$m_j = n_j^2$$
-   - By the Birthday Paradox, sizing the table to $m_j = n_j^2$ guarantees that a randomly chosen universal hash function produces **zero collisions** with probability $> 1/2$.
-   - If a collision occurs during construction, pick a new $(a_j, b_j)$ pair and rehash that secondary table until it is completely collision-free.
+   Each primary bucket j has an independent secondary hash table of size:
+   m_j = n_j^2
+   - By the Birthday Paradox, sizing the table to m_j = n_j^2 guarantees that a randomly chosen universal hash function produces **zero collisions** with probability > 1/2.
+   - If a collision occurs during construction, pick a new (a_j, b_j) pair and rehash that secondary table until it is completely collision-free.
 
 ---
 
 #### Total Space Proof
-$$\sum_{j=0}^{M-1} m_j = \sum_{j=0}^{M-1} n_j^2 = O(N)$$
-The expected sum of squares of bucket sizes is mathematically proven to be bounded by $O(N)$, guaranteeing worst-case $O(1)$ lookup time with linear total memory.`,
+∑_{j=0}^{M-1} m_j = ∑_{j=0}^{M-1} n_j^2 = O(N)
+The expected sum of squares of bucket sizes is mathematically proven to be bounded by O(N), guaranteeing worst-case O(1) lookup time with linear total memory.`,
         codeSnippets: [
             {
                 language: "c",
@@ -3150,8 +3150,8 @@ In ANSI C systems programming, a **string** is represented as a contiguous array
 \`\`\`
 
 #### The Two-Pointer Invariant
-Two pointers ($L$ at the head and $R$ at the tail) advance toward each other, swapping or comparing characters until they meet ($L \ge R$).
-- **In-Place Reversal**: Swapping \`str[L++]\` with \`str[R--]\` in $O(N)$ time with $O(1)$ auxiliary space.
+Two pointers (L at the head and R at the tail) advance toward each other, swapping or comparing characters until they meet (L ≥ R).
+- **In-Place Reversal**: Swapping \`str[L++]\` with \`str[R--]\` in O(N) time with O(1) auxiliary space.
 - **Palindrome Verification**: Validating \`str[L++] == str[R--]\`. If any character mismatches, the string is not a palindrome.
 - **In-Place Compaction / Casing**: Shifting ASCII values directly (\`str[i] -= 32\` for lowercase to uppercase) or removing whitespace in a single pass.`,
         codeSnippets: [
@@ -3206,9 +3206,9 @@ bool is_palindrome(const char *str) {
         title: "9.2 Pattern search with Rabin-Karp approach",
         content: `### 9.2 Rabin-Karp Substring Search with Rolling Hash Engine
 
-The **Rabin-Karp Algorithm** (designed by Michael O. Rabin and Richard M. Karp) solves the exact **Substring Pattern Matching** problem: finding all occurrences of a pattern string $P$ of length $M$ inside a text string $T$ of length $N$.
+The **Rabin-Karp Algorithm** (designed by Michael O. Rabin and Richard M. Karp) solves the exact **Substring Pattern Matching** problem: finding all occurrences of a pattern string P of length M inside a text string T of length N.
 
-While naive pattern matching requires $O((N - M + 1) \cdot M)$ time by comparing characters at every position, Rabin-Karp computes a **rolling hash** over a sliding window, achieving **$O(N + M)$ average-case runtime**.
+While naive pattern matching requires O((N - M + 1) · M) time by comparing characters at every position, Rabin-Karp computes a **rolling hash** over a sliding window, achieving **O(N + M) average-case runtime**.
 
 \`\`\`
    Text: "A A B A A C A A D A A B A A B A"
@@ -3217,19 +3217,19 @@ While naive pattern matching requires $O((N - M + 1) \cdot M)$ time by comparing
 \`\`\`
 
 #### The Rolling Hash Formula
-Using Horner's polynomial rule with radix base $d = 256$ and prime modulus $q = 101$:
+Using Horner's polynomial rule with radix base d = 256 and prime modulus q = 101:
 1. **Initial Window Hash**:
-   $$p = \left( \sum_{i=0}^{M-1} P[i] \cdot d^{M-1-i} \right) \pmod q$$
-2. **$O(1)$ Rolling Hash Transition**:
-   To slide the window from index $s$ to $s+1$, drop the outgoing character $T[s]$ and add the incoming character $T[s + M]$:
-   $$t_{s+1} = \left( d \cdot \left( t_s - T[s] \cdot h \right) + T[s + M] \right) \pmod q$$
-   Where $h = d^{M-1} \pmod q$. If $t_{s+1} < 0$, add $q$ to maintain a positive modulo.
+   p = ≤ft( ∑_{i=0}^{M-1} P[i] · d^{M-1-i} \right) \pmod q
+2. **O(1) Rolling Hash Transition**:
+   To slide the window from index s to s+1, drop the outgoing character T[s] and add the incoming character T[s + M]:
+   t_{s+1} = ≤ft( d · ≤ft( t_s - T[s] · h \right) + T[s + M] \right) \pmod q
+   Where h = d^{M-1} \pmod q. If t_{s+1} < 0, add q to maintain a positive modulo.
 
 ---
 
 #### Handling Spurious Hits (Hash Collisions)
-- **Hash Mismatch ($p \neq t_s$)**: The pattern cannot match the current window. Slide window in $O(1)$ time without examining individual characters.
-- **Hash Match ($p == t_s$)**: May be a true match OR a **Spurious Hit** (hash collision). Perform an $O(M)$ character-by-character comparison to verify.`,
+- **Hash Mismatch (p ≠ t_s)**: The pattern cannot match the current window. Slide window in O(1) time without examining individual characters.
+- **Hash Match (p == t_s)**: May be a true match OR a **Spurious Hit** (hash collision). Perform an O(M) character-by-character comparison to verify.`,
         codeSnippets: [
             {
                 language: "c",

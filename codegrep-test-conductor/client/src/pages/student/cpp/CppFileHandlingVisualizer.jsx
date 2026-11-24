@@ -340,7 +340,7 @@ export default function CppFileHandlingVisualizer({ activeLesson, lessonOrder, l
                             </div>
 
                             {/* Stream Buffer Diagram */}
-                            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs">
                                 <div className="p-3 rounded-lg border border-slate-200 bg-slate-50 flex flex-col items-center justify-center">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase">Stream Object</span>
                                     <span className="text-xs font-mono font-bold text-blue-600 mt-1">
@@ -362,7 +362,7 @@ export default function CppFileHandlingVisualizer({ activeLesson, lessonOrder, l
                             {/* Stream State Bits */}
                             <div className="p-3 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2">
                                 <div className="text-[11px] font-bold text-slate-700">Stream Status Flags (std::ios)</div>
-                                <div className="grid grid-cols-4 gap-2 text-center font-mono text-[11px]">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center font-mono text-[11px]">
                                     <div className={`p-1.5 rounded border ${!currentStep.vars.eof ? 'bg-emerald-50 border-emerald-200 text-emerald-700 font-bold' : 'bg-white border-slate-200 text-slate-400'}`}>
                                         good(): {!currentStep.vars.eof ? '1' : '0'}
                                     </div>
@@ -399,7 +399,7 @@ export default function CppFileHandlingVisualizer({ activeLesson, lessonOrder, l
                                 <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                                     Contiguous Disk Byte Sequence
                                 </div>
-                                <div className="grid grid-cols-10 gap-1 font-mono text-center">
+                                <div className="grid grid-cols-5 sm:grid-cols-10 gap-1 font-mono text-center">
                                     {fileBytes.map((b, i) => {
                                         const isGetAt = getPtrOffset === i;
                                         const isPutAt = putPtrOffset === i;
@@ -445,7 +445,7 @@ export default function CppFileHandlingVisualizer({ activeLesson, lessonOrder, l
                             </div>
 
                             {/* Reference Points Explanation */}
-                            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-center text-xs">
                                 <div className="p-2 rounded-lg bg-slate-50 border border-slate-200">
                                     <div className="text-[10px] font-bold text-slate-400">ios::beg</div>
                                     <div className="font-mono text-slate-700 font-semibold mt-0.5">Offset 0</div>

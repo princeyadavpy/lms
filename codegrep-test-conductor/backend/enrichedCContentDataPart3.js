@@ -430,7 +430,7 @@ Pointer arithmetic is unique: it is scaled automatically by the **byte size of t
    - New Address = Current Address + \`sizeof(*ptr)\`
    - If \`int *ptr\` is at address \`0x1000\`, \`ptr++\` moves to \`0x1004\` (4 bytes).
 2. **Decrementing (\`ptr--\`):** Moves backward to the previous element.
-3. **Adding / Subtracting an Integer (\`ptr + n\`):** Shifts by $n \\times \\text{sizeof}(*ptr)$ bytes.
+3. **Adding / Subtracting an Integer (\`ptr + n\`):** Shifts by n \× \sizeof(*ptr) bytes.
 4. **Pointer Subtraction (\`ptr2 - ptr1\`):**
    - Both pointers must point into the same array.
    - Result is the **number of elements** between them, not raw bytes.
@@ -494,7 +494,7 @@ A critical distinction in C is the difference between an **Array of Pointers** a
 - Memory efficient: Only allocates bytes for the exact length of each string literal, avoiding fixed matrix padding.
 
 #### 2. Pointer to an Array (\`type (*ptr)[N]\`)
-- A **single pointer** that points to an entire array of $N$ elements as a collective unit.
+- A **single pointer** that points to an entire array of N elements as a collective unit.
 - Notice the parentheses \`(*ptr)\` due to operator precedence:
   - \`int *p[5];\`: Array of 5 integer pointers.
   - \`int (*p)[5];\`: Single pointer to an array of 5 integers.

@@ -268,7 +268,7 @@ export default function NumpyProcessingFileIOVisualizer() {
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-4 gap-2 text-center">
+                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                                 {/* Row 0 */}
                                 <div className="p-2.5 bg-slate-950 border border-slate-800 rounded font-bold text-slate-200">1</div>
                                 <div className="p-2.5 bg-slate-950 border border-slate-800 rounded font-bold text-slate-200">2</div>
@@ -320,7 +320,7 @@ export default function NumpyProcessingFileIOVisualizer() {
                         </div>
 
                         {/* AXIS CHEAT-SHEET BOX */}
-                        <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div className="p-3 bg-cyan-50 border border-cyan-200 rounded-xl space-y-1">
                                 <div className="font-bold text-cyan-950 font-mono">axis=0 (Down Columns)</div>
                                 <p className="text-[11px] text-slate-600">

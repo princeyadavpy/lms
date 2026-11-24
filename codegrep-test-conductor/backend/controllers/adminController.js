@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Test = require('../models/Test');
 const Submission = require('../models/Submission');
+const Notification = require('../models/Notification');
 const bcrypt = require('bcryptjs');
 const exceljs = require('exceljs');
 
@@ -136,6 +137,15 @@ exports.toggleUserStatus = async (req, res) => {
         }
         user.isActive = !user.isActive;
         await user.save();
+        if (user.isActive) {
+            await Notification.create({
+                userId: user._id,
+                title: 'Account Approved',
+                body: 'Your account has been approved by the administrator. You can now access your allocated courses and assessments.',
+                type: 'approval',
+                link: '/student'
+            }).catch(() => {});
+        }
         res.status(200).json({ success: true, data: { isActive: user.isActive } });
     } catch (err) {
         res.status(500).json({ success: false, msg: err.message });

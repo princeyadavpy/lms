@@ -347,7 +347,7 @@ export default function SemaphoresQueuesVisualizer() {
                             </div>
 
                             {/* Active vs Waiting Clients Pod */}
-                            <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
                                 <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-xl space-y-2">
                                     <div className="font-bold text-emerald-900 flex items-center justify-between">
                                         <span>Active Clients (Holding Token):</span>

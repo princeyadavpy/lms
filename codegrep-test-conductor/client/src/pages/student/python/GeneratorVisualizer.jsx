@@ -413,7 +413,7 @@ export default function GeneratorVisualizer() {
                                 </span>
                             </div>
 
-                            <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                                 <div className="p-3 rounded-lg bg-slate-900 text-slate-200 font-mono space-y-1.5">
                                     <span className="text-[10px] text-slate-400 uppercase tracking-wider font-bold block">
                                         Frozen Local Scope
@@ -493,7 +493,7 @@ export default function GeneratorVisualizer() {
                             {CHALLENGES[challengeIdx].question}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {CHALLENGES[challengeIdx].options.map((opt) => {
                                 const isPicked = selectedAnswer === opt;
                                 const isCorrect = opt === CHALLENGES[challengeIdx].correct;

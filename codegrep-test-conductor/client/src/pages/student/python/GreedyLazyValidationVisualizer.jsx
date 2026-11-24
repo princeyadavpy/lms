@@ -366,7 +366,7 @@ export default function GreedyLazyValidationVisualizer() {
                                     Adding <code className="font-mono bg-white px-1 rounded font-bold">?</code> tames the quantifier. It stops at the very first closing tag, capturing each tag individually!
                                 </p>
                                 {currentStepData?.lazyResult && (
-                                    <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
                                         <div className="p-2 bg-emerald-100 rounded-lg text-emerald-900 border border-emerald-300 font-bold text-center">
                                             &quot;{currentStepData.lazyResult[0]}&quot;
                                         </div>
@@ -397,7 +397,7 @@ export default function GreedyLazyValidationVisualizer() {
                             {/* Schema Anatomy Box */}
                             <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-white font-mono text-xs space-y-2">
                                 <div className="text-[10px] text-slate-400">EMAIL REGEX SCHEMA ANATOMY:</div>
-                                <div className="grid grid-cols-4 gap-1 text-center text-[11px]">
+                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center text-[11px]">
                                     <div className="p-2 bg-slate-950 rounded border border-slate-800 text-emerald-300">
                                         ^[\w\.-]+
                                         <div className="text-[9px] text-slate-400">Username</div>

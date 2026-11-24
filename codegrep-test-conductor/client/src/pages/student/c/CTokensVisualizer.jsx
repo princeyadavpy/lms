@@ -437,7 +437,7 @@ export default function CTokensVisualizer({ activeLesson, lessonOrder, lessonTit
                         </div>
 
                         {/* Operands Controls */}
-                        <div className="grid grid-cols-2 gap-3 text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                             <div>
                                 <label className="text-slate-400 block mb-1">Operand A (decimal):</label>
                                 <input
@@ -513,7 +513,7 @@ export default function CTokensVisualizer({ activeLesson, lessonOrder, lessonTit
                             {CHALLENGES[challengeIdx].question}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {CHALLENGES[challengeIdx].options.map(opt => {
                                 const isSelected = selectedOption === opt;
                                 const isCorrect = opt === CHALLENGES[challengeIdx].correct;

@@ -23,6 +23,8 @@ html, body {
   color: #0f172a;
   background-color: #f6f8fa;
   letter-spacing: -0.01em;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 :root {

@@ -482,7 +482,7 @@ function AnswerViewer({ answer, onClose, onGrade }) {
                                                             <span>Test Case #{i + 1} {res.isHidden ? '🔒 (hidden)' : ''}</span>
                                                             <span className="font-black uppercase">{res.passed ? '✓ PASSED' : '✕ FAILED'} ({res.statusDescription})</span>
                                                         </div>
-                                                        <div className="grid grid-cols-2 gap-2 text-[11px] font-mono mt-2">
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] font-mono mt-2">
                                                             <div>
                                                                 <span className="text-slate-400 block">Expected:</span>
                                                                 <pre className="bg-black/50 p-1">{res.expectedOutput}</pre>

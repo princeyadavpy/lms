@@ -595,7 +595,7 @@ export default function BuiltinFunctionsVisualizer() {
                             </div>
 
                             {/* Summary of 3 Built-ins used in this lesson */}
-                            <div className="grid grid-cols-3 gap-2 pt-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                                 {[
                                     { name: 'len()', role: 'Element counter', res: '5', active: currentStepData?.fnName === 'len' },
                                     { name: 'max()', role: 'Greatest value', res: '9', active: currentStepData?.fnName === 'max' },
@@ -662,7 +662,7 @@ export default function BuiltinFunctionsVisualizer() {
                                         </span>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                         <div className="p-2.5 bg-white rounded-lg border border-indigo-200 space-y-1">
                                             <div className="text-[10px] text-slate-400 uppercase font-bold">Param: name</div>
                                             <div className="text-xs font-mono font-bold text-blue-700">

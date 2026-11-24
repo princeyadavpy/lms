@@ -327,7 +327,7 @@ export default function NumpyIntroArraysVisualizer() {
                         )}
 
                         {/* Array Attributes Grid */}
-                        <div className="grid grid-cols-4 gap-2 font-mono text-center text-xs">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-center text-xs">
                             <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
                                 <div className="text-[10px] text-slate-400">shape</div>
                                 <div className="font-bold text-slate-800">({liveShape.join(', ')})</div>

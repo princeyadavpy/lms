@@ -907,7 +907,7 @@ An **Array of Objects** allows you to store and manage multiple object instances
 ClassName objectArray[SIZE];
 \`\`\`
 - When an array of objects is declared, the class's **default constructor** is automatically called for every single object in the array.
-- For an array of size $N$, the default constructor executes $N$ times.
+- For an array of size N, the default constructor executes N times.
 
 #### Initializing Arrays of Objects with Parameterized Constructors
 You can initialize array elements using explicit constructor calls in an initializer list:
@@ -1086,8 +1086,8 @@ C++ supports both **formatted I/O** (which interprets and converts data types) a
 - **\`cout.put(char ch)\`:** Writes a single character to output.
 - **\`cin.getline(char *buffer, int size)\`:** Reads a full line of text including embedded spaces into a C-string until a newline is reached.
 - **\`std::getline(cin, stringObj)\`:** Safe, dynamic C++ string reader.
-- **\`cin.read(char *buf, int n)\`:** Reads raw $n$ bytes without null termination.
-- **\`cout.write(const char *buf, int n)\`:** Writes raw $n$ bytes directly.`,
+- **\`cin.read(char *buf, int n)\`:** Reads raw n bytes without null termination.
+- **\`cout.write(const char *buf, int n)\`:** Writes raw n bytes directly.`,
         codeSnippets: [
             {
                 language: 'cpp',

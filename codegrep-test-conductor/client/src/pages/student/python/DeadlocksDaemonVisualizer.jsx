@@ -311,7 +311,7 @@ export default function DeadlocksDaemonVisualizer() {
                             </div>
 
                             {/* Dual Thread Lock Stand-off Schema */}
-                            <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 font-mono text-xs">
                                 <div className={`p-4 rounded-xl border-2 space-y-2 ${
                                     currentStepData?.deadlockState === 'deadlocked'
                                         ? 'bg-rose-50 border-rose-400'

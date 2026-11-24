@@ -5095,7 +5095,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                         {/* MODULE 1: MEMORY, ALGORITHM & ELAPSED TIME */}
                         {activeModuleNumber === 1 && (
-                            <div className="space-y-4">
+                            <div className="flex flex-col gap-4">
                                 <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 rounded-xl">
                                     <div className="flex items-center gap-2">
                                         <input
@@ -5119,7 +5119,7 @@ void rabinKarp(char pat[], char txt[]) {
                                     </button>
                                 </div>
 
-                                <div className="min-h-[240px] bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-2">
+                                <div className="order-first min-h-[240px] bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-2">
                                     <span className="text-[11px] font-mono text-slate-500 font-bold uppercase tracking-wider">
                                         Virtual Heap Memory Segment:
                                     </span>
@@ -5151,7 +5151,7 @@ void rabinKarp(char pat[], char txt[]) {
                         {activeModuleNumber === 2 && (
                             <div className="space-y-4">
                                 {selectedTopicId === 1 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 rounded-xl">
                                             <div className="flex items-center gap-2">
                                                 <input
@@ -5207,7 +5207,7 @@ void rabinKarp(char pat[], char txt[]) {
                                             </div>
                                         </div>
 
-                                        <div className="relative min-h-[260px] bg-gradient-to-b from-slate-50 to-slate-100/70 rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-end">
+                                        <div className="order-first relative min-h-[260px] bg-gradient-to-b from-slate-50 to-slate-100/70 rounded-2xl border border-slate-200 p-6 flex flex-col items-center justify-end">
                                             <div className="absolute top-3 text-[11px] font-mono text-slate-500 flex items-center gap-1 font-semibold">
                                                 <ArrowDown size={12} className="animate-bounce text-blue-600" />
                                                 <span>LIFO Aperture (Push / Pop only from TOP)</span>
@@ -5256,7 +5256,7 @@ void rabinKarp(char pat[], char txt[]) {
                                 )}
 
                                 {selectedTopicId === 2 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         <div className="p-3 bg-slate-50 rounded-xl space-y-2">
                                             <div className="flex items-center justify-between gap-2">
                                                 <span className="text-xs font-bold text-slate-800">Infix Expression:</span>
@@ -5315,7 +5315,7 @@ void rabinKarp(char pat[], char txt[]) {
                                             })}
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="order-first grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
                                                 <div className="flex items-center justify-between">
                                                     <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
@@ -5370,7 +5370,7 @@ void rabinKarp(char pat[], char txt[]) {
                                 )}
 
                                 {selectedTopicId === 3 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         <div className="p-3 bg-slate-50 rounded-xl space-y-2">
                                             <div className="flex items-center justify-between gap-2">
                                                 <span className="text-xs font-bold text-slate-800">Postfix Expression:</span>
@@ -5416,7 +5416,7 @@ void rabinKarp(char pat[], char txt[]) {
                                             </span>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="order-first grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
                                                 <span className="text-xs font-bold text-slate-800">Token Stream:</span>
                                                 <div className="flex items-center gap-1.5 overflow-x-auto p-2 bg-white rounded-lg border border-slate-200">
@@ -5467,7 +5467,7 @@ void rabinKarp(char pat[], char txt[]) {
                         {activeModuleNumber === 3 && (
                             <div className="space-y-4">
                                 {selectedTopicId === 1 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 rounded-xl">
                                             <div className="flex items-center gap-1.5 bg-slate-200/80 p-1 rounded-xl">
                                                 <button onClick={() => setListType('singly')} className={`px-3 py-1 rounded-lg text-xs font-bold cursor-pointer transition-all ${listType === 'singly' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}>
@@ -5545,7 +5545,7 @@ void rabinKarp(char pat[], char txt[]) {
                                             </div>
                                         </div>
 
-                                        <div className="min-h-[220px] bg-slate-50/80 rounded-2xl border border-slate-200 p-5 flex flex-col justify-center gap-4 overflow-x-auto">
+                                        <div className="order-first min-h-[220px] bg-slate-50/80 rounded-2xl border border-slate-200 p-5 flex flex-col justify-center gap-4 overflow-x-auto">
                                             <div className="flex items-center gap-2 min-w-max py-4">
                                                 <div className="flex flex-col items-center">
                                                     <span className="px-2.5 py-1 rounded-md bg-blue-600 text-white font-mono text-[10px] font-black uppercase tracking-wider shadow-xs">
@@ -5630,7 +5630,7 @@ void rabinKarp(char pat[], char txt[]) {
                                 )}
 
                                 {selectedTopicId === 2 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 rounded-xl">
                                             <div className="flex items-center gap-1.5 bg-slate-200/80 p-1 rounded-xl">
                                                 <button onClick={() => setQueueMode('linear')} className={`px-3 py-1 rounded-lg text-xs font-bold cursor-pointer transition-all ${queueMode === 'linear' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600 hover:text-slate-900'}`}>
@@ -5675,13 +5675,13 @@ void rabinKarp(char pat[], char txt[]) {
                                         </div>
 
                                         {queueMode === 'linear' && (
-                                            <div className="min-h-[200px] bg-slate-50 rounded-2xl border border-slate-200 p-6 flex flex-col justify-center gap-4">
+                                            <div className="order-first min-h-[200px] bg-slate-50 rounded-2xl border border-slate-200 p-6 flex flex-col justify-center gap-4">
                                                 <div className="flex items-center justify-between text-xs font-mono text-slate-600">
                                                     <span>FRONT index = <strong className="text-blue-600">[{linearFront}]</strong></span>
                                                     <span>REAR index = <strong className="text-emerald-600">[{linearRear}]</strong></span>
                                                 </div>
 
-                                                <div className="grid grid-cols-6 gap-2 pt-2">
+                                                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2">
                                                     {linearQueue.map((val, idx) => {
                                                         const isFront = idx === linearFront;
                                                         const isRear = idx === linearRear;
@@ -5707,7 +5707,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         )}
 
                                         {queueMode === 'two-stacks' && (
-                                            <div className="grid grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
                                                 <div className="space-y-2">
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-xs font-bold text-slate-800 flex items-center gap-1">
@@ -5757,7 +5757,7 @@ void rabinKarp(char pat[], char txt[]) {
                                 )}
 
                                 {selectedTopicId === 3 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 rounded-xl">
                                             <div className="flex items-center gap-2">
                                                 <input
@@ -5791,7 +5791,7 @@ void rabinKarp(char pat[], char txt[]) {
                                             </span>
                                         </div>
 
-                                        <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col items-center">
+                                        <div className="order-first p-5 bg-slate-50 rounded-2xl border border-slate-200 flex flex-col items-center">
                                             <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 w-full">
                                                 {circularSlots.map((val, idx) => {
                                                     const isFront = idx === circularFront;
@@ -5829,7 +5829,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                                 {/* ── SUB-TOPIC 4.1: SIMPLE RECURSION (CALL STACK CHAMBER & FLOW) ── */}
                                 {selectedTopicId === 1 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* Algorithm & Presets Bar */}
                                         <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
                                             <div className="flex flex-wrap items-center gap-2">
@@ -5986,7 +5986,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         </div>
 
                                         {/* Visualization Workspace (Chamber & Flow) */}
-                                        <div className={`grid gap-4 ${recursionView === 'dual' ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1'}`}>
+                                        <div className={`order-first grid gap-4 ${recursionView === 'dual' ? 'grid-cols-1 lg:grid-cols-12' : 'grid-cols-1'}`}>
                                             {/* OS Activation Stack Chamber */}
                                             {(recursionView === 'dual' || recursionView === 'stack') && (
                                                 <div className={`${recursionView === 'dual' ? 'lg:col-span-5' : 'w-full'} flex flex-col bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 rounded-2xl border-2 border-slate-800 p-4 shadow-lg text-slate-100`}>
@@ -6189,7 +6189,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                                 {/* ── SUB-TOPIC 4.2: FIBONACCI RECURRENCE TREE, MEMOIZATION & TABULATION ── */}
                                 {selectedTopicId === 2 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* Mode Selector & Controls Bar */}
                                         <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
                                             <div className="flex flex-wrap items-center gap-2">
@@ -6340,7 +6340,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                                         {/* Recurrence Tree Canvas (Naive & Memoized DP) */}
                                         {fibMode !== 'tabulation' && (
-                                            <div className="relative min-h-[380px] bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 rounded-2xl border-2 border-slate-800 p-4 shadow-inner overflow-hidden">
+                                            <div className="order-first relative min-h-[380px] bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 rounded-2xl border-2 border-slate-800 p-4 shadow-inner overflow-hidden">
                                                 {/* Header & Legend */}
                                                 <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-800 text-[11px] font-mono text-slate-400">
                                                     <span className="font-bold text-blue-400 flex items-center gap-1.5">
@@ -6447,7 +6447,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                                         {/* Bottom-Up Tabulation Canvas */}
                                         {fibMode === 'tabulation' && (
-                                            <div className="p-5 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-4">
+                                            <div className="order-first p-5 bg-white border border-slate-200 rounded-2xl shadow-sm space-y-4">
                                                 <div className="flex items-center justify-between pb-2 border-b border-slate-100">
                                                     <span className="text-xs font-bold font-mono text-slate-800 flex items-center gap-1.5">
                                                         <Database size={14} className="text-blue-600" />
@@ -6546,7 +6546,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                                 {/* ── SUB-TOPIC 4.3: 0/1 KNAPSACK DP STUDIO (VISUALIZEDSA.COM) ── */}
                                 {selectedTopicId === 3 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* Presets & Capacity Toolbar */}
                                         <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-50 rounded-xl">
                                             <div className="flex flex-wrap items-center gap-2">
@@ -6861,7 +6861,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         </div>
 
                                         {/* Split Visualizer Canvas: Items List + 2D DP Table */}
-                                        <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
+                                        <div className="order-first grid grid-cols-1 md:grid-cols-12 gap-3 items-start">
                                             <div className="md:col-span-3 space-y-2 p-3 bg-slate-50 rounded-xl border border-slate-200">
                                                 <div className="flex items-center justify-between pb-1 border-b border-slate-200">
                                                     <span className="text-xs font-bold text-slate-800">Items List</span>
@@ -7053,7 +7053,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                         {/* MODULE 5: SEARCHING ALGORITHMS */}
                         {activeModuleNumber === 5 && (
-                            <div className="space-y-4">
+                            <div className="flex flex-col gap-4">
                                 {/* Complexity & Live Metrics Header */}
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
@@ -7317,7 +7317,7 @@ void rabinKarp(char pat[], char txt[]) {
                                 </div>
 
                                 {/* Array Visualizer Canvas */}
-                                <div className="min-h-[200px] bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-center items-center gap-4 shadow-xs">
+                                <div className="order-first min-h-[200px] bg-white rounded-2xl border border-slate-200 p-6 flex flex-col justify-center items-center gap-4 shadow-xs">
                                     <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5">
                                         {currentSearchStep.arr.map((val, idx) => {
                                             const isMid = currentSearchStep.mid === idx;
@@ -7396,7 +7396,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                         {/* MODULE 6: SORTING ALGORITHMS */}
                         {activeModuleNumber === 6 && (
-                            <div className="space-y-4">
+                            <div className="flex flex-col gap-4">
                                 {/* Analytical Metrics & Complexity Inspector */}
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
@@ -7637,7 +7637,7 @@ void rabinKarp(char pat[], char txt[]) {
                                 {/* Visualizer Canvas: Switching between Comparison Bar Chart and Counting Sort */}
                                 {activeSortAlgo !== 'counting' ? (
                                     /* ── Comparison-based Vertical Bar Chart ────────────────── */
-                                    <div className="h-60 bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 flex items-end justify-center gap-2 sm:gap-3 shadow-xs overflow-x-auto">
+                                    <div className="order-first h-60 bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 flex items-end justify-center gap-2 sm:gap-3 shadow-xs overflow-x-auto">
                                         {currentSortStep.arr.map((val, idx) => {
                                             const isComparing = currentSortStep.comparing && currentSortStep.comparing.includes(idx);
                                             const isSwapping = currentSortStep.swapping && currentSortStep.swapping.includes(idx);
@@ -7674,7 +7674,7 @@ void rabinKarp(char pat[], char txt[]) {
                                     </div>
                                 ) : (
                                     /* ── Specialized Counting Sort Multi-Array Studio ───────── */
-                                    <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-xs">
+                                    <div className="order-first bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-xs">
                                         {/* Array 1: Input Array (Proportional Bars) */}
                                         <div className="space-y-1.5">
                                             <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-700">
@@ -7773,7 +7773,7 @@ void rabinKarp(char pat[], char txt[]) {
                             <div className="space-y-4">
                                 {/* GRAPH ALGORITHMS VIEW (Dijkstra, BFS, DFS, Kruskal, Floyd-Warshall, Adjacency) */}
                                 {activeGraphAlgo !== 'bst' ? (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* Algorithm Metrics Bar */}
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
@@ -8005,7 +8005,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         </div>
 
                                         {/* ── Interactive SVG Graph Canvas ── */}
-                                        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs relative overflow-hidden">
+                                        <div className="order-first bg-white rounded-2xl border border-slate-200 p-4 shadow-xs relative overflow-hidden">
                                             <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
                                                 <span className="text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
                                                     <Eye size={13} className="text-blue-600" />
@@ -8510,7 +8510,7 @@ void rabinKarp(char pat[], char txt[]) {
                                     </div>
                                 ) : (
                                     /* ── TOPIC 7.6: BINARY SEARCH TREE (BST) STUDIO ───────────── */
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* BST Action Bar */}
                                         <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
                                             <div className="flex items-center gap-2">
@@ -8583,7 +8583,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         )}
 
                                         {/* Dynamic SVG BST Canvas */}
-                                        <div className="min-h-[240px] bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col items-center justify-center">
+                                        <div className="order-first min-h-[240px] bg-white rounded-2xl border border-slate-200 p-4 shadow-xs flex flex-col items-center justify-center">
                                             <svg viewBox="0 0 560 220" className="w-full max-w-[560px] h-auto select-none">
                                                 {/* Tree Branch Lines */}
                                                 {bstTreeLayout.edges.map((e, idx) => (
@@ -8653,7 +8653,7 @@ void rabinKarp(char pat[], char txt[]) {
                             <div className="space-y-4">
                                 {/* ── SUB-TOPIC 8.1: HASHING BY CHAINING ────────────────── */}
                                 {selectedTopicId === 1 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* Metrics Bar */}
                                         <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
                                             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
@@ -8723,7 +8723,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         </div>
 
                                         {/* Visual Hash Table Canvas: Separate Chaining Linked Lists */}
-                                        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2">
+                                        <div className="order-first bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-2">
                                             <div className="flex items-center justify-between text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100">
                                                 <span>Hash Table Array (m = {hashTableM})</span>
                                                 <span>Separate Chaining Linked List Nodes</span>
@@ -8794,7 +8794,7 @@ void rabinKarp(char pat[], char txt[]) {
 
                                 {/* ── SUB-TOPIC 8.2: PERFECT HASHING FUNCTION (ZERO COLLISION) ───── */}
                                 {selectedTopicId === 2 && (
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* Metrics Bar */}
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
@@ -8907,7 +8907,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         </div>
 
                                         {/* Two-Level Architecture Canvas */}
-                                        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
+                                        <div className="order-first bg-white rounded-2xl border border-slate-200 p-4 shadow-xs space-y-3">
                                             <div className="flex items-center justify-between text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100">
                                                 <span>Level 1: Primary Table (Size M = 7)</span>
                                                 <span>Level 2: Collision-Free Secondary Tables (Size m_j = n_j²)</span>
@@ -8987,7 +8987,7 @@ void rabinKarp(char pat[], char txt[]) {
                             <div className="space-y-4">
                                 {selectedTopicId === 1 ? (
                                     /* 9.1 Simple string manipulations */
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* Status & Complexity Metrics Bar */}
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                             <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs">
@@ -9116,7 +9116,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         </div>
 
                                         {/* Two-Pointer Character Memory Buffer Canvas */}
-                                        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+                                        <div className="order-first bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
                                             <div className="flex items-center justify-between text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100">
                                                 <span>In-Place Memory Buffer: <code className="text-blue-600">char str[{strBuffer.length + 1}]</code></span>
                                                 <span className="text-slate-400">Null-Terminated (ANSI C C89)</span>
@@ -9194,7 +9194,7 @@ void rabinKarp(char pat[], char txt[]) {
                                     </div>
                                 ) : (
                                     /* 9.2 Pattern search with Rabin-Karp approach */
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-4">
                                         {/* Status & Complexity Metrics Bar */}
                                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                                             <div className="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs">
@@ -9404,7 +9404,7 @@ void rabinKarp(char pat[], char txt[]) {
                                         </div>
 
                                         {/* Rabin-Karp Sliding Window Visual Canvas */}
-                                        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+                                        <div className="order-first bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
                                             <div className="flex items-center justify-between text-[11px] font-mono font-bold text-slate-500 uppercase tracking-wider pb-1 border-b border-slate-100">
                                                 <span>Text String <code className="text-slate-700">T[0..{rkText.length - 1}]</code> &amp; Sliding Window <code className="text-blue-600">offset s = {currentRkStep.windowIdx ?? 0}</code></span>
                                                 <span>Pattern Length M = {rkPattern.length}</span>

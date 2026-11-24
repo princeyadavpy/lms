@@ -449,7 +449,7 @@ export default function CLoopVisualizer({ activeLesson, lessonOrder, lessonTitle
                         </div>
 
                         {/* Live Variables & Explanation */}
-                        <div className="grid grid-cols-2 gap-2 font-mono text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-mono text-xs">
                             {Object.entries(currentStep.vars || {}).map(([vName, vVal]) => (
                                 <div key={vName} className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
                                     <span className="text-slate-400">{vName}</span>
@@ -504,7 +504,7 @@ export default function CLoopVisualizer({ activeLesson, lessonOrder, lessonTitle
                             {CHALLENGES[challengeIdx].question}
                         </p>
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                             {CHALLENGES[challengeIdx].options.map(opt => {
                                 const isSelected = selectedOption === opt;
                                 const isCorrect = opt === CHALLENGES[challengeIdx].correct;
