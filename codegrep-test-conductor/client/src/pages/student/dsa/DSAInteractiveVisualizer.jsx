@@ -7397,47 +7397,6 @@ void rabinKarp(char pat[], char txt[]) {
                         {/* MODULE 6: SORTING ALGORITHMS */}
                         {activeModuleNumber === 6 && (
                             <div className="space-y-4">
-                                {/* Algorithm Switcher Quick-Pill Bar */}
-                                <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-                                    {[
-                                        { id: 1, key: 'bubble', label: 'Bubble Sort', stable: true },
-                                        { id: 2, key: 'selection', label: 'Selection Sort', stable: false },
-                                        { id: 3, key: 'insertion', label: 'Insertion Sort', stable: true },
-                                        { id: 4, key: 'merge', label: 'Merge Sort', stable: true },
-                                        { id: 5, key: 'quick', label: 'Quicksort', stable: false },
-                                        { id: 6, key: 'heap', label: 'Heap Sort', stable: false },
-                                        { id: 7, key: 'counting', label: 'Counting Sort', stable: true },
-                                    ].map(algoItem => {
-                                        const isActive = activeSortAlgo === algoItem.key;
-                                        return (
-                                            <button
-                                                key={algoItem.id}
-                                                onClick={() => {
-                                                    setSelectedTopicId(algoItem.id);
-                                                    setSortStepIdx(0);
-                                                    setSortIsPlaying(false);
-                                                    if (algoItem.key === 'counting') {
-                                                        // Use small positive numbers for counting sort
-                                                        const smalls = [4, 2, 7, 2, 5, 4, 8, 3];
-                                                        setSortArr(smalls);
-                                                    }
-                                                    addLog(`Switched algorithm to ${algoItem.label}`);
-                                                }}
-                                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
-                                                    isActive
-                                                        ? 'bg-blue-600 text-white shadow-xs'
-                                                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60'
-                                                }`}
-                                            >
-                                                <span>{algoItem.label}</span>
-                                                <span className={`text-[9px] px-1 py-0.2 rounded font-mono ${isActive ? 'bg-blue-700 text-blue-100' : 'bg-slate-200 text-slate-600'}`}>
-                                                    {algoItem.stable ? 'Stable' : 'Unstable'}
-                                                </span>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
                                 {/* Analytical Metrics & Complexity Inspector */}
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
@@ -7678,24 +7637,24 @@ void rabinKarp(char pat[], char txt[]) {
                                 {/* Visualizer Canvas: Switching between Comparison Bar Chart and Counting Sort */}
                                 {activeSortAlgo !== 'counting' ? (
                                     /* ── Comparison-based Vertical Bar Chart ────────────────── */
-                                    <div className="h-56 bg-white rounded-2xl border border-slate-200 p-6 flex items-end justify-center gap-3 shadow-xs">
+                                    <div className="h-60 bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 flex items-end justify-center gap-2 sm:gap-3 shadow-xs overflow-x-auto">
                                         {currentSortStep.arr.map((val, idx) => {
                                             const isComparing = currentSortStep.comparing && currentSortStep.comparing.includes(idx);
                                             const isSwapping = currentSortStep.swapping && currentSortStep.swapping.includes(idx);
                                             const isSorted = currentSortStep.sorted && currentSortStep.sorted.includes(idx);
                                             const isPivot = currentSortStep.pivot === idx;
                                             const maxVal = Math.max(...currentSortStep.arr, 1);
-                                            const heightPercent = Math.max(18, Math.min(100, (val / maxVal) * 100));
+                                            const barHeightPx = Math.max(12, Math.round((val / maxVal) * 144));
 
                                             return (
-                                                <div key={idx} className="flex flex-col items-center gap-1.5 flex-1 max-w-[48px]">
+                                                <div key={idx} className="h-full flex flex-col justify-end items-center gap-1.5 flex-1 min-w-[28px] max-w-[52px]">
                                                     <span className={`text-[11px] font-mono font-bold transition-all ${
                                                         isSorted ? 'text-emerald-700 font-black' : isSwapping ? 'text-rose-700 font-black' : isComparing ? 'text-amber-700 font-black' : 'text-slate-800'
                                                     }`}>
                                                         {val}
                                                     </span>
                                                     <div
-                                                        style={{ height: `${heightPercent}%` }}
+                                                        style={{ height: `${barHeightPx}px` }}
                                                         className={`w-full rounded-t-lg transition-all duration-200 ${
                                                             isSwapping
                                                                 ? 'bg-rose-500 shadow-md ring-4 ring-rose-200 scale-105'
@@ -7716,26 +7675,30 @@ void rabinKarp(char pat[], char txt[]) {
                                 ) : (
                                     /* ── Specialized Counting Sort Multi-Array Studio ───────── */
                                     <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4 shadow-xs">
-                                        {/* Array 1: Input Array */}
+                                        {/* Array 1: Input Array (Proportional Bars) */}
                                         <div className="space-y-1.5">
                                             <div className="flex items-center justify-between text-xs font-mono font-bold text-slate-700">
                                                 <span>1. Input Array (arr):</span>
                                                 <span className="text-[10px] text-slate-400">n = {currentSortStep.arr.length}</span>
                                             </div>
-                                            <div className="flex flex-wrap items-center gap-2">
+                                            <div className="h-32 flex items-end gap-2 sm:gap-3 pt-2 overflow-x-auto">
                                                 {currentSortStep.arr.map((val, idx) => {
                                                     const isInputActive = currentSortStep.activeInputIdx === idx;
+                                                    const maxInputVal = Math.max(...currentSortStep.arr, 1);
+                                                    const barHeightPx = Math.max(12, Math.round((val / maxInputVal) * 76));
                                                     return (
-                                                        <div key={idx} className="flex flex-col items-center gap-1">
-                                                            <div
-                                                                className={`w-10 h-10 rounded-lg flex items-center justify-center font-mono font-bold text-sm border-2 transition-all ${
-                                                                    isInputActive
-                                                                        ? 'bg-amber-500 text-white border-amber-600 ring-2 ring-amber-300 scale-105'
-                                                                        : 'bg-slate-900 text-white border-slate-800'
-                                                                }`}
-                                                            >
+                                                        <div key={idx} className="h-full flex flex-col justify-end items-center gap-1 min-w-[36px] flex-1 max-w-[48px]">
+                                                            <span className={`text-[11px] font-mono font-bold ${isInputActive ? 'text-amber-600 font-black' : 'text-slate-800'}`}>
                                                                 {val}
-                                                            </div>
+                                                            </span>
+                                                            <div
+                                                                style={{ height: `${barHeightPx}px` }}
+                                                                className={`w-full rounded-t-lg transition-all duration-200 ${
+                                                                    isInputActive
+                                                                        ? 'bg-amber-500 ring-2 ring-amber-300 scale-105'
+                                                                        : 'bg-slate-900'
+                                                                }`}
+                                                            />
                                                             <span className="text-[9px] font-mono text-slate-400">[{idx}]</span>
                                                         </div>
                                                     );
