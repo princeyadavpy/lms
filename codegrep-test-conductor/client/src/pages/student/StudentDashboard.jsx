@@ -123,16 +123,15 @@ const StudentDashboard = () => {
         return 0;
     };
 
-    const displayCourses = courses.slice(0, 2);
+    const enrolledCourses = courses.filter(c => c.isEnrolled !== false);
+    const activeCourseList = enrolledCourses.length > 0 ? enrolledCourses : courses;
+    const displayCourses = activeCourseList.slice(0, 2);
     const displayLabs = labs.slice(0, 2);
 
     const upcomingQuizzes = [
         { id: 'q1', title: 'Quiz – Control Flow', courseName: courses[0]?.title || 'Course Quiz', courseId: courses[0]?._id },
         { id: 'q2', title: 'Quiz – Backtracking', courseName: courses[1]?.title || 'Course Quiz', courseId: courses[1]?._id }
     ];
-
-    const enrolledCourses = courses.filter(c => c.isEnrolled !== false);
-    const activeCourseList = enrolledCourses.length > 0 ? enrolledCourses : courses;
     const avgProgress = activeCourseList.length > 0
         ? activeCourseList.reduce((sum, c) => sum + getCourseProgress(c), 0) / activeCourseList.length
         : 0;

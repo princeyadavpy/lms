@@ -110,6 +110,8 @@ exports.getCourses = async (req, res) => {
                 };
             });
 
+            enriched.sort((a, b) => Number(Boolean(b.isEnrolled)) - Number(Boolean(a.isEnrolled)));
+
             return res.status(200).json({ success: true, count: enriched.length, data: enriched });
         }
 

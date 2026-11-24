@@ -115,7 +115,7 @@ const CoursesPortal = () => {
         const matchCat = cat === 'ALL' || catNorm === cat || (cat === 'C' && catNorm === 'C') || (cat === 'C++' && (catNorm.includes('C++') || catNorm.includes('CPP'))) || (cat === 'GEN AI' && catNorm.includes('GEN')) || (cat === 'AGENTIC AI' && catNorm.includes('AGENTIC'));
         const matchSearch = !search || (c.title + c.code + c.description).toLowerCase().includes(search.toLowerCase());
         return matchCat && matchSearch;
-    });
+    }).sort((a, b) => Number(b.isEnrolled !== false) - Number(a.isEnrolled !== false));
 
     return (
         <div className="space-y-7 pb-16">
