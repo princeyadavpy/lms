@@ -41,6 +41,11 @@ const StudentDashboard = () => {
     });
     const [backendProgressMap, setBackendProgressMap] = useState({});
 
+    const DEFAULT_DASHBOARD_COURSES = [
+        { _id: 'seed-dsa', title: 'Data Structures and Algorithms (DSA)', code: 'DSA-MODERN-2', isEnrolled: true, overallPercentage: 0 },
+        { _id: 'seed-py', title: 'Python Programming Masterclass', code: 'SHU-PY-101', isEnrolled: true, overallPercentage: 0 }
+    ];
+
     const fetchDashboardData = async () => {
         try {
             const [cRes, lRes, pRes] = await Promise.allSettled([
@@ -49,7 +54,16 @@ const StudentDashboard = () => {
                 api.get('/courses/progress/my')
             ]);
             if (cRes.status === 'fulfilled' && cRes.value.data.success) {
-                setCourses(cRes.value.data.data);
+                const list = cRes.value.data.data || [];
+                setCourses(list.length > 0 ? list : DEFAULT_DASHBOARD_COURSES);
+            } else {
+                try {
+                    const retryRes = await api.get('/courses');
+                    const list = retryRes.data?.data || [];
+                    setCourses(list.length > 0 ? list : DEFAULT_DASHBOARD_COURSES);
+                } catch {
+                    setCourses(prev => prev.length > 0 ? prev : DEFAULT_DASHBOARD_COURSES);
+                }
             }
             if (lRes.status === 'fulfilled' && lRes.value.data.success) {
                 setLabs(lRes.value.data.data);
@@ -91,9 +105,12 @@ const StudentDashboard = () => {
             }
         };
 
+        const handleWindowFocus = () => fetchDashboardData();
+        window.addEventListener('focus', handleWindowFocus);
         window.addEventListener('course-progress-updated', handleProgressUpdated);
         window.addEventListener('storage', handleProgressUpdated);
         return () => {
+            window.removeEventListener('focus', handleWindowFocus);
             window.removeEventListener('course-progress-updated', handleProgressUpdated);
             window.removeEventListener('storage', handleProgressUpdated);
         };

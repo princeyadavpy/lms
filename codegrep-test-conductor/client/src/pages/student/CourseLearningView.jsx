@@ -1110,6 +1110,8 @@ const CourseLearningView = () => {
     const fetchCurriculum = async (targetLessonId = null) => {
         try {
             setLoading(true);
+            setAccessDenied(false);
+            setLockedNotice(null);
             const res = await api.get(`/courses/${courseId}/curriculum`);
             if (res.data.success) {
                 const data = res.data.data;
@@ -1762,7 +1764,6 @@ const CourseLearningView = () => {
                                                         <button
                                                             key={les._id}
                                                             type="button"
-                                                            disabled={les.isLocked}
                                                             onClick={() => {
                                                                 setActiveModule(mod);
                                                                 loadLesson(mod._id, les._id);
@@ -1770,9 +1771,7 @@ const CourseLearningView = () => {
                                                             }}
                                                             className={`w-full flex items-center justify-between text-left px-2.5 py-2 rounded-xl text-xs transition-all cursor-pointer ${isSelected
                                                                     ? 'bg-slate-900 text-white font-bold shadow-xs'
-                                                                    : les.isLocked
-                                                                        ? 'text-slate-400 cursor-not-allowed hover:bg-transparent'
-                                                                        : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-medium'
+                                                                    : 'text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-medium'
                                                                 }`}
                                                         >
                                                             <div className="flex items-center gap-2 min-w-0 pr-2">
@@ -1785,8 +1784,6 @@ const CourseLearningView = () => {
                                                             <div className="shrink-0">
                                                                 {les.isCompleted ? (
                                                                     <CheckCircle2 className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-emerald-500'}`} />
-                                                                ) : les.isLocked ? (
-                                                                    <Lock className="w-3 h-3 text-slate-400" />
                                                                 ) : (
                                                                     <div className={`w-3 h-3 rounded-full border-2 ${isSelected ? 'border-white' : 'border-slate-300'}`} />
                                                                 )}

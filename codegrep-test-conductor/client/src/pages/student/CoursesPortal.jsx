@@ -48,20 +48,24 @@ const CoursesPortal = () => {
         }
     });
 
-    useEffect(() => {
+    const fetchCourses = () => {
         api.get('/courses').then(res => {
             if (res.data.success && res.data.data.length > 0) {
                 let list = res.data.data;
                 const dsaCourses = list.filter(c => (c.category || '').toUpperCase() === 'DSA' || (c.title || '').toLowerCase().includes('data structures'));
                 if (dsaCourses.length > 1) {
-                    const preferredDsa = dsaCourses.find(c => (c.code || '').toUpperCase() === 'DSA-MODERN-2') || dsaCourses[0];
+                    const preferredDsa =
+                        dsaCourses.find(c => c.isEnrolled !== false && (c.code || '').toUpperCase() === 'DSA-MODERN-2') ||
+                        dsaCourses.find(c => c.isEnrolled !== false) ||
+                        dsaCourses.find(c => (c.code || '').toUpperCase() === 'DSA-MODERN-2') ||
+                        dsaCourses[0];
                     list = list.filter(c => !dsaCourses.includes(c) || c === preferredDsa);
                 }
                 const apiCodes = new Set(list.map(c => (c.code || '').toUpperCase()));
                 const apiCategories = new Set(list.map(c => (c.category || '').toUpperCase()));
                 setCourses([
                     ...list,
-                    ...DEFAULT_COURSES.filter(d => 
+                    ...DEFAULT_COURSES.filter(d =>
                         !apiCodes.has((d.code || '').toUpperCase()) &&
                         !apiCategories.has((d.category || '').toUpperCase())
                     )
@@ -70,6 +74,12 @@ const CoursesPortal = () => {
                 setCourses(DEFAULT_COURSES);
             }
         }).catch(() => setCourses(DEFAULT_COURSES)).finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        fetchCourses();
+        const handleWindowFocus = () => fetchCourses();
+        window.addEventListener('focus', handleWindowFocus);
 
         const handleProgressUpdated = (e) => {
             try {
@@ -93,6 +103,7 @@ const CoursesPortal = () => {
         window.addEventListener('course-progress-updated', handleProgressUpdated);
         window.addEventListener('storage', handleProgressUpdated);
         return () => {
+            window.removeEventListener('focus', handleWindowFocus);
             window.removeEventListener('course-progress-updated', handleProgressUpdated);
             window.removeEventListener('storage', handleProgressUpdated);
         };

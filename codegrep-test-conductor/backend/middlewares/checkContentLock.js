@@ -42,70 +42,32 @@ module.exports = async function checkContentLock(req, res, next) {
             });
         }
 
-        // If no specific moduleId in request (e.g. general course metadata), proceed
-        if (!moduleId) return next();
+        // Modules & lessons are freely accessible in any order; only module quizzes require completing that module's lessons
+        const isQuizRequest = req.originalUrl && req.originalUrl.includes('/quiz');
+        if (!isQuizRequest || !moduleId) {
+            return next();
+        }
 
         const targetModuleIdStr = moduleId.toString();
-
-        // 3. First module is always unlocked
-        if (firstModuleId && firstModuleId === targetModuleIdStr) {
-            return next();
-        }
-
-        // 4. Check if module is already explicitly unlocked or overridden
-        const isUnlocked = progress.unlockedModules?.some(id => id.toString() === targetModuleIdStr);
         const hasOverride = progress.adminOverrides?.some(ao => ao.moduleId.toString() === targetModuleIdStr);
-
-        if (isUnlocked || hasOverride) {
+        if (hasOverride) {
             return next();
         }
 
-        // 5. Evaluate sequential prerequisite
-        const moduleIndex = course.modules.findIndex(m => m._id.toString() === targetModuleIdStr);
-        if (moduleIndex <= 0) {
+        const targetModule = course.modules.find(m => m._id.toString() === targetModuleIdStr);
+        const modLessons = targetModule?.lessons || [];
+        const completedLessonIds = new Set((progress.completedLessons || []).map(cl => cl.lessonId.toString()));
+        const allModLessonsCompleted = modLessons.length === 0 || modLessons.every(l => completedLessonIds.has(l._id.toString()));
+
+        if (allModLessonsCompleted) {
             return next();
         }
 
-        const prevModule = course.modules[moduleIndex - 1];
-        const prevModuleIdStr = prevModule._id.toString();
-
-        // Check if previous module was completed
-        const prevCompleted = progress.completedModules?.some(cm => cm.moduleId.toString() === prevModuleIdStr);
-
-        // Also check if all lessons in previous module are completed
-        const prevLessons = prevModule.lessons || [];
-        const completedLessonIds = new Set(progress.completedLessons.map(cl => cl.lessonId.toString()));
-        const allPrevLessonsCompleted = prevLessons.every(l => completedLessonIds.has(l._id.toString()));
-
-        // Check if previous module quiz was passed (if quiz exists)
-        let quizPassed = true;
-        if (prevModule.quiz && prevModule.quiz.questions && prevModule.quiz.questions.length > 0) {
-            const quizAttempt = progress.quizAttempts?.find(qa => qa.moduleId.toString() === prevModuleIdStr && qa.passed);
-            quizPassed = Boolean(quizAttempt);
-        }
-
-        if (prevCompleted || (allPrevLessonsCompleted && quizPassed)) {
-            // Unlock target module
-            if (!progress.unlockedModules.includes(targetModuleIdStr)) {
-                progress.unlockedModules.push(targetModuleIdStr);
-                await progress.save();
-            }
-            return next();
-        }
-
-        // Content is locked! Return clear, actionable message
         return res.status(403).json({
             success: false,
             code: 'CONTENT_LOCKED',
-            msg: `Complete "${prevModule.title}" before accessing "${course.modules[moduleIndex].title}".`,
-            requiredModule: {
-                id: prevModule._id,
-                title: prevModule.title,
-                allLessonsDone: allPrevLessonsCompleted,
-                quizPassed
-            }
+            msg: `Complete all lessons in "${targetModule?.title || 'this module'}" before taking the quiz.`
         });
-
     } catch (err) {
         console.error('Content lock middleware error:', err);
         return res.status(500).json({ success: false, msg: 'Error evaluating content access' });

@@ -39,26 +39,26 @@ exports.createCourse = async (req, res) => {
     }
 };
 
-// GET /api/courses â€” List courses (All visible in catalog, isEnrolled flag calculated for students)
+// GET /api/courses — List courses (All visible in catalog, isEnrolled flag calculated for students)
 exports.getCourses = async (req, res) => {
     try {
-        let query = {};
-        if (req.user.role === 'Student') {
-            query.published = true;
-        }
-
-        const courses = await Course.find(query)
-            .populate('allocatedInstitutions', 'name code domain')
+        const courses = await Course.find({})
             .select('title code description category level thumbnailUrl totalLessonsCount totalModulesCount estimatedTotalHours instructorName allocatedInstitutions published modules.title modules.quiz modules.orderIndex modules.lessons._id')
             .sort('-createdAt')
             .lean();
 
         // If student, compute isEnrolled & progress
         if (req.user.role === 'Student') {
-            const batches = await Batch.find({ students: req.user._id }).select('assignedCourses');
-            const batchCourseIds = batches.flatMap(b => (b.assignedCourses || []).map(id => id.toString()));
-            const userEnrolledIds = (req.user.enrolledCourses || []).map(id => id.toString());
-            const userInstIdStr = req.user.institutionId ? req.user.institutionId.toString() : null;
+            const userBatchIds = (req.user.batchIds || []).map(id => id.toString());
+            const batches = await Batch.find({
+                $or: [
+                    { students: req.user._id },
+                    ...(userBatchIds.length > 0 ? [{ _id: { $in: userBatchIds } }] : [])
+                ]
+            }).select('assignedCourses');
+            const batchCourseIds = batches.flatMap(b => (b.assignedCourses || []).filter(Boolean).map(id => id.toString()));
+            const userEnrolledIds = (req.user.enrolledCourses || []).filter(Boolean).map(id => id.toString());
+            const userInstIdStr = (req.user.institutionId || req.user.orgId) ? (req.user.institutionId || req.user.orgId).toString() : null;
 
             const progressList = await StudentProgress.find({
                 studentId: req.user._id,
@@ -66,22 +66,32 @@ exports.getCourses = async (req, res) => {
             }).lean();
 
             const progressMap = new Map();
-            progressList.forEach(p => progressMap.set(p.courseId.toString(), p));
+            progressList.forEach(p => {
+                if (p.courseId) progressMap.set(p.courseId.toString(), p);
+            });
 
             const enriched = courses.map(c => {
                 const cIdStr = c._id.toString();
                 const inBatch = batchCourseIds.includes(cIdStr);
                 const inUserEnrolled = userEnrolledIds.includes(cIdStr);
-                const inInstAllocated = userInstIdStr && (c.allocatedInstitutions || []).some(inst => (inst._id || inst).toString() === userInstIdStr);
+                const inInstAllocated = Boolean(
+                    userInstIdStr &&
+                    (c.allocatedInstitutions || []).some(inst => inst && (inst._id || inst).toString() === userInstIdStr)
+                );
                 const isEnrolled = Boolean(inBatch || inUserEnrolled || inInstAllocated);
 
+                // Hide unpublished courses ONLY if the student is not explicitly enrolled/allocated
+                if (c.published === false && !isEnrolled) {
+                    return null;
+                }
+
                 const prog = progressMap.get(cIdStr);
-                const completedLessonIds = new Set((prog?.completedLessons || []).map(cl => cl.lessonId.toString()));
+                const completedLessonIds = new Set((prog?.completedLessons || []).filter(cl => cl?.lessonId).map(cl => cl.lessonId.toString()));
                 const quizAttempts = prog?.quizAttempts || [];
                 const courseQuizzes = (c.modules || []).filter(m => m.quiz && m.quiz.questions && m.quiz.questions.length > 0).map(m => {
                     const modLessons = m.lessons || [];
-                    const isModCompleted = modLessons.length > 0 && modLessons.every(l => completedLessonIds.has(l._id.toString()));
-                    const attempt = quizAttempts.find(qa => qa.moduleId.toString() === m._id.toString());
+                    const isModCompleted = modLessons.length > 0 && modLessons.every(l => l?._id && completedLessonIds.has(l._id.toString()));
+                    const attempt = quizAttempts.find(qa => qa?.moduleId && m?._id && qa.moduleId.toString() === m._id.toString());
                     return {
                         moduleId: m._id,
                         orderIndex: m.orderIndex,
@@ -95,7 +105,7 @@ exports.getCourses = async (req, res) => {
                         isCompleted: Boolean(attempt && attempt.passed),
                         score: attempt?.score || 0,
                         percentage: attempt?.percentage || 0,
-                        attemptsCount: quizAttempts.filter(qa => qa.moduleId.toString() === m._id.toString()).length
+                        attemptsCount: quizAttempts.filter(qa => qa?.moduleId && m?._id && qa.moduleId.toString() === m._id.toString()).length
                     };
                 });
 
@@ -109,7 +119,7 @@ exports.getCourses = async (req, res) => {
                     quizzes: courseQuizzes,
                     status: !isEnrolled ? 'Locked' : (prog && prog.overallPercentage === 100 ? 'Completed' : (prog && prog.overallPercentage > 0 ? 'In Progress' : 'Not Started'))
                 };
-            });
+            }).filter(Boolean);
 
             enriched.sort((a, b) => Number(Boolean(b.isEnrolled)) - Number(Boolean(a.isEnrolled)));
 
@@ -134,22 +144,30 @@ exports.getCourses = async (req, res) => {
     }
 };
 
-// GET /api/courses/:id/curriculum â€” Dedicated Course Learning Interface Sidebar & State
+// GET /api/courses/:id/curriculum — Dedicated Course Learning Interface Sidebar & State
 exports.getCourseCurriculum = async (req, res) => {
     try {
-        const course = await Course.findById(req.params.id)
-            .populate('allocatedInstitutions', 'name code')
-            .lean();
+        const course = await Course.findById(req.params.id).lean();
         if (!course) {
             return res.status(404).json({ success: false, msg: 'Course not found' });
         }
 
         // Security check for student: must belong to a batch that has this course, or be enrolled, or college allocated
         if (req.user.role === 'Student') {
-            const inBatch = await Batch.exists({ students: req.user._id, assignedCourses: course._id });
-            const inUserEnrolled = req.user.enrolledCourses?.some(id => id.toString() === course._id.toString());
-            const userInstIdStr = req.user.institutionId ? req.user.institutionId.toString() : null;
-            const inInstAllocated = userInstIdStr && (course.allocatedInstitutions || []).some(inst => (inst._id || inst).toString() === userInstIdStr);
+            const userBatchIds = (req.user.batchIds || []).map(id => id.toString());
+            const inBatch = await Batch.exists({
+                assignedCourses: course._id,
+                $or: [
+                    { students: req.user._id },
+                    ...(userBatchIds.length > 0 ? [{ _id: { $in: userBatchIds } }] : [])
+                ]
+            });
+            const inUserEnrolled = req.user.enrolledCourses?.some(id => id && id.toString() === course._id.toString());
+            const userInstIdStr = (req.user.institutionId || req.user.orgId) ? (req.user.institutionId || req.user.orgId).toString() : null;
+            const inInstAllocated = Boolean(
+                userInstIdStr &&
+                (course.allocatedInstitutions || []).some(inst => inst && (inst._id || inst).toString() === userInstIdStr)
+            );
 
             if (!inBatch && !inUserEnrolled && !inInstAllocated) {
                 return res.status(403).json({
@@ -184,11 +202,10 @@ exports.getCourseCurriculum = async (req, res) => {
         const completedModuleSet = new Set((progress?.completedModules || []).map(cm => cm.moduleId.toString()));
         const overridesSet = new Set((progress?.adminOverrides || []).map(ao => ao.moduleId.toString()));
 
-        // Build structured modules with locked/completed status
+        // Build structured modules (all modules/lessons accessible; quiz & certificate keep completion gates)
         const structuredModules = (course.modules || []).map((m, index) => {
             const moduleIdStr = m._id.toString();
-            const isFirst = index === 0;
-            const isUnlocked = isFirst || unlockedSet.has(moduleIdStr) || overridesSet.has(moduleIdStr) || req.user.role !== 'Student';
+            const isUnlocked = true;
             const isCompleted = completedModuleSet.has(moduleIdStr);
 
             const lessons = (m.lessons || []).map(l => ({
