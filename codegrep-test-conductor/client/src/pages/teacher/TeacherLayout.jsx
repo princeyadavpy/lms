@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useNavigate, Outlet, Link, useLocation } from 'react-router-dom';
 import { Web3Background } from '../../components/layout/Web3Background';
@@ -26,6 +26,7 @@ const TeacherLayout = () => {
     const { user, logout } = useContext(AuthContext);
     const navigate = useNavigate();
     const location = useLocation();
+    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
     const handleLogout = () => { logout(); navigate('/login'); };
 
@@ -113,15 +114,112 @@ const TeacherLayout = () => {
                 </div>
             </aside>
 
+            {/* ── Mobile / Tablet Slide-over Sidebar ───────────────────── */}
+            {mobileSidebarOpen && (
+                <div className="fixed inset-0 z-50 flex md:hidden">
+                    <div
+                        className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+                        onClick={() => setMobileSidebarOpen(false)}
+                    />
+                    <aside className="relative w-68 max-w-[85vw] flex flex-col z-10 h-full shadow-2xl" style={{ background: 'var(--bg-secondary)', borderRight: '1px solid var(--border)' }}>
+                        <div className="flex items-center justify-between px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                                    style={{ background: 'rgba(124,92,252,0.12)', border: '1px solid rgba(124,92,252,0.2)' }}>
+                                    <img src={companyLogo} alt="HiGen Labs" className="w-6 h-6 object-contain" />
+                                </div>
+                                <div className="flex flex-col leading-none">
+                                    <span className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>HiGen Labs</span>
+                                    <span className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Teacher Portal</span>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setMobileSidebarOpen(false)}
+                                className="p-2 rounded-xl cursor-pointer"
+                                style={{ color: 'var(--text-secondary)', background: 'transparent', border: 'none' }}
+                                aria-label="Close Teacher Menu"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div className="mx-3 mt-4 px-3 py-3 rounded-xl" style={{ background: 'rgba(124,92,252,0.07)', border: '1px solid rgba(124,92,252,0.14)' }}>
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
+                                    style={{ background: 'var(--accent-purple)', color: '#fff' }}>
+                                    {user?.name?.charAt(0).toUpperCase() || 'T'}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{user?.name || 'Teacher'}</p>
+                                    <p className="text-xs truncate" style={{ color: 'var(--text-muted)' }}>{user?.role || 'Teacher'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+                            <p className="px-3 mb-2 text-xs font-semibold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Navigation</p>
+                            {NAV_ITEMS.map(({ to, label, icon }) => {
+                                const active = isActive(to);
+                                return (
+                                    <Link
+                                        key={to}
+                                        to={to}
+                                        onClick={() => setMobileSidebarOpen(false)}
+                                        className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all"
+                                        style={{
+                                            color: active ? 'var(--accent-purple)' : 'var(--text-secondary)',
+                                            background: active ? 'var(--accent-purple-dim)' : 'transparent',
+                                            textDecoration: 'none',
+                                        }}
+                                    >
+                                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">{icon}</svg>
+                                        <span>{label}</span>
+                                    </Link>
+                                );
+                            })}
+                        </nav>
+
+                        <div className="px-3 pb-5" style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center gap-3 px-3 py-2.5 w-full rounded-xl text-sm font-medium transition-all"
+                                style={{ color: 'var(--accent-red)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}
+                            >
+                                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Logout
+                            </button>
+                        </div>
+                    </aside>
+                </div>
+            )}
+
             {/* ── Main Content ────────────────────────────────────────── */}
-            <main className="flex-1 flex flex-col overflow-hidden relative z-10">
-                <header className="flex justify-between items-center px-8 py-4 shrink-0"
+            <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10">
+                <header className="flex justify-between items-center gap-3 px-4 sm:px-6 lg:px-8 py-3.5 sm:py-4 shrink-0"
                     style={{ background: 'rgba(10,14,26,0.8)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border)' }}>
-                    <div>
-                        <h1 className="text-lg font-bold capitalize" style={{ color: 'var(--text-primary)' }}>{pageTitle}</h1>
-                        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>HiGen Labs — Teacher Portal</p>
+                    <div className="flex items-center gap-3 min-w-0">
+                        <button
+                            type="button"
+                            onClick={() => setMobileSidebarOpen(true)}
+                            className="md:hidden p-2 rounded-xl cursor-pointer shrink-0"
+                            style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid var(--border)', color: 'var(--text-primary)' }}
+                            aria-label="Open Teacher Menu"
+                        >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                        </button>
+                        <div className="min-w-0">
+                            <h1 className="text-base sm:text-lg font-bold capitalize truncate" style={{ color: 'var(--text-primary)' }}>{pageTitle}</h1>
+                            <p className="hidden sm:block text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>HiGen Labs — Teacher Portal</p>
+                        </div>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                         <span className="hl-badge hl-badge-purple">{user?.role || 'Teacher'}</span>
                         <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm"
                             style={{ background: 'var(--accent-purple)', color: '#fff' }}>
@@ -129,7 +227,7 @@ const TeacherLayout = () => {
                         </div>
                     </div>
                 </header>
-                <div className="flex-1 overflow-auto p-6">
+                <div className="flex-1 overflow-auto p-4 sm:p-6">
                     <div className="max-w-7xl mx-auto">
                         <Outlet />
                     </div>

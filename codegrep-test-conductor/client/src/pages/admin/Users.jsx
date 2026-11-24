@@ -1,18 +1,30 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import api from '../../api/axios';
 import { AuthContext } from '../../contexts/AuthContext';
+import {
+    Users as UsersIcon,
+    UserPlus,
+    UploadCloud,
+    Zap,
+    Search,
+    Shield,
+    CheckCircle2,
+    XCircle,
+    Trash2,
+    X
+} from 'lucide-react';
 
 const ROLES = ['Student', 'Teacher', 'Recruiter', 'Admin'];
 
 const roleBadge = (role, isActive = true) => {
     const colors = {
-        Admin: 'bg-[#ef4444] text-[#000B1A]',
-        Teacher: 'bg-[#3b82f6] text-[#000B1A]',
-        Student: 'bg-[#10b981] text-[#000B1A]',
-        Recruiter: 'bg-[#a855f7] text-[#000B1A]',
+        Admin: 'bg-red-50 text-red-700 border-red-200',
+        Teacher: 'bg-blue-50 text-blue-700 border-blue-200',
+        Student: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        Recruiter: 'bg-purple-50 text-purple-700 border-purple-200',
     };
-    const base = colors[role] || 'bg-white text-[#000B1A]';
-    return `px-2.5 py-1 rounded-none border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] text-[10px] uppercase font-black tracking-wider ${base} ${!isActive ? 'opacity-50' : ''}`;
+    const base = colors[role] || 'bg-slate-50 text-slate-700 border-slate-200';
+    return `px-2.5 py-0.5 rounded-full border text-xs font-bold inline-flex items-center gap-1 ${base} ${!isActive ? 'opacity-50' : ''}`;
 };
 
 // ── CSV parser (runs client-side) ─────────────────────────────────
@@ -46,30 +58,54 @@ function CreateUserModal({ onClose, onCreated }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-            <div className="neo-panel bg-white border-[#000B1A] w-[90%] max-w-[460px] p-8">
-                <div className="flex justify-between items-center mb-6">
-                    <h3 className="text-[#000B1A] text-lg font-black uppercase tracking-widest m-0">➕ Create New User</h3>
-                    <button onClick={onClose} className="text-[#000B1A] hover:bg-[#000B1A]/5 border-2 border-transparent hover:border-[#000B1A] rounded-none w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-[460px] p-6 sm:p-8 shadow-2xl animate-scaleUp">
+                <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
+                    <h3 className="text-slate-900 text-lg font-black tracking-tight flex items-center gap-2">
+                        <UserPlus className="w-5 h-5 text-blue-600" />
+                        <span>Create New User</span>
+                    </h3>
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
+                        <X className="w-5 h-5" />
+                    </button>
                 </div>
                 <form onSubmit={submit} className="flex flex-col gap-4">
-                    {error && <div className="bg-[#ef4444] border-2 border-[#0d0a1c] text-[#000B1A] font-black p-3 text-sm">{error}</div>}
-                    {[['Full Name', 'name', 'text', 'Jane Smith'], ['Email', 'email', 'email', 'jane@company.com'], ['Password', 'password', 'password', 'Min 6 chars']].map(([label, key, type, ph]) => (
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-600 font-semibold p-3.5 rounded-xl text-xs">
+                            {error}
+                        </div>
+                    )}
+                    {[['Full Name', 'name', 'text', 'Jane Smith'], ['Email Address', 'email', 'email', 'jane@company.com'], ['Password', 'password', 'password', 'Min 6 characters']].map(([label, key, type, ph]) => (
                         <div key={key}>
-                            <label className="block text-[#000B1A] text-[10px] font-black uppercase tracking-wider mb-1">{label}</label>
-                            <input value={form[key]} onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
-                                type={type} placeholder={ph} required className="w-full px-3 py-2 border-2 border-[#000B1A] bg-white text-[#000B1A] text-sm focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] transition-transform font-bold shadow-[4px_4px_0_0_#000B1A]" />
+                            <label className="block text-slate-700 text-[11px] font-bold uppercase tracking-wider mb-1">{label}</label>
+                            <input
+                                value={form[key]}
+                                onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                                type={type}
+                                placeholder={ph}
+                                required
+                                className="w-full px-3.5 py-2.5 border border-slate-300 bg-slate-50 rounded-xl text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-blue-600 transition-all font-medium placeholder-slate-400"
+                            />
                         </div>
                     ))}
                     <div>
-                        <label className="block text-[#000B1A] text-[10px] font-black uppercase tracking-wider mb-1">Role</label>
-                        <select value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))} className="w-full px-3 py-2 border-2 border-[#000B1A] bg-white text-[#000B1A] text-sm focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] transition-transform font-bold shadow-[4px_4px_0_0_#000B1A]">
-                            {ROLES.map(r => <option key={r}>{r}</option>)}
+                        <label className="block text-slate-700 text-[11px] font-bold uppercase tracking-wider mb-1">Account Role</label>
+                        <select
+                            value={form.role}
+                            onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
+                            className="w-full px-3.5 py-2.5 border border-slate-300 bg-slate-50 rounded-xl text-slate-900 text-sm focus:bg-white focus:outline-none focus:border-blue-600 font-medium"
+                        >
+                            {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
                         </select>
                     </div>
-                    <button type="submit" disabled={loading} className="neo-button w-full mt-2 py-3 text-sm disabled:opacity-60">
-                        {loading ? 'Creating...' : 'Create User'}
-                    </button>
+                    <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 mt-2">
+                        <button type="button" onClick={onClose} className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">
+                            Cancel
+                        </button>
+                        <button type="submit" disabled={loading} className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 transition-all shadow-xs cursor-pointer">
+                            {loading ? 'Creating...' : 'Create User'}
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -88,86 +124,69 @@ function BulkImportModal({ onClose, onDone }) {
         const file = e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = (ev) => {
+        reader.onload = ev => {
             const parsed = parseCSV(ev.target.result);
-            setRows(parsed);
-            setError(parsed.length === 0 ? 'No valid rows found. Check format.' : '');
+            if (!parsed.length) setError('No valid user rows found. Required headers: name, email');
+            else { setRows(parsed); setError(''); }
         };
         reader.readAsText(file);
     };
 
     const submit = async () => {
-        if (rows.length === 0) return;
         setLoading(true); setError('');
         try {
             const res = await api.post('/admin/users/bulk', { users: rows });
-            setResult(res.data.data);
+            if (res.data.success) setResult(res.data.data);
         } catch (err) {
             setError(err.response?.data?.msg || 'Import failed');
         } finally { setLoading(false); }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-            <div className="neo-panel bg-white border-[#000B1A] w-[90%] max-w-[560px] p-8">
-                <div className="flex justify-between items-center mb-5">
-                    <h3 className="text-[#000B1A] text-lg font-black uppercase tracking-widest m-0">📥 Bulk Import Users (CSV)</h3>
-                    <button onClick={onClose} className="text-[#000B1A] hover:bg-[#000B1A]/5 border-2 border-transparent hover:border-[#000B1A] rounded-none w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-[560px] p-6 sm:p-8 shadow-2xl animate-scaleUp">
+                <div className="flex justify-between items-center mb-6 pb-3 border-b border-slate-100">
+                    <h3 className="text-slate-900 text-lg font-black tracking-tight flex items-center gap-2">
+                        <UploadCloud className="w-5 h-5 text-blue-600" />
+                        <span>Bulk Import Users (CSV)</span>
+                    </h3>
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
+                        <X className="w-5 h-5" />
+                    </button>
                 </div>
-
-                {/* Format guide */}
-                <div className="bg-white border-2 border-[#000B1A] shadow-[4px_4px_0_0_#000B1A] p-4 mb-5">
-                    <p className="text-[#000B1A] text-[10px] font-black uppercase tracking-widest mb-1.5">📋 Required CSV Format</p>
-                    <code className="text-[#a855f7] font-bold text-xs">name,email,password,role</code>
-                    <br />
-                    <code className="text-[#000B1A]/70 font-bold text-[10px]">John Doe,john@example.com,Pass@123,Student</code>
-                    <p className="text-[#000B1A]/60 font-bold text-[10px] mt-1.5 uppercase tracking-wider">password and role are optional (defaults: auto-generated, Student)</p>
-                </div>
-
-                {error && <div className="bg-[#ef4444] border-2 border-[#0d0a1c] text-[#000B1A] font-black p-3 text-sm mb-4">{error}</div>}
-
+                {error && <div className="bg-red-50 border border-red-200 text-red-600 font-semibold p-3.5 rounded-xl text-xs mb-4">{error}</div>}
                 {!result ? (
                     <>
-                        <input type="file" accept=".csv" ref={fileRef} onChange={handleFile}
-                            className="hidden" />
-                        <button onClick={() => fileRef.current.click()}
-                            className="w-full bg-white border-2 border-[#000B1A] text-[#000B1A] font-black uppercase tracking-wider py-3 shadow-[4px_4px_0_0_#000B1A] hover:-translate-x-[2px] hover:-translate-y-[2px] transition-transform mb-4">
-                            📂 Choose CSV File
-                        </button>
-
+                        <p className="text-xs text-slate-500 mb-4 font-medium">Upload a CSV file with columns: <strong>name, email, password, role</strong></p>
+                        <input ref={fileRef} type="file" accept=".csv" onChange={handleFile} className="mb-4 block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
                         {rows.length > 0 && (
-                            <div className="mb-4">
-                                <p className="text-[#10b981] font-black text-[10px] uppercase tracking-wider mb-2">
-                                    ✅ {rows.length} valid rows detected — preview:
-                                </p>
-                                <div className="max-h-40 overflow-y-auto bg-[#000B1A]/5 border-2 border-[#000B1A] p-3 shadow-[4px_4px_0_0_#000B1A]">
-                                    {rows.slice(0, 8).map((r, i) => (
-                                        <div key={i} className="text-[10px] text-[#000B1A]/80 py-1 border-b border-white/10 font-bold uppercase tracking-wider">
-                                            <b className="text-[#000B1A]">{r.name}</b> · {r.email} · <span className="text-[#a855f7]">{r.role}</span>
-                                        </div>
-                                    ))}
-                                    {rows.length > 8 && <p className="text-[#000B1A]/60 font-bold text-[10px] uppercase tracking-wider mt-1.5">...and {rows.length - 8} more</p>}
-                                </div>
-                                <button onClick={submit} disabled={loading}
-                                    className="neo-button w-full mt-4 py-3 text-sm disabled:opacity-60">
-                                    {loading ? 'Importing...' : `Import ${rows.length} Users`}
-                                </button>
+                            <div className="mb-4 max-h-40 overflow-y-auto border border-slate-200 rounded-xl p-3 bg-slate-50 text-xs text-slate-700">
+                                <span className="font-bold text-blue-600">{rows.length} users ready to import</span>
                             </div>
                         )}
+                        <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                            <button onClick={onClose} className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancel</button>
+                            <button onClick={submit} disabled={!rows.length || loading} className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 transition-all shadow-xs cursor-pointer">
+                                {loading ? 'Importing...' : `Import ${rows.length} Users`}
+                            </button>
+                        </div>
                     </>
                 ) : (
-                    <div className="text-center">
-                        <div className="text-5xl mb-3">✅</div>
-                        <h4 className="text-[#000B1A] font-black uppercase tracking-widest mb-4">Import Complete</h4>
-                        <div className="grid grid-cols-2 gap-3 mb-5">
-                            {[['Created', result.created, '#10b981'], ['Skipped (duplicates)', result.skipped, '#facc15']].map(([l, v, c]) => (
-                                <div key={l} className="bg-white border-2 border-[#000B1A] p-4 shadow-[4px_4px_0_0_#000B1A]">
-                                    <div style={{ color: c }} className="text-3xl font-black">{v}</div>
-                                    <div className="text-[#000B1A]/70 font-bold text-[10px] uppercase tracking-wider">{l}</div>
-                                </div>
-                            ))}
+                    <div className="text-center py-4">
+                        <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
+                        <h4 className="text-base font-black text-slate-900 mb-1">Import Complete</h4>
+                        <p className="text-xs text-slate-500 mb-4">Successfully processed user list.</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                                <div className="text-2xl font-black text-emerald-600">{result.created}</div>
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Created</div>
+                            </div>
+                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                                <div className="text-2xl font-black text-amber-600">{result.skipped}</div>
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Skipped</div>
+                            </div>
                         </div>
-                        <button onClick={() => { onDone(); onClose(); }} className="neo-button w-full py-3 text-sm">Done</button>
+                        <button onClick={() => { onDone(); onClose(); }} className="w-full py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all">Done</button>
                     </div>
                 )}
             </div>
@@ -183,59 +202,64 @@ function QuickInviteModal({ onClose, onDone }) {
     const [error, setError] = useState('');
 
     const submit = async () => {
-        const emailList = emails.split(/[\n,]+/).map(e => e.trim()).filter(Boolean);
-        if (emailList.length === 0) return setError('Please enter at least one email.');
-        
         setLoading(true); setError('');
+        const list = emails.split(/[\n,]+/).map(e => e.trim()).filter(e => e.includes('@'));
+        if (!list.length) { setError('Enter at least one valid email.'); setLoading(false); return; }
         try {
-            const res = await api.post('/admin/users/bulk-quick', { emails: emailList });
-            setResult(res.data.data);
-        } catch (err) {
-            setError(err.response?.data?.msg || 'Invite failed');
-        } finally { setLoading(false); }
+            const res = await api.post('/admin/users/quick-invite', { emails: list });
+            if (res.data.success) setResult(res.data.data);
+        } catch (err) { setError(err.response?.data?.msg || 'Invite failed'); }
+        finally { setLoading(false); }
     };
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-            <div className="neo-panel bg-white border-[#000B1A] w-[90%] max-w-[560px] p-8">
-                <div className="flex justify-between items-center mb-5">
-                    <h3 className="text-[#000B1A] text-lg font-black uppercase tracking-widest m-0">⚡ Quick Invite</h3>
-                    <button onClick={onClose} className="text-[#000B1A] hover:bg-[#000B1A]/5 border-2 border-transparent hover:border-[#000B1A] rounded-none w-8 h-8 flex items-center justify-center transition-colors">✕</button>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-[560px] p-6 sm:p-8 shadow-2xl animate-scaleUp">
+                <div className="flex justify-between items-center mb-5 pb-3 border-b border-slate-100">
+                    <h3 className="text-slate-900 text-lg font-black tracking-tight flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-blue-600" />
+                        <span>Quick Invite Students</span>
+                    </h3>
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
+                        <X className="w-5 h-5" />
+                    </button>
                 </div>
-
-                {error && <div className="bg-[#ef4444] border-2 border-[#0d0a1c] text-[#000B1A] font-black p-3 text-sm mb-4">{error}</div>}
-
+                {error && <div className="bg-red-50 border border-red-200 text-red-600 font-semibold p-3.5 rounded-xl text-xs mb-4">{error}</div>}
                 {!result ? (
                     <>
                         <div className="mb-4">
-                            <label className="block text-[#000B1A] text-[10px] font-black uppercase tracking-wider mb-2">Emails (comma or newline separated)</label>
+                            <label className="block text-slate-700 text-[11px] font-bold uppercase tracking-wider mb-2">Student Emails (comma or newline separated)</label>
                             <textarea
                                 value={emails}
                                 onChange={e => setEmails(e.target.value)}
                                 rows={6}
                                 placeholder="student1@example.com, student2@example.com&#10;student3@example.com"
-                                className="w-full border-2 border-[#000B1A] rounded-none bg-white text-[#000B1A] px-3 py-2 text-sm shadow-[4px_4px_0_0_#000B1A] focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] transition-transform font-bold resize-none"
+                                className="w-full border border-slate-300 rounded-xl bg-slate-50 text-slate-900 px-3.5 py-2.5 text-xs focus:bg-white focus:outline-none focus:border-blue-600 transition-all font-mono resize-none"
                             />
-                            <p className="text-[10px] text-[#000B1A]/70 font-bold uppercase tracking-wider mt-2">Passwords will be auto-generated. Duplicate emails are skipped.</p>
+                            <p className="text-[11px] text-slate-400 font-medium mt-2">Passwords will be auto-generated. Duplicate emails are skipped.</p>
                         </div>
-                        <button onClick={submit} disabled={loading}
-                            className="neo-button w-full mt-2 py-3 text-sm disabled:opacity-60">
-                            {loading ? 'Inviting...' : 'Invite Students'}
-                        </button>
+                        <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                            <button onClick={onClose} className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Cancel</button>
+                            <button onClick={submit} disabled={loading} className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 transition-all shadow-xs cursor-pointer">
+                                {loading ? 'Inviting...' : 'Invite Students'}
+                            </button>
+                        </div>
                     </>
                 ) : (
-                    <div className="text-center">
-                        <div className="text-5xl mb-3">✅</div>
-                        <h4 className="text-[#000B1A] font-black uppercase tracking-widest mb-4">Invite Complete</h4>
-                        <div className="grid grid-cols-2 gap-3 mb-5">
-                            {[['Created', result.created, '#10b981'], ['Skipped (exists)', result.skipped, '#facc15']].map(([l, v, c]) => (
-                                <div key={l} className="bg-white border-2 border-[#000B1A] p-4 shadow-[4px_4px_0_0_#000B1A]">
-                                    <div style={{ color: c }} className="text-3xl font-black">{v}</div>
-                                    <div className="text-[#000B1A]/70 font-bold text-[10px] uppercase tracking-wider">{l}</div>
-                                </div>
-                            ))}
+                    <div className="text-center py-4">
+                        <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto mb-2" />
+                        <h4 className="text-base font-black text-slate-900 mb-1">Invites Sent</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 mt-4">
+                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                                <div className="text-2xl font-black text-emerald-600">{result.created}</div>
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Created</div>
+                            </div>
+                            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                                <div className="text-2xl font-black text-amber-600">{result.skipped}</div>
+                                <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Skipped (Exists)</div>
+                            </div>
                         </div>
-                        <button onClick={() => { onDone(); onClose(); }} className="neo-button w-full py-3 text-sm">Done</button>
+                        <button onClick={() => { onDone(); onClose(); }} className="w-full py-2.5 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 transition-all">Done</button>
                     </div>
                 )}
             </div>
@@ -261,11 +285,16 @@ const Users = () => {
         try {
             const res = await api.get('/admin/users');
             if (res.data.success) setUsers(res.data.data);
-        } catch { setError('Failed to load users.'); }
-        finally { setLoading(false); }
+        } catch (err) {
+            setError(err.response?.data?.msg || 'Failed to fetch users');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(() => { fetchUsers(); }, []);
+    useEffect(() => {
+        fetchUsers();
+    }, []);
 
     const handleDelete = async (id, name) => {
         if (!window.confirm(`Delete user "${name}"? This cannot be undone.`)) return;
@@ -299,45 +328,71 @@ const Users = () => {
     });
 
     return (
-        <>
+        <div className="space-y-6 animate-fadeInUp pb-12">
             {showCreate && <CreateUserModal onClose={() => setShowCreate(false)} onCreated={u => { setUsers(prev => [u, ...prev]); }} />}
             {showBulk && <BulkImportModal onClose={() => setShowBulk(false)} onDone={fetchUsers} />}
             {showQuickInvite && <QuickInviteModal onClose={() => setShowQuickInvite(false)} onDone={fetchUsers} />}
 
-            <div className="neo-panel bg-white border-[#000B1A] overflow-hidden">
-                {/* Header */}
-                <div className="p-5 border-b-2 border-[#000B1A] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                        <h2 className="text-xl font-black uppercase tracking-widest text-[#000B1A]">User Management</h2>
-                        <p className="text-[10px] font-bold uppercase tracking-wider text-[#000B1A]/70">{users.length} total users · {filtered.length} shown</p>
-                    </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <button onClick={() => setShowQuickInvite(true)}
-                            className="bg-white text-[#000B1A] border-2 border-[#000B1A] px-3 py-2 text-[10px] uppercase tracking-wider font-black shadow-[4px_4px_0_0_#000B1A] hover:-translate-y-0.5 transition-transform flex items-center gap-1.5">
-                            ⚡ Quick Invite
-                        </button>
-                        <button onClick={() => setShowBulk(true)}
-                            className="bg-white text-[#000B1A] border-2 border-[#000B1A] px-3 py-2 text-[10px] uppercase tracking-wider font-black shadow-[4px_4px_0_0_#000B1A] hover:-translate-y-0.5 transition-transform flex items-center gap-1.5">
-                            📥 Bulk Import
-                        </button>
-                        <button onClick={() => setShowCreate(true)}
-                            className="neo-button px-3 py-2 text-[10px] uppercase tracking-wider flex items-center gap-1.5">
-                            + Add User
-                        </button>
-                    </div>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <UsersIcon className="w-6 h-6 text-blue-600" />
+                        <span>User Management</span>
+                    </h1>
+                    <p className="text-xs text-slate-500 font-medium mt-1">
+                        {users.length} total users registered across institutions · {filtered.length} currently shown
+                    </p>
                 </div>
+                <div className="flex items-center gap-2.5 flex-wrap">
+                    <button
+                        onClick={() => setShowQuickInvite(true)}
+                        className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                        <Zap className="w-3.5 h-3.5 text-amber-500" />
+                        <span>Quick Invite</span>
+                    </button>
+                    <button
+                        onClick={() => setShowBulk(true)}
+                        className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                        <UploadCloud className="w-3.5 h-3.5 text-blue-500" />
+                        <span>Bulk Import</span>
+                    </button>
+                    <button
+                        onClick={() => setShowCreate(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                    >
+                        <UserPlus className="w-3.5 h-3.5" />
+                        <span>Add User</span>
+                    </button>
+                </div>
+            </div>
 
-                {/* Filters */}
-                <div className="px-5 py-3 border-b-2 border-[#000B1A] flex flex-wrap items-center gap-3">
-                    <input
-                        placeholder="Search by name or email..."
-                        value={search} onChange={e => setSearch(e.target.value)}
-                        className="flex-1 min-w-[200px] border-2 border-[#000B1A] rounded-none bg-white text-[#000B1A] px-3 py-2 text-sm shadow-[4px_4px_0_0_#000B1A] focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] transition-transform font-bold"
-                    />
-                    <div className="flex items-center gap-2">
+            {/* Main Table Card */}
+            <div className="rounded-2xl bg-white border border-slate-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.03)] overflow-hidden">
+                {/* Search & Filters */}
+                <div className="p-4 sm:p-5 border-b border-slate-100 bg-slate-50/50 flex flex-wrap items-center justify-between gap-3">
+                    <div className="relative flex-1 min-w-[220px]">
+                        <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                        <input
+                            placeholder="Search by name or email..."
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2 border border-slate-300 rounded-xl bg-white text-slate-900 text-xs focus:outline-none focus:border-blue-600 transition-all font-medium placeholder-slate-400"
+                        />
+                    </div>
+                    <div className="flex items-center gap-1.5 overflow-x-auto">
                         {['All', ...ROLES].map(r => (
-                            <button key={r} onClick={() => setFilterRole(r)}
-                                className={`px-3 py-1.5 rounded-none border-2 shadow-[2px_2px_0_0_#000B1A] text-[10px] font-black uppercase tracking-wider transition-colors hover:-translate-y-0.5 ${filterRole === r ? 'bg-[#3b82f6] text-[#000B1A] border-[#000B1A]' : 'bg-white text-[#000B1A] border-[#000B1A] hover:bg-[#000B1A]/5'}`}>
+                            <button
+                                key={r}
+                                onClick={() => setFilterRole(r)}
+                                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                                    filterRole === r
+                                        ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                        : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100/70'
+                                }`}
+                            >
                                 {r}
                             </button>
                         ))}
@@ -346,72 +401,92 @@ const Users = () => {
 
                 {loading ? (
                     <div className="flex items-center justify-center h-64">
-                        <div className="animate-spin rounded-none h-8 w-8 border-b-4 border-[#000B1A]" />
+                        <div className="hl-spinner" style={{ width: '32px', height: '32px' }} />
                     </div>
                 ) : error ? (
-                    <div className="flex items-center justify-center h-64 text-[#ef4444] font-black uppercase tracking-wider">{error}</div>
+                    <div className="flex items-center justify-center h-64 text-red-500 font-bold text-sm">{error}</div>
                 ) : (
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b-2 border-[#000B1A] bg-[#000B1A]/5">
-                                    {['User', 'Email', 'Role', 'Status', 'Joined', 'Actions'].map(h => (
-                                        <th key={h} className="px-5 py-4 text-[10px] font-black text-[#000B1A] uppercase tracking-widest">{h}</th>
-                                    ))}
+                                <tr className="border-b border-slate-200/80 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    <th className="py-3 px-6">User</th>
+                                    <th className="py-3 px-6">Email</th>
+                                    <th className="py-3 px-6">Role</th>
+                                    <th className="py-3 px-6">Status</th>
+                                    <th className="py-3 px-6">Joined</th>
+                                    <th className="py-3 px-6 text-right">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y-2 divide-white/80">
+                            <tbody className="divide-y divide-slate-100 text-sm">
                                 {filtered.length === 0 ? (
-                                    <tr><td colSpan="6" className="text-center p-8 text-[#000B1A] font-black uppercase tracking-widest text-sm">No users match your filter.</td></tr>
-                                ) : filtered.map(user => (
-                                    <tr key={user._id} className={`hover:bg-[#000B1A]/5 transition-colors ${!user.isActive ? 'opacity-60' : ''}`}>
-                                        <td className="px-5 py-4">
-                                            <div className="flex items-center space-x-3">
-                                                <div className="w-9 h-9 rounded-none border-2 border-[#000B1A] bg-[#a855f7] shadow-[2px_2px_0_0_#000B1A] flex items-center justify-center text-[#000B1A] font-black text-sm flex-shrink-0">
-                                                    {user.name?.charAt(0).toUpperCase()}
-                                                </div>
-                                                <span className="font-black text-[#000B1A] text-sm">{user.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="px-5 py-4 text-[#000B1A]/70 font-bold text-sm">{user.email}</td>
-                                        <td className="px-5 py-4">
-                                            {editingRole === user._id ? (
-                                                <select autoFocus defaultValue={user.role}
-                                                    onChange={e => handleRoleChange(user._id, e.target.value)}
-                                                    onBlur={() => setEditingRole(null)}
-                                                    className="border-2 border-[#000B1A] rounded-none bg-white text-[#000B1A] text-sm px-2 py-1.5 shadow-[4px_4px_0_0_#000B1A] focus:outline-none focus:translate-x-[2px] focus:translate-y-[2px] transition-transform font-bold">
-                                                    {ROLES.map(r => <option key={r}>{r}</option>)}
-                                                </select>
-                                            ) : (
-                                                <button onClick={() => setEditingRole(user._id)} title="Click to change role"
-                                                    className="hover:-translate-y-0.5 transition-transform">
-                                                    <span className={roleBadge(user.role, user.isActive !== false)}>{user.role}</span>
-                                                </button>
-                                            )}
-                                        </td>
-                                        <td className="px-5 py-4">
-                                            <button onClick={() => handleToggleStatus(user._id)}
-                                                className={`px-2.5 py-1 rounded-none border-2 shadow-[2px_2px_0_0_#000B1A] text-[10px] font-black uppercase tracking-wider transition-colors hover:-translate-y-0.5 ${user.isActive !== false ? 'bg-[#10b981] text-[#000B1A] border-[#000B1A]' : 'bg-white text-[#000B1A] border-[#000B1A]'}`}>
-                                                {user.isActive !== false ? 'Active' : 'Inactive'}
-                                            </button>
-                                        </td>
-                                        <td className="px-5 py-4 text-[#000B1A]/70 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
-                                            {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
-                                        </td>
-                                        <td className="px-5 py-4">
-                                            <button onClick={() => handleDelete(user._id, user.name)}
-                                                className="text-[#000B1A] hover:text-[#000B1A] hover:bg-[#ef4444] px-3 py-1.5 rounded-none border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] text-[10px] uppercase tracking-wider font-black transition-colors">
-                                                Delete
-                                            </button>
+                                    <tr>
+                                        <td colSpan="6" className="text-center p-12 text-slate-400 font-medium">
+                                            No users match your criteria.
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    filtered.map(user => (
+                                        <tr key={user._id} className={`hover:bg-slate-50/70 transition-colors ${!user.isActive ? 'opacity-60' : ''}`}>
+                                            <td className="py-3.5 px-6">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center font-black text-xs shrink-0">
+                                                        {user.name?.charAt(0).toUpperCase()}
+                                                    </div>
+                                                    <span className="font-bold text-slate-900">{user.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3.5 px-6 font-medium text-slate-600">{user.email}</td>
+                                            <td className="py-3.5 px-6">
+                                                {editingRole === user._id ? (
+                                                    <select
+                                                        autoFocus
+                                                        defaultValue={user.role}
+                                                        onChange={e => handleRoleChange(user._id, e.target.value)}
+                                                        onBlur={() => setEditingRole(null)}
+                                                        className="border border-blue-500 rounded-xl bg-white text-slate-900 text-xs px-2.5 py-1 focus:outline-none font-bold"
+                                                    >
+                                                        {ROLES.map(r => <option key={r} value={r}>{r}</option>)}
+                                                    </select>
+                                                ) : (
+                                                    <button onClick={() => setEditingRole(user._id)} title="Click to change role" className="cursor-pointer">
+                                                        <span className={roleBadge(user.role, user.isActive !== false)}>{user.role}</span>
+                                                    </button>
+                                                )}
+                                            </td>
+                                            <td className="py-3.5 px-6">
+                                                <button
+                                                    onClick={() => handleToggleStatus(user._id)}
+                                                    className={`px-2.5 py-0.5 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                                                        user.isActive !== false
+                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                            : 'bg-slate-100 text-slate-500 border-slate-200'
+                                                    }`}
+                                                >
+                                                    {user.isActive !== false ? 'Active' : 'Inactive'}
+                                                </button>
+                                            </td>
+                                            <td className="py-3.5 px-6 text-xs text-slate-400 font-medium whitespace-nowrap">
+                                                {user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}
+                                            </td>
+                                            <td className="py-3.5 px-6 text-right">
+                                                <button
+                                                    onClick={() => handleDelete(user._id, user.name)}
+                                                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                                    title="Delete user"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 };
 

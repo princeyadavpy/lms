@@ -26,7 +26,7 @@ function SubmissionDetail({ sub }) {
                 {/* Score card */}
                 <div>
                     <h4 className="text-xs font-bold text-[#000B1A]/70 uppercase tracking-widest mb-4">📊 Your Results</h4>
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
                         {[
                             ['Score', `${sub.totalMarks ?? 0} pts`, sub.totalMarks > 0 ? '#4ade80' : '#94a3b8'],
                             ['Percentile', sub.percentile != null ? `${sub.percentile}%` : '—', '#8B71FF'],
@@ -74,7 +74,7 @@ function SubmissionDetail({ sub }) {
                             <p className="text-xs mt-1 font-bold">Clean exam session!</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             {viols.filter(v => v.value > 0).map(v => (
                                 <div key={v.label} className="bg-[#ef4444] text-[#000B1A] border-2 border-[#000B1A] rounded-none p-3 text-center shadow-[2px_2px_0_0_#000B1A]">
                                     <div className="text-2xl mb-1">{v.icon}</div>

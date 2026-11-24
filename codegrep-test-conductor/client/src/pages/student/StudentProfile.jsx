@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
+import { User, Mail, Shield, Key, Building2, Layers } from 'lucide-react';
 
 const StudentProfile = () => {
     const { user } = useContext(AuthContext);
@@ -8,86 +9,93 @@ const StudentProfile = () => {
     const initial = user.name?.charAt(0).toUpperCase() || 'S';
 
     const infoRows = [
-        { label: 'Full Name', value: user.name, icon: '👤' },
-        { label: 'Email Address', value: user.email, icon: '✉️' },
-        { label: 'Account Role', value: user.role, icon: '🎓' },
-        { label: 'User ID', value: user.id || user._id, mono: true, icon: '🔑' },
+        { label: 'Full Name', value: user.name, icon: User },
+        { label: 'Email Address', value: user.email, icon: Mail },
+        { label: 'Account Role', value: user.role, icon: Shield },
+        { label: 'User ID', value: user.id || user._id, mono: true, icon: Key },
     ];
 
+    const institutionName = user?.institutionId?.name || user?.orgId?.name || 'HiGen Labs';
+    const batchName = user?.batchIds?.[0]?.name || 'Standard Batch';
+
     return (
-        <div className="max-w-2xl mx-auto space-y-5 animate-fadeInUp">
+        <div className="max-w-2xl mx-auto space-y-6 animate-fadeInUp pb-12">
             {/* Profile Header Card */}
-            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+            <div className="rounded-3xl bg-white border border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
                 {/* Banner */}
-                <div className="h-28 relative" style={{ background: 'linear-gradient(135deg, rgba(0,212,170,0.2), rgba(79,142,247,0.15))' }}>
-                    <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 30% 50%, rgba(0,212,170,0.2) 0%, transparent 70%)' }} />
+                <div
+                    className="h-36 relative overflow-hidden"
+                    style={{ background: 'linear-gradient(135deg, #2563eb 0%, #4f46e5 50%, #7c3aed 100%)' }}
+                >
+                    <div className="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
+                    <div className="absolute -right-10 -bottom-10 w-44 h-44 rounded-full bg-white/10 blur-2xl pointer-events-none" />
                 </div>
 
                 {/* Avatar + Info */}
-                <div className="px-7 pb-7">
-                    <div className="flex items-end gap-5 -mt-10 mb-5">
-                        <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-3xl font-black flex-shrink-0"
-                            style={{ background: 'var(--accent-green)', color: '#0a0e1a', border: '4px solid var(--bg-card)', boxShadow: '0 8px 24px rgba(0,212,170,0.3)' }}>
-                            {initial}
+                <div className="px-6 sm:px-8 pb-7 pt-0 relative">
+                    <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 -mt-12 mb-5">
+                        <div className="flex items-end gap-5">
+                            <div
+                                className="w-24 h-24 rounded-2xl flex items-center justify-center text-3xl font-black flex-shrink-0 text-white shadow-xl relative z-20 border-4 border-white"
+                                style={{ background: 'linear-gradient(135deg, #2563eb, #1d4ed8)' }}
+                            >
+                                {initial}
+                            </div>
+                            <div className="pb-1 relative z-20">
+                                <h2 className="text-2xl font-black tracking-tight text-slate-900">{user.name}</h2>
+                                <p className="text-sm font-medium text-slate-500">{user.email}</p>
+                            </div>
                         </div>
-                        <div className="mb-2">
-                            <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{user.name}</h2>
-                            <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{user.email}</p>
+
+                        <div className="flex items-center gap-2.5 pb-1 relative z-20">
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                                {user.role}
+                            </span>
+                            <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                Active
+                            </span>
                         </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <span className="hl-badge hl-badge-green">{user.role}</span>
-                        <span className="hl-badge hl-badge-blue">
-                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--accent-blue)' }} />
-                            Active
-                        </span>
                     </div>
                 </div>
             </div>
 
             {/* Account Information */}
-            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <div className="px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-                    <h3 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>Account Information</h3>
+            <div className="rounded-3xl bg-white border border-slate-200/90 shadow-[0_2px_12px_rgba(0,0,0,0.04)] overflow-hidden">
+                <div className="px-6 sm:px-8 py-4 border-b border-slate-100 bg-slate-50/50">
+                    <h3 className="font-bold text-sm text-slate-900">Account Information</h3>
                 </div>
-                <div>
-                    {infoRows.map(({ label, value, mono, icon }, idx) => (
-                        <div key={label} className="flex items-center justify-between px-6 py-4 transition-colors"
-                            style={{ borderBottom: idx < infoRows.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                        >
-                            <div className="flex items-center gap-3">
-                                <span className="text-base">{icon}</span>
-                                <span className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
+                <div className="p-6 sm:p-8 space-y-4">
+                    {infoRows.map((row, i) => {
+                        const Icon = row.icon;
+                        return (
+                            <div key={i} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+                                <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+                                    <Icon className="w-4 h-4 text-slate-400" />
+                                    <span>{row.label}</span>
+                                </div>
+                                <span className={`text-sm font-bold text-slate-900 ${row.mono ? 'font-mono text-xs' : ''}`}>
+                                    {row.value}
+                                </span>
                             </div>
-                            <span
-                                className={`text-sm font-${mono ? 'mono hl-mono' : 'medium'}`}
-                                style={{ color: 'var(--text-primary)', fontFamily: mono ? 'JetBrains Mono, monospace' : 'inherit', fontSize: mono ? '12px' : '14px' }}>
-                                {value}
-                            </span>
+                        );
+                    })}
+                    <div className="flex items-center justify-between py-2 border-b border-slate-100">
+                        <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+                            <Building2 className="w-4 h-4 text-slate-400" />
+                            <span>Institution</span>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Security */}
-            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <div className="px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-                    <h3 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>Security</h3>
-                </div>
-                <div className="px-6 py-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                        <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Password</p>
-                        <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>Last changed: Not available</p>
+                        <span className="text-sm font-bold text-blue-600">{institutionName}</span>
                     </div>
-                    <button className="hl-btn-secondary" style={{ fontSize: '13px', padding: '8px 18px' }}>
-                        Change Password
-                    </button>
+                    <div className="flex items-center justify-between py-2">
+                        <div className="flex items-center gap-3 text-sm text-slate-500 font-medium">
+                            <Layers className="w-4 h-4 text-slate-400" />
+                            <span>Assigned Batch</span>
+                        </div>
+                        <span className="text-sm font-bold text-purple-600">{batchName}</span>
+                    </div>
                 </div>
             </div>
-
-            <p className="text-center text-xs" style={{ color: 'var(--text-muted)' }}>© {new Date().getFullYear()} HiGen Labs. All rights reserved.</p>
         </div>
     );
 };

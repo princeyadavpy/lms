@@ -9,7 +9,17 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3001,
-    allowedHosts: ['higenlabs.in', 'www.higenlabs.in', 'automazior.in', 'www.automazior.in']
+    allowedHosts: ['higenlabs.in', 'www.higenlabs.in', 'automazior.in', 'www.automazior.in'],
+    proxy: {
+      '/lms/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true
+      },
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true
+      }
+    }
   },
   preview: {
     host: '0.0.0.0',

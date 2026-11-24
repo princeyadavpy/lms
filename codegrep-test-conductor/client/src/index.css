@@ -1,15 +1,29 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 }
 
 /* ============================================================
-   HiGen Labs — Dark Premium Design System
-   Inspired by HackerRank / CodeChef aesthetic
-   © HiGen Labs. All rights reserved.
+   HiGen Labs — Minimal, Crystal-Clear Design System
+   High contrast, neutral monochrome palette, zero visual clutter
    ============================================================ */
+
+html {
+  font-size: 15px;
+  -webkit-text-size-adjust: 100%;
+}
+
+html, body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  color: #0f172a;
+  background-color: #f6f8fa;
+  letter-spacing: -0.01em;
+}
 
 :root {
   --bg-primary: #0a0e1a;
@@ -51,6 +65,212 @@
   --shadow-glow-purple: 0 0 20px rgba(124, 92, 252, 0.2);
 }
 
+/* ── LMS Light Theme — Clean, Minimalist & High-Contrast ─────── */
+.lms-section {
+  --bg-primary: #f6f8fa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f1f3f5;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-elevated: #ffffff;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --border: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --border-accent: #0f172a;
+
+  --lms-bg: #f6f8fa;
+  --lms-bg-card: #ffffff;
+  --lms-bg-card-hover: #f8fafc;
+  --lms-text-primary: #0f172a;
+  --lms-text-secondary: #334155;
+  --lms-text-muted: #64748b;
+  --lms-border: #e2e8f0;
+  --lms-border-hover: #cbd5e1;
+  --lms-accent-primary: #0f172a;
+  --lms-accent-blue: #2563eb;
+  --lms-accent-emerald: #10b981;
+  --lms-nav-bg: #ffffff;
+  --lms-nav-border: #e2e8f0;
+  --lms-shadow-card: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.02);
+  --lms-shadow-hover: 0 4px 12px rgba(0,0,0,0.06);
+  background-color: #f6f8fa;
+  color: #0f172a;
+  font-family: var(--font-sans);
+}
+
+.lms-section ::-webkit-scrollbar-track { background: #f6f8fa; }
+.lms-section ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.lms-section ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+/* Reference Minimal utility classes */
+.ref-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.02);
+  border-radius: 16px;
+}
+
+.ref-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ref-metric {
+  font-size: 1.75rem;
+  line-height: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.03em;
+  font-family: var(--font-sans);
+}
+
+.ref-badge-green {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.ref-badge-red {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.ref-icon-btn {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  transition: all 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  cursor: pointer;
+}
+.ref-icon-btn:hover {
+  color: #0f172a;
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+}
+
+.ref-pill-btn {
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.625rem;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  color: #334155;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.ref-pill-btn:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+
+/* LMS utility classes */
+.lms-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03), 0 4px 12px rgba(0,0,0,0.02);
+  border-radius: 16px;
+}
+
+/* Course Lesson Markdown High-Contrast Typography */
+.lesson-markdown-body h1,
+.lesson-markdown-body h2,
+.lesson-markdown-body h3,
+.lesson-markdown-body h4 {
+  color: #0f172a !important;
+  font-weight: 800 !important;
+}
+.lesson-markdown-body p,
+.lesson-markdown-body li {
+  color: #334155 !important;
+  line-height: 1.7 !important;
+}
+.lesson-markdown-body strong {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+.lesson-markdown-body :not(pre) > code {
+  color: #1d4ed8 !important;
+  background-color: #eff6ff !important;
+  border-color: #dbeafe !important;
+  padding: 0.15rem 0.35rem !important;
+  border-radius: 0.375rem !important;
+  font-size: 0.8em !important;
+  font-weight: 600 !important;
+}
+.lesson-markdown-body pre,
+.lesson-markdown-body pre code {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+.lms-card:hover {
+  border-color: #bfdbfe;
+  box-shadow: 0 4px 12px rgba(37,99,235,0.1), 0 8px 24px rgba(0,0,0,0.06);
+}
+.lms-btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.lms-btn-primary:hover { background: #1d4ed8; }
+.lms-btn-outline {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  border-radius: 10px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lms-btn-outline:hover { background: #2563eb; color: #ffffff; }
+
 /* ── Base Reset ─────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
@@ -58,12 +278,16 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  overflow-x: hidden;
+  max-width: 100%;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   font-family: "Inter", system-ui, -apple-system, sans-serif;
@@ -435,6 +659,16 @@ body {
   border-top-color: var(--accent-green);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
+}
+
+@keyframes loaderBar {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(50%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-loader-bar {
+  animation: loaderBar 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
 /* Code font */

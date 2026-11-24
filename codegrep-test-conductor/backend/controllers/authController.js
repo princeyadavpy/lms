@@ -16,7 +16,9 @@ const sendTokenResponse = (user, statusCode, res) => {
             name: user.name,
             email: user.email,
             role: user.role,
-            orgId: user.orgId,
+            orgId: user.orgId || user.institutionId,
+            institutionId: user.institutionId || user.orgId,
+            batchIds: user.batchIds || [],
             avatar: user.avatar
         }
     });
@@ -71,7 +73,15 @@ exports.login = async (req, res) => {
 
 exports.getMe = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password').populate('orgId', 'name plan limits logoUrl');
+        const user = await User.findById(req.user.id)
+            .select('-password')
+            .populate('orgId', 'name code plan limits logoUrl')
+            .populate('institutionId', 'name code logoUrl type')
+            .populate({
+                path: 'batchIds',
+                select: 'name code status institutionId',
+                populate: { path: 'institutionId', select: 'name code logoUrl' }
+            });
         res.status(200).json({ success: true, data: user });
     } catch (err) {
         res.status(500).json({ success: false, msg: err.message });

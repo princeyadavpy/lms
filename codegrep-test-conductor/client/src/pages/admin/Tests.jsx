@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
-
-const statusBadge = (status) => {
-    const colors = {
-        Active: 'bg-[#10b981] text-[#000B1A]',
-        Draft: 'bg-[#facc15] text-[#000B1A]',
-        Completed: 'bg-white text-[#000B1A]',
-    };
-    return `px-2.5 py-1 rounded-none border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] text-[10px] font-black uppercase tracking-wider ${colors[status] || 'bg-white text-[#000B1A]'}`;
-};
+import {
+    FileText,
+    Plus,
+    Clock,
+    User,
+    CheckCircle2,
+    Edit3,
+    Trash2,
+    Calendar,
+    HelpCircle
+} from 'lucide-react';
 
 const Tests = () => {
     const navigate = useNavigate();
@@ -50,95 +52,127 @@ const Tests = () => {
     };
 
     return (
-        <div className="neo-panel bg-white border-[#000B1A] overflow-hidden">
+        <div className="space-y-6 animate-fadeInUp pb-12">
             {/* Header */}
-            <div className="p-6 border-b-2 border-[#000B1A] flex flex-wrap justify-between items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h2 className="text-xl font-black text-[#000B1A] uppercase tracking-widest">Test Management</h2>
-                    <p className="text-[10px] text-[#000B1A]/70 font-bold uppercase tracking-wider mt-0.5">View and manage all platform assessments</p>
+                    <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                        <FileText className="w-6 h-6 text-blue-600" />
+                        <span>Test & Assessment Management</span>
+                    </h1>
+                    <p className="text-xs text-slate-500 font-medium mt-1">
+                        View, monitor, and publish examination assessments across student batches.
+                    </p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-black text-[#000B1A] bg-white px-3 py-1 border-2 border-[#000B1A] rounded-none shadow-[2px_2px_0_0_#000B1A] uppercase tracking-wider">{tests.length} tests</span>
+                <div className="flex items-center gap-3">
+                    <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-200">
+                        {tests.length} Total Tests
+                    </span>
                     <button
                         onClick={() => navigate('/teacher/create-test')}
-                        className="neo-button px-4 py-2 text-[10px] uppercase tracking-wider"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
                     >
-                        + Create Test
+                        <Plus className="w-4 h-4" />
+                        <span>Create Test</span>
                     </button>
                 </div>
             </div>
 
-            {loading ? (
-                <div className="flex items-center justify-center h-64">
-                    <div className="animate-spin rounded-none h-8 w-8 border-b-4 border-[#000B1A]" />
-                </div>
-            ) : error ? (
-                <div className="flex items-center justify-center h-64 text-[#ef4444] font-black uppercase tracking-wider">{error}</div>
-            ) : (
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="border-b-2 border-[#000B1A] bg-[#000B1A]/5">
-                                {['Title', 'Created By', 'Duration', 'Status', 'Created', 'Actions'].map(h => (
-                                    <th key={h} className="px-5 py-4 text-[10px] font-black text-[#000B1A] uppercase tracking-widest">{h}</th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y-2 divide-white/80">
-                            {tests.length === 0 ? (
-                                <tr><td colSpan="6" className="text-center p-12 text-[#000B1A]">
-                                    <div className="flex flex-col items-center space-y-2">
-                                        <svg className="w-10 h-10 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
-                                        <span className="font-black uppercase tracking-widest text-sm">No tests found</span>
-                                        <button onClick={() => navigate('/teacher/create-test')} className="mt-2 text-[#3b82f6] text-[10px] uppercase font-black tracking-wider hover:text-[#000B1A] transition-colors">
-                                            + Create your first test
-                                        </button>
-                                    </div>
-                                </td></tr>
-                            ) : tests.map(test => (
-                                <tr key={test._id} className="hover:bg-[#000B1A]/5 transition-colors">
-                                    <td className="px-5 py-4 font-black text-[#000B1A] text-sm max-w-[180px] truncate" title={test.title}>{test.title}</td>
-                                    <td className="px-5 py-4 text-[#000B1A]/70 font-bold text-sm">{test.createdBy?.name || '—'}</td>
-                                    <td className="px-5 py-4 text-[#000B1A]/70 font-bold text-sm">{test.duration} min</td>
-                                    <td className="px-5 py-4">
-                                        <button
-                                            onClick={() => handleTogglePublish(test)}
-                                            title="Click to toggle publish"
-                                            className={`px-2.5 py-1 rounded-none border-2 shadow-[2px_2px_0_0_#000B1A] text-[10px] font-black uppercase tracking-wider transition-colors hover:-translate-y-0.5 ${test.published
-                                                ? 'bg-[#10b981] text-[#000B1A] border-[#000B1A]'
-                                                : test.status === 'Completed'
-                                                    ? 'bg-white text-[#000B1A] border-[#000B1A]'
-                                                    : 'bg-[#facc15] text-[#000B1A] border-[#000B1A]'
-                                                }`}>
-                                            {test.published ? '✓ Published' : test.status === 'Completed' ? 'Completed' : 'Draft'}
-                                        </button>
-                                    </td>
-                                    <td className="px-5 py-4 text-[#000B1A]/70 text-[10px] font-bold uppercase tracking-wider whitespace-nowrap">
-                                        {new Date(test.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
-                                    </td>
-                                    <td className="px-5 py-4">
-                                        <div className="flex items-center gap-2">
-                                            {/* Manage → goes to teacher portal add-question page */}
-                                            <button
-                                                onClick={() => navigate(`/teacher/tests/${test._id}/questions`)}
-                                                className="text-[#000B1A] hover:text-[#000B1A] hover:bg-[#3b82f6] px-3 py-1 rounded-none border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] text-[10px] uppercase tracking-wider font-black transition-colors"
-                                            >
-                                                Manage
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(test._id, test.title)}
-                                                className="text-[#000B1A] hover:text-[#000B1A] hover:bg-[#ef4444] px-3 py-1 rounded-none border-2 border-[#000B1A] shadow-[2px_2px_0_0_#000B1A] text-[10px] uppercase tracking-wider font-black transition-colors"
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </td>
+            {/* Table Card */}
+            <div className="rounded-2xl bg-white border border-slate-200/90 shadow-[0_2px_10px_rgba(0,0,0,0.03)] overflow-hidden">
+                {loading ? (
+                    <div className="flex items-center justify-center h-64">
+                        <div className="hl-spinner" style={{ width: '32px', height: '32px' }} />
+                    </div>
+                ) : error ? (
+                    <div className="flex items-center justify-center h-64 text-red-500 font-bold text-sm">{error}</div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="border-b border-slate-200/80 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                                    <th className="py-3 px-6">Assessment Title</th>
+                                    <th className="py-3 px-6">Author</th>
+                                    <th className="py-3 px-6">Duration</th>
+                                    <th className="py-3 px-6">Status</th>
+                                    <th className="py-3 px-6">Created</th>
+                                    <th className="py-3 px-6 text-right">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 text-sm">
+                                {tests.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="6" className="text-center p-12 text-slate-400">
+                                            <div className="flex flex-col items-center space-y-2">
+                                                <FileText className="w-10 h-10 text-slate-300" />
+                                                <span className="font-bold text-slate-700">No assessments found</span>
+                                                <button
+                                                    onClick={() => navigate('/teacher/create-test')}
+                                                    className="text-blue-600 text-xs font-bold hover:underline"
+                                                >
+                                                    + Create your first assessment
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    tests.map(test => (
+                                        <tr key={test._id} className="hover:bg-slate-50/70 transition-colors">
+                                            <td className="py-3.5 px-6 font-bold text-slate-900 max-w-[240px] truncate" title={test.title}>
+                                                {test.title}
+                                            </td>
+                                            <td className="py-3.5 px-6 font-medium text-slate-600">
+                                                {test.createdBy?.name || 'Administrator'}
+                                            </td>
+                                            <td className="py-3.5 px-6 font-medium text-slate-600">
+                                                <div className="flex items-center gap-1.5 text-xs">
+                                                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                                                    <span>{test.duration} min</span>
+                                                </div>
+                                            </td>
+                                            <td className="py-3.5 px-6">
+                                                <button
+                                                    onClick={() => handleTogglePublish(test)}
+                                                    title="Click to toggle publish"
+                                                    className={`px-2.5 py-0.5 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                                                        test.published
+                                                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                            : test.status === 'Completed'
+                                                                ? 'bg-slate-100 text-slate-600 border-slate-200'
+                                                                : 'bg-amber-50 text-amber-700 border-amber-200'
+                                                    }`}
+                                                >
+                                                    {test.published ? '✓ Published' : test.status === 'Completed' ? 'Completed' : 'Draft'}
+                                                </button>
+                                            </td>
+                                            <td className="py-3.5 px-6 text-xs text-slate-400 font-medium whitespace-nowrap">
+                                                {new Date(test.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </td>
+                                            <td className="py-3.5 px-6 text-right">
+                                                <div className="flex items-center justify-end gap-2">
+                                                    <button
+                                                        onClick={() => navigate(`/teacher/tests/${test._id}/questions`)}
+                                                        className="px-3 py-1 rounded-lg text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 hover:bg-blue-100/70 transition-colors cursor-pointer"
+                                                    >
+                                                        Manage
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(test._id, test.title)}
+                                                        className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                                        title="Delete test"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

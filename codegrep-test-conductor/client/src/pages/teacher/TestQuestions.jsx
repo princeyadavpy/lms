@@ -222,7 +222,7 @@ const TestQuestions = () => {
                             )}
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
                             <label className="block text-[10px] font-black text-[#000B1A]/70 uppercase tracking-widest mb-1">Input (stdin)</label>
                             <textarea value={tc.input} onChange={e => updateFn(i, 'input', e.target.value)}
@@ -497,7 +497,7 @@ const TestQuestions = () => {
                                                                 <span className="text-xs font-bold text-[#000B1A]/60">Case #{ti + 1}</span>
                                                                 {tc.isHidden && <span className="text-[10px] bg-[#f97316] text-[#000B1A] px-2 py-0.5 rounded-none border-2 border-[#000B1A] font-black uppercase tracking-wider shadow-[2px_2px_0_0_#000B1A]">🔒 Hidden</span>}
                                                             </div>
-                                                            <div className="grid grid-cols-2 gap-3">
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                                 <div>
                                                                     <p className="text-[10px] text-[#000B1A]/70 font-black uppercase tracking-widest mb-1">Input</p>
                                                                     <pre className="text-xs bg-white border-2 border-[#000B1A] rounded-none px-2 py-1.5 font-mono font-bold text-[#000B1A] whitespace-pre-wrap">{tc.input || '(empty)'}</pre>

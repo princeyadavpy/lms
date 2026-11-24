@@ -99,6 +99,10 @@ const proctoringRoutes = require('./routes/proctoring');
 const projectRoutes = require('./routes/projects');
 const adminRoutes = require('./routes/admin');
 const orgRoutes = require('./routes/organizations');
+const institutionRoutes = require('./routes/institutions');
+const batchRoutes = require('./routes/batches');
+const courseRoutes = require('./routes/courses');
+const labRoutes = require('./routes/labs');
 
 // Mount routes under configured BASE_URL prefix (e.g. /lms/api) as well as /api fallback
 const lmsApiPrefix = `${BASE_URL}/api`.replace(/\/+/g, '/');
@@ -114,6 +118,10 @@ prefixes.forEach(prefix => {
     app.use(`${prefix}/projects`, projectRoutes);
     app.use(`${prefix}/admin`, adminRoutes);
     app.use(`${prefix}/organizations`, orgRoutes);
+    app.use(`${prefix}/institutions`, institutionRoutes);
+    app.use(`${prefix}/batches`, batchRoutes);
+    app.use(`${prefix}/courses`, courseRoutes);
+    app.use(`${prefix}/labs`, labRoutes);
     app.get(`${prefix}/health`, (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString(), baseUrl: BASE_URL }));
 });
 

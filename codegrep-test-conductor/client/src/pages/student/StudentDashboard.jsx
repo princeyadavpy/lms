@@ -1,175 +1,361 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../../api/axios';
 import { AuthContext } from '../../contexts/AuthContext';
-import { Link } from 'react-router-dom';
+import {
+    BookOpen, Code2, HelpCircle, Award, ChevronLeft, ChevronRight,
+    BarChart3, GraduationCap, TrendingUp, CheckCircle2, Zap, ArrowRight,
+    Flame, Target, Compass
+} from 'lucide-react';
 
-const StatCard = ({ label, value, icon, color, accent, link, loading }) => (
-    <Link to={link} className="block rounded-2xl p-6 transition-all group"
-        style={{
-            background: 'var(--bg-card)',
-            border: `1px solid ${accent}22`,
-            textDecoration: 'none',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 12px 36px rgba(0,0,0,0.4), 0 0 20px ${accent}15`; e.currentTarget.style.borderColor = `${accent}44`; }}
-        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = `${accent}22`; }}
+const NavBtn = () => (
+    <div className="flex items-center gap-1.5">
+        {[ChevronLeft, ChevronRight].map((Btn, i) => (
+            <button key={i} className="w-8 h-8 rounded-xl border border-slate-200/90 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-all shadow-2xs cursor-pointer">
+                <Btn size={16} />
+            </button>
+        ))}
+    </div>
+);
+
+const OutlineLink = ({ to, children }) => (
+    <Link
+        to={to}
+        className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 transition-all inline-flex items-center gap-1.5 shadow-xs cursor-pointer no-underline whitespace-nowrap"
     >
-        <div className="flex items-center justify-between mb-4">
-            <div className="w-11 h-11 rounded-xl flex items-center justify-center" style={{ background: `${accent}18`, color: accent }}>
-                {icon}
-            </div>
-            <svg className="w-4 h-4 opacity-30 group-hover:opacity-70 transition-opacity" style={{ color: accent }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-        </div>
-        <p className="text-3xl font-black mb-1" style={{ color: accent }}>{loading ? '—' : value}</p>
-        <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</p>
+        {children}
     </Link>
 );
 
 const StudentDashboard = () => {
     const { user } = useContext(AuthContext);
-    const [availableTests, setAvailableTests] = useState([]);
-    const [submissions, setSubmissions] = useState([]);
+    const [courses, setCourses] = useState([]);
+    const [labs, setLabs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [localProgressMap, setLocalProgressMap] = useState(() => {
+        try {
+            return JSON.parse(localStorage.getItem('higen_student_progress') || '{}');
+        } catch {
+            return {};
+        }
+    });
+    const [backendProgressMap, setBackendProgressMap] = useState({});
+
+    const fetchDashboardData = async () => {
+        try {
+            const [cRes, lRes, pRes] = await Promise.allSettled([
+                api.get('/courses'),
+                api.get('/labs'),
+                api.get('/courses/progress/my')
+            ]);
+            if (cRes.status === 'fulfilled' && cRes.value.data.success) {
+                setCourses(cRes.value.data.data);
+            }
+            if (lRes.status === 'fulfilled' && lRes.value.data.success) {
+                setLabs(lRes.value.data.data);
+            }
+            if (pRes.status === 'fulfilled' && pRes.value.data.success) {
+                setBackendProgressMap(pRes.value.data.data);
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const testsRes = await api.get('/tests');
-                const allTests = testsRes.data.success ? testsRes.data.data : [];
-                setAvailableTests(allTests.filter(t => t.published && t.status === 'Active').slice(0, 3));
+        fetchDashboardData();
 
-                const subRes = await api.get('/submissions/mine');
-                if (subRes.data.success) setSubmissions(subRes.data.data);
-            } catch (e) { console.error(e); }
-            finally { setLoading(false); }
+        const handleProgressUpdated = async (e) => {
+            try {
+                const stored = JSON.parse(localStorage.getItem('higen_student_progress') || '{}');
+                setLocalProgressMap(stored);
+                if (e.detail?.courseId && e.detail?.overallPercentage !== undefined) {
+                    setCourses(prev => prev.map(c => {
+                        const cIdStr = c._id ? c._id.toString() : '';
+                        const targetIdStr = e.detail.courseId.toString();
+                        if (cIdStr === targetIdStr || c.code === e.detail.courseId) {
+                            return { ...c, overallPercentage: e.detail.overallPercentage };
+                        }
+                        return c;
+                    }));
+                    // Also refresh backend progress map
+                    try {
+                        const pRes = await api.get('/courses/progress/my');
+                        if (pRes.data.success) setBackendProgressMap(pRes.data.data);
+                    } catch {}
+                }
+            } catch (err) {
+                console.error(err);
+            }
         };
-        fetchData();
+
+        window.addEventListener('course-progress-updated', handleProgressUpdated);
+        window.addEventListener('storage', handleProgressUpdated);
+        return () => {
+            window.removeEventListener('course-progress-updated', handleProgressUpdated);
+            window.removeEventListener('storage', handleProgressUpdated);
+        };
     }, []);
 
-    const stats = [
-        {
-            label: 'Available Exams', value: availableTests.length, link: '/student/exams',
-            accent: '#00d4aa',
-            icon: <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>,
-        },
-        {
-            label: 'Exams Attempted', value: submissions.length, link: '/student/submissions',
-            accent: '#4f8ef7',
-            icon: <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>,
-        },
-        {
-            label: 'Account Status', value: 'Active', link: '/student/profile',
-            accent: '#22c55e',
-            icon: <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>,
-        },
+    const institutionName = user?.institutionId?.name || user?.orgId?.name || 'Shoolini University';
+    const batchName = user?.batchIds?.[0]?.name || 'DSA Training Batch 2026';
+
+    const getCourseProgress = (course) => {
+        const cId = course._id ? course._id.toString() : '';
+        const cCode = course.code;
+        // 1. Backend progress (most accurate — from StudentProgress model)
+        if (cId && backendProgressMap[cId]?.overallPercentage !== undefined) {
+            return backendProgressMap[cId].overallPercentage;
+        }
+        // 2. LocalStorage (real-time optimistic update)
+        if (cId && localProgressMap[cId]?.overallPercentage !== undefined) {
+            return localProgressMap[cId].overallPercentage;
+        }
+        if (cCode && localProgressMap[cCode]?.overallPercentage !== undefined) {
+            return localProgressMap[cCode].overallPercentage;
+        }
+        // 3. API-enriched field from getCourses
+        if (course.overallPercentage !== undefined && course.overallPercentage !== null) {
+            return course.overallPercentage;
+        }
+        return 0;
+    };
+
+    const displayCourses = courses.slice(0, 2);
+    const displayLabs = labs.slice(0, 2);
+
+    const upcomingQuizzes = [
+        { id: 'q1', title: 'Quiz – Control Flow', courseName: courses[0]?.title || 'Course Quiz', courseId: courses[0]?._id },
+        { id: 'q2', title: 'Quiz – Backtracking', courseName: courses[1]?.title || 'Course Quiz', courseId: courses[1]?._id }
     ];
 
+    const enrolledCourses = courses.filter(c => c.isEnrolled !== false);
+    const activeCourseList = enrolledCourses.length > 0 ? enrolledCourses : courses;
+    const avgProgress = activeCourseList.length > 0
+        ? activeCourseList.reduce((sum, c) => sum + getCourseProgress(c), 0) / activeCourseList.length
+        : 0;
+
+    const stats = [
+        { label: 'Active Courses', value: `${activeCourseList.length}`, sub: 'Enrolled Modules', delta: '+1.8%', icon: BookOpen },
+        { label: 'Lab Exercises', value: `${labs.length}`, sub: 'Solved Problems', delta: '+12%', icon: Code2 },
+        { label: 'Quizzes Passed', value: '6', sub: 'Evaluations', delta: '100%', icon: HelpCircle },
+        { label: 'Overall Progress', value: `${Math.round(avgProgress)}%`, sub: 'Curriculum Completion', delta: 'Active', icon: Award },
+    ];
+
+    if (loading) {
+        return (
+            <div className="flex flex-col gap-6 pb-12 font-sans animate-pulse">
+                <div className="rounded-2xl p-6 sm:p-8 bg-white border border-slate-200/80">
+                    <div className="h-6 w-56 bg-slate-100 rounded-full mb-4" />
+                    <div className="h-9 w-72 bg-slate-200 rounded-xl mb-2" />
+                    <div className="h-4 w-96 max-w-full bg-slate-100 rounded-lg" />
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
+                        {[0, 1, 2, 3].map(i => (
+                            <div key={i} className="p-4 rounded-xl bg-slate-50 border border-slate-200/70 h-24" />
+                        ))}
+                    </div>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="flex flex-col gap-3.5">
+                        <div className="h-28 rounded-2xl bg-white border border-slate-200/80" />
+                        <div className="h-28 rounded-2xl bg-white border border-slate-200/80" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div className="h-44 rounded-2xl bg-white border border-slate-200/80" />
+                        <div className="h-44 rounded-2xl bg-white border border-slate-200/80" />
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <div className="space-y-6 animate-fadeInUp">
-            {/* Welcome Banner */}
-            <div className="relative rounded-2xl p-8 overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, rgba(0,212,170,0.1), rgba(79,142,247,0.08))', border: '1px solid rgba(0,212,170,0.18)' }}>
-                <div className="absolute right-0 top-0 w-80 h-80 pointer-events-none" style={{ background: 'radial-gradient(ellipse, rgba(0,212,170,0.1) 0%, transparent 70%)', transform: 'translate(30%, -30%)' }} />
-                <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+        <div className="flex flex-col gap-6 pb-12 font-sans">
+
+            {/* ── Welcome Banner Card ─────────────────────────────────────────── */}
+            <div className="relative rounded-2xl p-6 sm:p-8 bg-white border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.03),0_6px_16px_rgba(0,0,0,0.02)]">
+                <div className="relative z-10 flex flex-wrap items-start justify-between gap-6">
                     <div>
-                        <div className="inline-flex items-center gap-2 mb-3 px-3 py-1 rounded-full text-xs font-semibold"
-                            style={{ background: 'rgba(0,212,170,0.15)', color: 'var(--accent-green)', border: '1px solid rgba(0,212,170,0.2)' }}>
-                            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--accent-green)' }} />
-                            Welcome back!
+                        {/* Institution Badge */}
+                        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 border border-slate-200/90 text-slate-700 text-xs font-bold mb-3 shadow-2xs">
+                            <GraduationCap size={15} className="text-slate-600" />
+                            <span>{institutionName}</span>
+                            <span className="text-slate-300">•</span>
+                            <span className="text-slate-500 font-semibold">{batchName}</span>
                         </div>
-                        <h2 className="text-3xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                            {user?.name || 'Student'}
-                        </h2>
-                        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>{user?.email}</p>
+
+                        {/* Greeting */}
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight m-0 font-sans">
+                            Welcome back, {user?.name?.split(' ')[0] || 'Student'}! 👋
+                        </h1>
+                        <p className="text-xs sm:text-sm text-slate-500 mt-2 max-w-xl leading-relaxed font-medium">
+                            Track your curriculum progression, interactive visual code walk-throughs, and lab exercises with real-time feedback.
+                        </p>
                     </div>
-                    <Link to="/student/exams" className="hl-btn-primary">
-                        Browse Exams
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                    </Link>
-                </div>
-            </div>
 
-            {/* Stat Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {stats.map(s => <StatCard key={s.label} {...s} loading={loading} />)}
-            </div>
-
-            {/* Available Tests */}
-            <div className="rounded-2xl overflow-hidden" style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
-                <div className="flex justify-between items-center px-6 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
-                    <h3 className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>Available Exams</h3>
-                    <Link to="/student/exams" className="flex items-center gap-1 text-sm font-medium transition-colors"
-                        style={{ color: 'var(--accent-green)', textDecoration: 'none' }}>
-                        View All
-                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                        </svg>
+                    <Link
+                        to="/student/exams"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold no-underline shadow-xs transition-all shrink-0 cursor-pointer"
+                    >
+                        <Award size={16} />
+                        <span>Go to Exam</span>
                     </Link>
                 </div>
 
-                {loading ? (
-                    <div className="flex items-center justify-center h-40">
-                        <div className="hl-spinner" />
-                    </div>
-                ) : availableTests.length === 0 ? (
-                    <div className="text-center py-16">
-                        <div className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: 'var(--text-muted)' }}>
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
-                        </div>
-                        <p className="font-semibold text-sm mb-1" style={{ color: 'var(--text-secondary)' }}>No active exams right now</p>
-                        <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Check back later or contact your instructor.</p>
-                    </div>
-                ) : (
-                    <div>
-                        {availableTests.map((test, idx) => {
-                            const now = new Date();
-                            const startTime = test.startTime ? new Date(test.startTime) : null;
-                            const endTime = test.endTime ? new Date(test.endTime) : null;
-
-                            return (
-                                <div key={test._id} className="flex flex-col md:flex-row items-start md:items-center justify-between px-6 py-4 gap-4 transition-colors"
-                                    style={{ borderBottom: idx < availableTests.length - 1 ? '1px solid var(--border-subtle)' : 'none' }}
-                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-base flex-shrink-0"
-                                            style={{ background: 'rgba(0,212,170,0.12)', color: 'var(--accent-green)' }}>
-                                            {test.title?.charAt(0).toUpperCase()}
-                                        </div>
-                                        <div>
-                                            <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{test.title}</p>
-                                            <div className="flex items-center gap-3 mt-1.5">
-                                                <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                    {test.duration} min
-                                                </span>
-                                                <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
-                                                    <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                                    {test.questions?.length ?? 0} questions
-                                                </span>
-                                            </div>
-                                        </div>
+                {/* Reference Dashboard KPI Stats Grid */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-slate-100">
+                    {stats.map((s, i) => {
+                        const Icon = s.icon;
+                        return (
+                            <div key={i} className="p-4 rounded-xl bg-slate-50/70 border border-slate-200/70 hover:bg-slate-50 transition-all flex flex-col justify-between">
+                                <div className="flex items-center justify-between gap-2 mb-2">
+                                    <div className="ref-label text-[10px]">
+                                        <Icon size={14} className="text-slate-400" />
+                                        <span>{s.label}</span>
                                     </div>
-                                    {startTime && now < startTime ? (
-                                        <span className="hl-badge hl-badge-orange">Starts {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                    ) : endTime && now > endTime ? (
-                                        <span className="hl-badge hl-badge-red">Ended</span>
-                                    ) : (
-                                        <Link to={`/exam/${test._id}`} className="hl-btn-primary" style={{ padding: '8px 20px', fontSize: '13px' }}>
-                                            Start Exam →
-                                        </Link>
-                                    )}
+                                    <span className="ref-badge-green text-[10px]">
+                                        {s.delta}
+                                    </span>
+                                </div>
+                                <div>
+                                    <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight font-sans">
+                                        {s.value}
+                                    </div>
+                                    <div className="text-[11px] text-slate-400 font-medium mt-0.5">
+                                        {s.sub}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {/* ── 2 Column: Resume Learning + Recommended Labs ─────────── */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {/* Resume Learning */}
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                        <div className="ref-label">
+                            <BookOpen size={14} className="text-blue-600" />
+                            <span>RESUME LEARNING</span>
+                        </div>
+                        <NavBtn />
+                    </div>
+                    <div className="flex flex-col gap-3.5">
+                        {displayCourses.map((course, idx) => {
+                            const progress = getCourseProgress(course);
+                            const grade = progress > 0 ? `${progress}%` : '0%';
+                            const cId = course._id ? course._id.toString() : '';
+                            const progData = backendProgressMap[cId];
+                            const totalMins = progData?.totalTimeSpentMinutes || course.timeSpentMinutes || 0;
+                            const timeSpent = totalMins > 0 ? `${Math.floor(totalMins)}min` : '0min';
+                            return (
+                                <div key={course._id}
+                                    className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-slate-300 transition-all">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-bold text-slate-900 mb-1 truncate">
+                                                {course.title}
+                                            </h3>
+                                            <p className="text-xs text-slate-500 font-medium">
+                                                Course Grade • <strong className="text-slate-900 font-bold">{grade}</strong>
+                                                {' '}|{' '}
+                                                Time Spent • <strong className="text-slate-900 font-bold">{timeSpent}</strong>
+                                            </p>
+                                        </div>
+                                        <OutlineLink to={`/student/courses/${course._id}/learn`}>Continue</OutlineLink>
+                                    </div>
+                                    <div className="mt-4 flex items-center gap-3">
+                                        <div className="flex-1 h-2 rounded-full bg-slate-100 overflow-hidden">
+                                            <div className="h-full bg-slate-900 rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+                                        </div>
+                                        <span className="text-xs font-bold text-slate-700 min-w-[32px] text-right font-mono">{progress}%</span>
+                                    </div>
                                 </div>
                             );
                         })}
                     </div>
-                )}
+                    <div className="text-center pt-1">
+                        <Link to="/student/courses" className="text-xs font-bold text-slate-900 hover:text-black no-underline inline-flex items-center gap-1.5">
+                            <span>View All Courses</span>
+                            <ArrowRight size={14} />
+                        </Link>
+                    </div>
+                </div>
+
+                {/* Recommended Labs */}
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                        <div className="ref-label">
+                            <Code2 size={14} className="text-purple-600" />
+                            <span>RECOMMENDED LABS</span>
+                        </div>
+                        <NavBtn />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        {displayLabs.map((lab, idx) => {
+                            const score = idx === 0 ? '48.57/50' : '44.29/50';
+                            return (
+                                <div key={lab._id} className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-slate-300 flex flex-col justify-between gap-4 transition-all">
+                                    <div>
+                                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200/60 text-[10px] font-bold uppercase tracking-wider mb-2.5">
+                                            <Code2 size={12} /> LAB
+                                        </div>
+                                        <h3 className="text-xs font-bold text-slate-900 mb-2 leading-snug line-clamp-2">{lab.title}</h3>
+                                        <p className="flex items-center gap-1.5 text-xs font-bold text-slate-700 mb-1">
+                                            <BarChart3 size={13} className="text-amber-500" /> Score: {score}
+                                        </p>
+                                        <p className="text-[11px] text-slate-400 font-medium mb-3">10/10 Questions</p>
+                                        <div className="h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                                            <div className="w-full h-full bg-emerald-500 rounded-full" />
+                                        </div>
+                                    </div>
+                                    <OutlineLink to={`/student/labs/${lab._id}`}>Continue</OutlineLink>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="text-center pt-1">
+                        <Link to="/student/labs" className="text-xs font-bold text-blue-600 hover:text-blue-700 no-underline inline-flex items-center gap-1.5">
+                            <span>View All Labs</span>
+                            <ArrowRight size={14} />
+                        </Link>
+                    </div>
+                </div>
             </div>
+
+            {/* ── Up Next: Quizzes ──────────────────────────────────────── */}
+            <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                    <div className="ref-label">
+                        <HelpCircle size={14} className="text-emerald-600" />
+                        <span>UP NEXT FOR YOU</span>
+                    </div>
+                    <NavBtn />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {upcomingQuizzes.map(quiz => (
+                        <div key={quiz.id}
+                            className="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.03)] hover:border-slate-300 flex items-center justify-between gap-4 transition-all">
+                            <div>
+                                <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200/60 text-[10px] font-bold uppercase tracking-wider mb-2">
+                                    <HelpCircle size={12} /> QUIZ
+                                </div>
+                                <h3 className="text-sm font-bold text-slate-900 mb-1">{quiz.title}</h3>
+                                <p className="text-xs text-slate-500 font-medium">{quiz.courseName}</p>
+                            </div>
+                            <OutlineLink to={quiz.courseId ? `/student/courses/${quiz.courseId}/learn` : '/student/quizzes'}>
+                                Take Quiz
+                            </OutlineLink>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
         </div>
     );
 };

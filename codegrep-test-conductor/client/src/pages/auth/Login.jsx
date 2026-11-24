@@ -1,8 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../../contexts/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { Web3Layout } from '../../components/layout/Web3Layout';
 import companyLogo from '../../assets/company-logo.png';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Sparkles, GraduationCap } from 'lucide-react';
 
 const Login = () => {
     const { login } = useContext(AuthContext);
@@ -23,178 +23,180 @@ const Login = () => {
             else if (res.user.role === 'Teacher') navigate('/teacher');
             else navigate('/student');
         } catch (err) {
-            setError(err.response?.data?.msg || 'Login failed. Check your credentials.');
+            setError(err.response?.data?.msg || 'Invalid email or password.');
         } finally {
             setLoading(false);
         }
     };
 
-    const inputStyle = {
-        width: '100%',
-        padding: '12px 16px',
-        background: 'rgba(255,255,255,0.04)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '10px',
-        color: 'var(--text-primary)',
-        fontFamily: 'Inter, sans-serif',
-        fontSize: '14px',
-        outline: 'none',
-        transition: 'border-color 0.2s, box-shadow 0.2s',
-    };
-
     return (
-        <Web3Layout>
-            <div className="w-full max-w-md animate-fadeInUp" style={{ animationDelay: '100ms' }}>
-                {/* Card */}
-                <div className="relative rounded-2xl p-8"
-                    style={{
-                        background: 'var(--bg-card)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        boxShadow: '0 24px 60px rgba(0,0,0,0.5)',
-                    }}>
+        <div className="min-h-screen w-full flex flex-col bg-[#f8fafc] text-[#0f172a] relative overflow-hidden font-sans">
+            {/* Subtle background glow elements */}
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-100/60 rounded-full blur-3xl pointer-events-none -translate-y-1/2" />
+            <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-purple-100/50 rounded-full blur-3xl pointer-events-none translate-y-1/2" />
 
-                    {/* Glow accent */}
-                    <div className="absolute inset-x-0 top-0 h-px rounded-t-2xl"
-                        style={{ background: 'linear-gradient(90deg, transparent, rgba(0,212,170,0.6), transparent)' }} />
-
-                    {/* Logo + Title */}
-                    <div className="flex flex-col items-center text-center mb-8">
-                        <div className="relative mb-5">
-                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                                style={{ background: 'rgba(0,212,170,0.1)', border: '1px solid rgba(0,212,170,0.2)' }}>
-                                <img src={companyLogo} alt="HiGen Labs" className="w-10 h-10 object-contain" />
-                            </div>
+            {/* Top Minimal Brand Navbar */}
+            <header className="w-full h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 px-6 sm:px-12 flex items-center justify-between z-20">
+                <Link to="/login" className="flex items-center gap-3 no-underline group">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center p-1.5 bg-gradient-to-br from-blue-50 to-indigo-50 border border-slate-200 group-hover:scale-105 transition-transform shadow-xs">
+                        <img src={companyLogo} alt="HiGen Labs" className="w-full h-full object-contain" />
+                    </div>
+                    <div className="flex flex-col">
+                        <div className="flex items-center gap-0.5">
+                            <span className="text-base font-black tracking-tight text-slate-900">HiGen</span>
+                            <span className="text-base font-black tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Labs</span>
                         </div>
-                        <h2 className="text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Welcome Back</h2>
-                        <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>Sign in to your HiGen Labs account</p>
+                        <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">LMS & Assessment</span>
+                    </div>
+                </Link>
+
+                <div className="flex items-center gap-3">
+                    <span className="hidden sm:inline-block text-xs font-semibold text-slate-500">Need an account?</span>
+                    <Link
+                        to="/register"
+                        className="text-xs font-bold px-4 py-2 rounded-full border border-slate-300 text-slate-700 bg-white hover:bg-slate-50 hover:border-slate-400 transition-all shadow-xs"
+                    >
+                        Register
+                    </Link>
+                </div>
+            </header>
+
+            {/* Main Login Area */}
+            <main className="flex-1 flex items-center justify-center p-4 sm:p-6 z-10 my-auto">
+                <div className="w-full max-w-[440px] bg-white rounded-3xl border border-slate-200/90 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-8 sm:p-10 relative">
+
+                    {/* Badge */}
+                    <div className="flex justify-center mb-6">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200/70 text-blue-700 text-xs font-bold">
+                            <GraduationCap className="w-3.5 h-3.5" />
+                            <span>HiGen Labs Learning Portal</span>
+                        </div>
                     </div>
 
-                    {/* Error */}
+                    {/* Header Text */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mb-2">
+                            Welcome Back
+                        </h1>
+                        <p className="text-sm font-medium text-slate-500">
+                            Sign in to access your curriculum, labs, & examinations
+                        </p>
+                    </div>
+
+                    {/* Error Banner */}
                     {error && (
-                        <div className="mb-5 px-4 py-3 rounded-lg flex items-center gap-3 text-sm"
-                            style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.25)', color: '#ef4444' }}>
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="flex-shrink-0">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            {error}
+                        <div className="mb-6 p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-600 text-xs font-semibold flex items-center gap-2.5 animate-fadeIn">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-600 shrink-0" />
+                            <span>{error}</span>
                         </div>
                     )}
 
+                    {/* Form */}
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Email */}
                         <div>
-                            <label className="block text-xs font-semibold mb-2 uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
+                            <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
                                 Email Address
                             </label>
-                            <input
-                                id="login-email"
-                                type="email"
-                                required
-                                style={inputStyle}
-                                placeholder="you@example.com"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
-                                onFocus={e => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,212,170,0.12)'; }}
-                                onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
-                            />
+                            <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <Mail className="w-4 h-4" />
+                                </div>
+                                <input
+                                    id="login-email"
+                                    type="email"
+                                    required
+                                    placeholder="student@institution.edu"
+                                    value={email}
+                                    onChange={e => setEmail(e.target.value)}
+                                    className="w-full pl-10 pr-4 py-3 bg-slate-50/70 border border-slate-300 rounded-xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
+                                />
+                            </div>
                         </div>
 
-                        {/* Password */}
                         <div>
-                            <label className="block text-xs font-semibold mb-2 uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
-                                Password
-                            </label>
+                            <div className="flex items-center justify-between mb-2">
+                                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                                    Password
+                                </label>
+                            </div>
                             <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                    <Lock className="w-4 h-4" />
+                                </div>
                                 <input
                                     id="login-password"
                                     type={showPassword ? 'text' : 'password'}
                                     required
-                                    style={{ ...inputStyle, paddingRight: '44px' }}
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={e => setPassword(e.target.value)}
-                                    onFocus={e => { e.target.style.borderColor = 'var(--accent-green)'; e.target.style.boxShadow = '0 0 0 3px rgba(0,212,170,0.12)'; }}
-                                    onBlur={e => { e.target.style.borderColor = 'rgba(255,255,255,0.1)'; e.target.style.boxShadow = 'none'; }}
+                                    className="w-full pl-10 pr-11 py-3 bg-slate-50/70 border border-slate-300 rounded-xl text-slate-900 text-sm font-medium placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-100 transition-all"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 flex items-center pr-4"
-                                    style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                                    {showPassword ? (
-                                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                    ) : (
-                                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                                        </svg>
-                                    )}
+                                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                 </button>
                             </div>
                         </div>
 
-                        {/* Submit */}
                         <button
                             id="login-submit"
                             type="submit"
                             disabled={loading}
-                            className="hl-btn-primary w-full py-3 mt-2"
-                            style={{ fontSize: '15px', opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}>
-                            {loading ? (
-                                <>
-                                    <span className="hl-spinner" style={{ width: '16px', height: '16px' }} />
-                                    Signing in...
-                                </>
-                            ) : 'Sign In →'}
-                        </button>
-
-                        {/* Divider */}
-                        <div className="flex items-center gap-3 my-2">
-                            <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-                            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>or continue with</span>
-                            <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-                        </div>
-
-                        {/* Google OAuth */}
-                        <a
-                            href={`${import.meta.env.VITE_API_URL}/auth/google`}
-                            className="flex items-center justify-center gap-3 w-full py-3 px-4 rounded-xl text-sm font-medium transition-all"
-                            style={{
-                                background: 'rgba(255,255,255,0.04)',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                color: 'var(--text-primary)',
-                                textDecoration: 'none',
-                            }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                            className="w-full py-3.5 px-4 mt-2 rounded-xl text-white font-bold text-sm bg-blue-600 hover:bg-blue-700 active:bg-blue-800 disabled:opacity-60 transition-all shadow-md shadow-blue-500/20 flex items-center justify-center gap-2 cursor-pointer"
                         >
-                            <svg width="18" height="18" viewBox="0 0 24 24">
-                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
-                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                            </svg>
-                            Continue with Google
-                        </a>
+                            {loading ? (
+                                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            ) : (
+                                <>
+                                    <span>Sign In to LMS</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </>
+                            )}
+                        </button>
+                    </form>
 
-                        {/* Register link */}
-                        <p className="text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
-                            Don't have an account?{' '}
-                            <Link to="/register" className="font-semibold transition-colors" style={{ color: 'var(--accent-green)', textDecoration: 'none' }}>
-                                Register as Student
+                    {/* Divider */}
+                    <div className="flex items-center gap-3 my-6">
+                        <div className="flex-1 h-px bg-slate-200" />
+                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">or</span>
+                        <div className="flex-1 h-px bg-slate-200" />
+                    </div>
+
+                    {/* Google OAuth Button */}
+                    <a
+                        href={`${import.meta.env.VITE_API_URL}/auth/google`}
+                        className="w-full py-3 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 active:bg-slate-100 text-slate-700 text-sm font-bold flex items-center justify-center gap-3 transition-all shadow-xs"
+                    >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" />
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+                        </svg>
+                        <span>Continue with Google</span>
+                    </a>
+
+                    {/* Bottom Links */}
+                    <div className="mt-8 pt-6 border-t border-slate-100 text-center">
+                        <p className="text-xs text-slate-500 font-medium">
+                            New student?{' '}
+                            <Link to="/register" className="font-bold text-blue-600 hover:text-blue-700 hover:underline">
+                                Create an account
                             </Link>
                         </p>
-                    </form>
+                    </div>
                 </div>
+            </main>
 
-                {/* Footer note */}
-                <p className="text-center text-xs mt-5" style={{ color: 'var(--text-muted)' }}>
-                    © {new Date().getFullYear()} HiGen Labs. All rights reserved.
-                </p>
-            </div>
-        </Web3Layout>
+            {/* Footer */}
+            <footer className="w-full py-4 text-center text-xs text-slate-400 font-medium z-10">
+                © {new Date().getFullYear()} HiGen Labs. All rights reserved.
+            </footer>
+        </div>
     );
 };
 
