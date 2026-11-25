@@ -74,7 +74,10 @@ exports.startExam = async (req, res) => {
 exports.submitExam = async (req, res) => {
     try {
         const { testId, submissionId } = req.params;
-        const { answers = [], isAutoSubmitted } = req.body;
+        const { answers: rawAnswers = [], isAutoSubmitted } = req.body;
+        const answers = Array.isArray(rawAnswers)
+            ? rawAnswers
+            : Object.entries(rawAnswers || {}).map(([questionId, answerData]) => ({ questionId, answerData }));
 
         let submission = await Submission.findById(submissionId);
         if (!submission) {

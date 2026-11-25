@@ -161,6 +161,19 @@ const TestTaker = () => {
                         const stub = firstQ.starterCode?.[language] || '// Write your code here\n';
                         setCode(stub);
                     }
+
+                    // Initialize or resume submission session on backend
+                    try {
+                        const startRes = await api.post(`/submissions/${id}/start`);
+                        if (startRes.data.success && startRes.data.data?._id) {
+                            setSubmissionId(startRes.data.data._id);
+                        }
+                    } catch (startErr) {
+                        const msg = startErr.response?.data?.msg;
+                        if (startErr.response?.status === 403 && msg) {
+                            setTestError(msg);
+                        }
+                    }
                 }
             } catch (err) {
                 setTestError(err.response?.data?.msg || 'Failed to load test details.');
@@ -417,19 +430,56 @@ const TestTaker = () => {
         setSubmitLoading(true);
         try {
             if (id && id !== 'mock') {
-                const res = await api.post(`/submissions`, {
-                    testId: id,
-                    answers,
-                    securityLog
-                });
+                // Ensure active coding editor content is included
+                const mergedAnswers = { ...answers };
+                if (currentQuestion && currentQuestion.type?.toUpperCase() !== 'MCQ') {
+                    mergedAnswers[currentQuestion._id] = { language, code };
+                }
+
+                const formattedAnswers = Object.entries(mergedAnswers).map(([questionId, answerData]) => ({
+                    questionId,
+                    answerData
+                }));
+
+                let activeSubId = submissionId;
+                if (!activeSubId) {
+                    const startRes = await api.post(`/submissions/${id}/start`);
+                    if (startRes.data.success && startRes.data.data?._id) {
+                        activeSubId = startRes.data.data._id;
+                        setSubmissionId(activeSubId);
+                    }
+                }
+
+                const res = activeSubId
+                    ? await api.post(`/submissions/${id}/submit/${activeSubId}`, {
+                        answers: formattedAnswers,
+                        isAutoSubmitted: auto,
+                        securityLog
+                    })
+                    : await api.post('/submissions', {
+                        testId: id,
+                        answers: formattedAnswers,
+                        isAutoSubmitted: auto,
+                        securityLog
+                    });
+
                 if (res.data.success) {
-                    setSubmissionResult(res.data.data);
+                    setSubmissionResult(res.data.data || { totalMarks: 0 });
+                    if (document.fullscreenElement) {
+                        document.exitFullscreen().catch(() => {});
+                    }
+                } else {
+                    showViolationAlert(res.data.msg || 'Failed to submit exam. Please try again.');
                 }
             } else {
                 setSubmissionResult({ totalMarks: 30, percentile: 95, rank: 2 });
+                if (document.fullscreenElement) {
+                    document.exitFullscreen().catch(() => {});
+                }
             }
         } catch (err) {
             console.error('Final submission error:', err);
+            showViolationAlert(err.response?.data?.msg || 'Submission failed. Please check your connection and try again.');
         } finally {
             setSubmitLoading(false);
         }
