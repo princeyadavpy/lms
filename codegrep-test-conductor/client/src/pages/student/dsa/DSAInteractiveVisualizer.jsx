@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import AlgorithmComplexityVisualizer from './AlgorithmComplexityVisualizer';
 import {
     Play,
     Pause,
@@ -2386,16 +2387,19 @@ export default function DSAInteractiveVisualizer({
     lessonOrder = 1,
     visualizerType
 }) {
-    // 1. Strictly determine which module (1 - 8) we are in
+    // 1. Strictly determine which module (1 - 9) we are in
     const activeModuleNumber = useMemo(() => {
-        if (typeof moduleNumber === 'number' && moduleNumber >= 1 && moduleNumber <= 9) {
-            return moduleNumber;
+        const parsedMod = Number(moduleNumber);
+        if (Number.isInteger(parsedMod) && parsedMod >= 1 && parsedMod <= 9) {
+            return parsedMod;
         }
-        if (currentModule?.orderIndex && currentModule.orderIndex >= 1 && currentModule.orderIndex <= 9) {
-            return currentModule.orderIndex;
+        const parsedOrderIdx = Number(currentModule?.orderIndex);
+        if (Number.isInteger(parsedOrderIdx) && parsedOrderIdx >= 1 && parsedOrderIdx <= 9) {
+            return parsedOrderIdx;
         }
         const mTitle = (currentModule?.title || '').toLowerCase();
-        if (mTitle.includes('algorithm') || mTitle.includes('01')) return 1;
+        const lTitle = (currentLessonDoc?.title || '').toLowerCase();
+        if (mTitle.includes('algorithm') || mTitle.includes('01') || mTitle.includes('foundation') || lTitle.includes('adt') || lTitle.includes('classification') || lTitle.includes('complexity')) return 1;
         if (mTitle.includes('stack') || mTitle.includes('02')) return 2;
         if (mTitle.includes('list') || mTitle.includes('queue') || mTitle.includes('03')) return 3;
         if (mTitle.includes('recursion') || mTitle.includes('04')) return 4;
@@ -2420,7 +2424,7 @@ export default function DSAInteractiveVisualizer({
 
     // 2. Determine active sub-topic within this specific module
     const initialTopicId = useMemo(() => {
-        const order = lessonOrder || 1;
+        const order = Number(lessonOrder) || 1;
         const matchingTopic = currentModuleMeta.topics.find(t => t.order === order);
         return matchingTopic ? matchingTopic.id : currentModuleMeta.topics[0]?.id || 1;
     }, [lessonOrder, currentModuleMeta]);
@@ -2430,7 +2434,7 @@ export default function DSAInteractiveVisualizer({
 
     // Keep sub-topic synced when lessonOrder or module changes
     useEffect(() => {
-        const order = lessonOrder || 1;
+        const order = Number(lessonOrder) || 1;
         const matchingTopic = currentModuleMeta.topics.find(t => t.order === order);
         setSelectedTopicId(matchingTopic ? matchingTopic.id : currentModuleMeta.topics[0]?.id || 1);
     }, [lessonOrder, currentModuleMeta]);
@@ -5032,7 +5036,10 @@ void rabinKarp(char pat[], char txt[]) {
                 </div>
             </div>
 
-            {/* ── TWO-COLUMN SPLIT STUDIO ─────────────────────────────────── */}
+            {/* ── MODULE 1.2 BEGINNER STUDIO OR TWO-COLUMN SPLIT STUDIO ──────── */}
+            {activeModuleNumber === 1 && selectedTopicId === 2 ? (
+                <AlgorithmComplexityVisualizer onLog={addLog} />
+            ) : (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
                 {/* ═════════════════════════════════════════════════════════════
@@ -9547,6 +9554,7 @@ void rabinKarp(char pat[], char txt[]) {
                 </div>
 
             </div>
+            )}
         </div>
     );
 }
